@@ -38,6 +38,7 @@ class Font(object):
     def __init__(self, filename, size):
         self._face = freetype.Face(filename)
         self.set_size(size)
+        self._glyphcache = {}
       
     # @property
     # def size(self):
@@ -48,7 +49,23 @@ class Font(object):
     def set_size(self, size):
         """Set the font's size in pixels."""
         self._face.set_pixel_sizes(size, size)
-        # self.thesize = size        
+        self._glyphcache = {}
+        # self.thesize = size   
+        
+    def _get_glyph(self, c):
+        cached_glyph = self._glyphcache.get(c)
+        # cached_glyph = None
+        if cached_glyph:
+            return cached_glyph            
+        self._face.load_char(c, freetype.FT_LOAD_RENDER | freetype.FT_LOAD_TARGET_MONO)
+        glyph = self._face.glyph
+        bitmap = glyph.bitmap
+        unpacked_bmp = unpack_mono_bitmap(bitmap)        
+        top = glyph.bitmap_top
+        left = glyph.bitmap_left
+        w,h = bitmap.width, bitmap.rows        
+        self._glyphcache[c] = (w, h, top, left, unpacked_bmp)
+        return w, h, top, left, unpacked_bmp
         
     def text_extents(self, text):
         """Return (width, height, baseline) of `text` rendered in the current font."""
@@ -73,23 +90,13 @@ class Font(object):
         x, y = 0, 0
         previous = 0
         for c in text:
-            self._face.load_char(c, freetype.FT_LOAD_RENDER | freetype.FT_LOAD_TARGET_MONO)
-            bitmap = slot.bitmap
-            unpacked_bmp = unpack_mono_bitmap(bitmap)
-            # print bitmap.buffer, 'unpacked:', unpacked_bmp, len(unpacked_bmp)
-            top = slot.bitmap_top
-            left = slot.bitmap_left
-            w,h = bitmap.width, bitmap.rows
+            w, h, top, left, unpacked_bmp = self._get_glyph(c)
             y = height-baseline-top
             kerning = self._face.get_kerning(previous, c)
             x += (kerning.x >> 6)
-            # print 'Glyph "%s" width=%i height=%i blt_x=%i blt_y=%i' % (c, w, h, x, y)
-            # print_bitmap(unpacked_bmp, w, h)
             bitblt(unpacked_bmp, outbuffer, w, h, width, height, x, y)
-            # print_bitmap(Z, width, height)
             x += (slot.advance.x >> 6)
             previous = c
-            # print '\n\n'
         return outbuffer
             
 if __name__ == '__main__':
@@ -100,8 +107,12 @@ if __name__ == '__main__':
     print bitmap2str(f.render(text), width, height)
     
     def benchmark():
-        for i in range(1000):
+        for i in range(100):
             f.render('Hello, World.')
     
     import cProfile
-    cProfile.run('benchmark()')
+    import pstats
+    cProfile.run('benchmark()', 'fontbench.profile')
+    p = pstats.Stats('fontbench.profile')
+    print p.sort_stats('cumulative').print_stats(20)
+    print p.sort_stats('time').print_stats(20)
