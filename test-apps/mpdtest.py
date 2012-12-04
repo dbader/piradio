@@ -1,3 +1,4 @@
+#sudo pip install python-mpd2
 import logging
 import mpd
 import time
