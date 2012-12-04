@@ -54,4 +54,4 @@ def stream(station):
         client.play()
     bottle.redirect('/')
 
-bottle.run()
+bottle.run(host='0.0.0.0', port=80)
