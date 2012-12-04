@@ -54,7 +54,7 @@ class Font(object):
         
     def _get_glyph(self, c):
         cached_glyph = self._glyphcache.get(c)
-        # cached_glyph = None
+        cached_glyph = None
         if cached_glyph:
             return cached_glyph            
         self._face.load_char(c, freetype.FT_LOAD_RENDER | freetype.FT_LOAD_TARGET_MONO)
@@ -64,6 +64,7 @@ class Font(object):
         top = glyph.bitmap_top
         left = glyph.bitmap_left
         w,h = bitmap.width, bitmap.rows        
+        print c,top,left,w,h
         self._glyphcache[c] = (w, h, top, left, unpacked_bmp)
         return w, h, top, left, unpacked_bmp
         
@@ -80,7 +81,7 @@ class Font(object):
             kerning = self._face.get_kerning(previous, c)
             width += (slot.advance.x >> 6) + (kerning.x >> 6)
             previous = c
-        return (width, height, baseline)
+        return (width, height+baseline, baseline)
         
     def render(self, text, width=None, height=None, baseline=None):
         if width is None or height is None or baseline is None:
@@ -92,16 +93,21 @@ class Font(object):
         for c in text:
             w, h, top, left, unpacked_bmp = self._get_glyph(c)
             y = height-baseline-top
+            print height, baseline, top
             kerning = self._face.get_kerning(previous, c)
             x += (kerning.x >> 6)
+            print 'render',c,w,h,x,y
+            # print bitmap2str(unpacked_bmp, w, h)
             bitblt(unpacked_bmp, outbuffer, w, h, width, height, x, y)
+            # print bitmap2str(outbuffer, width, height)
             x += (slot.advance.x >> 6)
             previous = c
         return outbuffer
             
 if __name__ == '__main__':
     f = Font('/Users/daniel/dev/piradio/test-apps/font4.ttf', 16)
-    text = u'Hello'
+    text = u'one, two, three'
+    text = 'T,'
     width, height, baseline = f.text_extents(text)
     print '"%s": width=%i height=%i baseline=%i' % (text, width, height, baseline)
     print bitmap2str(f.render(text), width, height)
@@ -110,9 +116,9 @@ if __name__ == '__main__':
         for i in range(100):
             f.render('Hello, World.')
     
-    import cProfile
-    import pstats
-    cProfile.run('benchmark()', 'fontbench.profile')
-    p = pstats.Stats('fontbench.profile')
-    print p.sort_stats('cumulative').print_stats(20)
-    print p.sort_stats('time').print_stats(20)
+    # import cProfile
+    # import pstats
+    # cProfile.run('benchmark()', 'fontbench.profile')
+    # p = pstats.Stats('fontbench.profile')
+    # print p.sort_stats('cumulative').print_stats(20)
+    # print p.sort_stats('time').print_stats(20)
