@@ -64,7 +64,7 @@ class Font(object):
         top = glyph.bitmap_top
         left = glyph.bitmap_left
         w,h = bitmap.width, bitmap.rows        
-        print c,top,left,w,h
+        # print c,top,left,w,h
         self._glyphcache[c] = (w, h, top, left, unpacked_bmp)
         return w, h, top, left, unpacked_bmp
         
@@ -93,10 +93,10 @@ class Font(object):
         for c in text:
             w, h, top, left, unpacked_bmp = self._get_glyph(c)
             y = height-baseline-top
-            print height, baseline, top
+            # print height, baseline, top
             kerning = self._face.get_kerning(previous, c)
             x += (kerning.x >> 6)
-            print 'render',c,w,h,x,y
+            # print 'render',c,w,h,x,y
             # print bitmap2str(unpacked_bmp, w, h)
             bitblt(unpacked_bmp, outbuffer, w, h, width, height, x, y)
             # print bitmap2str(outbuffer, width, height)
@@ -105,9 +105,9 @@ class Font(object):
         return outbuffer
             
 if __name__ == '__main__':
-    f = Font('/Users/daniel/dev/piradio/test-apps/font4.ttf', 16)
+    f = Font('/Users/daniel/dev/piradio/test-apps/HARDKAZE.ttf', 16)
     text = u'one, two, three'
-    text = 'T,'
+    # text = 'T,'
     width, height, baseline = f.text_extents(text)
     print '"%s": width=%i height=%i baseline=%i' % (text, width, height, baseline)
     print bitmap2str(f.render(text), width, height)
