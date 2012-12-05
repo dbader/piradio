@@ -112,6 +112,7 @@ def client_main():
     r = 0.5
     cx = 0
     cy = 0
+    needs_redraw = True
     while True:        
         while not eventqueue.empty():
             event = eventqueue.get()
@@ -131,24 +132,27 @@ def client_main():
                     cy += 1
                 if event.get('key') == 4:
                     cy = 0
+                needs_redraw = True
                     
+                    
+        if needs_redraw:
+            framebuffer_lock.acquire()        
+            lcd_clear()
         
-        framebuffer_lock.acquire()        
-        lcd_clear()
+            lcd_text(font, 103, 2, str(datetime.datetime.now().strftime('%I:%M')))
+            lcd_hline(11)
+            render_list(14, font, ['Radio', 'Podcasts', 'Settings'], cy)
         
-        lcd_text(font, 103, 2, str(datetime.datetime.now().strftime('%I:%M')))
-        lcd_hline(11)
-        render_list(14, font, ['Radio', 'Podcasts', 'Settings'], cy)
-        
-        # lcd_bitblt([1] * 30 * 50, 30, 50, 10, 10)
-        # lcd_bitblt_op(text_bmp, width, height, cx, cy, op=rop_xor)
+            # lcd_bitblt([1] * 30 * 50, 30, 50, 10, 10)
+            # lcd_bitblt_op(text_bmp, width, height, cx, cy, op=rop_xor)
 
-        # lcd_hline(0)
-        # lcd_hline(LCD_HEIGHT-1)
-        # lcd_vline(0)
-        # lcd_vline(LCD_WIDTH-1)        
-        framebuffer_lock.release()
-        framebuffer_needs_redraw.value = True
+            # lcd_hline(0)
+            # lcd_hline(LCD_HEIGHT-1)
+            # lcd_vline(0)
+            # lcd_vline(LCD_WIDTH-1)        
+            framebuffer_lock.release()
+            framebuffer_needs_redraw.value = True
+            needs_redraw = False
                     
         time.sleep(1.0 / 30.0)
         

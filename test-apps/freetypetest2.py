@@ -69,7 +69,7 @@ def text_render(face, width, height, baseline, text,):
         # print_bitmap(Z, width, height)
         x += (slot.advance.x >> 6)
         previous = c
-        print '\n\n'
+        # print '\n\n'
     return Z
 
 def print_bitmap(bmp, width, height):
@@ -81,7 +81,7 @@ def print_bitmap(bmp, width, height):
 
 if __name__ == '__main__':
     face = freetype.Face('/Users/daniel/dev/piradio/test-apps/font3.ttf')
-    text = u'Hello World!'
+    text = u'one, two, three'
     face.set_char_size( 24*64 )
 
     width, height, baseline = text_extents(face, text)
