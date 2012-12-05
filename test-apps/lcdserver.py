@@ -14,6 +14,7 @@ import freetypetest2 as fnt
 import freetype
 import fontlib
 import datetime
+import audiolib
 
 logging.basicConfig(level=logging.INFO)
 
@@ -122,7 +123,12 @@ def client_main():
                 if event.get('key') == 3:
                     cy += 1
                 if event.get('key') == 4:
-                    cy = 0
+                    audiolib.playstream([
+                        'http://gffstream.ic.llnwd.net/stream/gffstream_w14b',
+                        'http://mp3stream1.apasf.apa.at:8000',
+                        'http://stream.m945.mwn.de:80/m945-hq.mp3'
+                    ][cy], fade=False)
+                    # cy = -1
                 needs_redraw = True
 
         if needs_redraw:
