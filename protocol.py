@@ -2,6 +2,8 @@ import logging
 import binascii
 import struct
 import bitstring
+import bitarray
+import time
 
 # Do nothing.
 CMD_NOP = 0x00
@@ -49,16 +51,13 @@ def write_message(sock, message):
 
 def encode_bitmap(bitmap):
     """Return a bytearray with the encoded bitmap data."""
-    b = bitstring.BitArray(uint=1, length=len(bitmap))
-    for i, v in enumerate(bitmap):
-        b[i] = v
-    # print binascii.hexlify(str(b.bytes))
-    return bytearray(str(b.bytes))
+    return bytearray(bitarray.bitarray(bitmap).tobytes())
 
 def decode_bitmap(bitmap):
     """Return an iterable that contains a 0 for every pixel that is off, and a 1 for every pixel that is on."""
-    b = bitstring.BitStream(bitmap)
-    return b.readlist(str(len(bitmap)*8) + '*bool')
+    b = bitarray.bitarray()
+    b.frombytes(bytes(bitmap))
+    return b.unpack(one=b'\x01')
 
 if __name__ == '__main__':
     p = bytearray()
@@ -68,4 +67,12 @@ if __name__ == '__main__':
     a,b,c = decode_message(msg)
     print a, b, binascii.hexlify(c)
 
-    print decode_bitmap(encode_bitmap([0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0]))
+    inb = bytearray([0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0])
+    print binascii.hexlify(inb)
+    print binascii.hexlify(decode_bitmap(encode_bitmap(inb)))
+
+    s = time.time()
+    for i in range(10000):
+        # 3.66
+        decode_bitmap(encode_bitmap([0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0]))
+    print time.time() - s
