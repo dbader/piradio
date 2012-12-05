@@ -19,12 +19,12 @@ def unpack_mono_bitmap(bitmap):
             row.extend(bits(bitmap.buffer[i*bitmap.pitch+j]))
         data.extend(row[:bitmap.width])
     return data
-    
+
 def bitblt(src, dst, src_w, src_h, dst_w, dst_h, dst_x, dst_y):
     for x in range(src_w):
         for y in range(src_h):
             dst[(dst_y + y) * dst_w + dst_x + x] = src[y * src_w + x]
-            
+
 def bitmap2str(bmp, width, height, filled_char= '#', empty_char=' '):
     bstr = ''
     for i in range(height):
@@ -39,35 +39,35 @@ class Font(object):
         self._face = freetype.Face(filename)
         self.set_size(size)
         self._glyphcache = {}
-      
+
     # @property
     # def size(self):
     #     """The font's size in pixels."""
     #     return self.thesize
-       
-    # @size.setter 
+
+    # @size.setter
     def set_size(self, size):
         """Set the font's size in pixels."""
-        self._face.set_pixel_sizes(size, size)
+        self._face.set_pixel_sizes(0, size)
         self._glyphcache = {}
-        # self.thesize = size   
-        
+        # self.thesize = size
+
     def _get_glyph(self, c):
         cached_glyph = self._glyphcache.get(c)
-        cached_glyph = None
         if cached_glyph:
-            return cached_glyph            
+            return cached_glyph
+        print 'caching glyph "%s"' % c
         self._face.load_char(c, freetype.FT_LOAD_RENDER | freetype.FT_LOAD_TARGET_MONO)
         glyph = self._face.glyph
         bitmap = glyph.bitmap
-        unpacked_bmp = unpack_mono_bitmap(bitmap)        
+        unpacked_bmp = unpack_mono_bitmap(bitmap)
         top = glyph.bitmap_top
         left = glyph.bitmap_left
-        w,h = bitmap.width, bitmap.rows        
-        # print c,top,left,w,h
-        self._glyphcache[c] = (w, h, top, left, unpacked_bmp)
-        return w, h, top, left, unpacked_bmp
-        
+        w,h = bitmap.width, bitmap.rows
+        advance_x = (glyph.advance.x >> 6)
+        self._glyphcache[c] = (w, h, top, left, unpacked_bmp, advance_x)
+        return w, h, top, left, unpacked_bmp, advance_x
+
     def text_extents(self, text):
         """Return (width, height, baseline) of `text` rendered in the current font."""
         slot = self._face.glyph
@@ -82,7 +82,7 @@ class Font(object):
             width += (slot.advance.x >> 6) + (kerning.x >> 6)
             previous = c
         return (width, height+baseline, baseline)
-        
+
     def render(self, text, width=None, height=None, baseline=None):
         if width is None or height is None or baseline is None:
             width, height, baseline = self.text_extents(text)
@@ -91,7 +91,7 @@ class Font(object):
         x, y = 0, 0
         previous = 0
         for c in text:
-            w, h, top, left, unpacked_bmp = self._get_glyph(c)
+            w, h, top, left, unpacked_bmp, advance_x = self._get_glyph(c)
             y = height-baseline-top
             # print height, baseline, top
             kerning = self._face.get_kerning(previous, c)
@@ -100,22 +100,22 @@ class Font(object):
             # print bitmap2str(unpacked_bmp, w, h)
             bitblt(unpacked_bmp, outbuffer, w, h, width, height, x, y)
             # print bitmap2str(outbuffer, width, height)
-            x += (slot.advance.x >> 6)
+            x += advance_x
             previous = c
         return outbuffer
-            
+
 if __name__ == '__main__':
-    f = Font('/Users/daniel/dev/piradio/test-apps/HARDKAZE.ttf', 16)
+    f = Font('/Users/daniel/dev/piradio/test-apps/font4.ttf', 16)
     text = u'one, two, three'
     # text = 'T,'
     width, height, baseline = f.text_extents(text)
     print '"%s": width=%i height=%i baseline=%i' % (text, width, height, baseline)
     print bitmap2str(f.render(text), width, height)
-    
+
     def benchmark():
         for i in range(100):
             f.render('Hello, World.')
-    
+
     # import cProfile
     # import pstats
     # cProfile.run('benchmark()', 'fontbench.profile')
