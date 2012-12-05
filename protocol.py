@@ -1,46 +1,52 @@
-import ctypes
+import logging
+import binascii
+import struct
 
+# Do nothing.
 CMD_NOP = 0x00
+
+# Update the LCD.
 CMD_BITBLT = 0x01
+
+# A key was pressed or released. Notify client of the new key states.
 CMD_KEYSTATE = 0x02
 
-class MessageHeader(ctypes.Structure):
-    _pack_ = True
-    _fields_ = [("message_length", ctypes.c_uint16),
-                ("command", ctypes.c_uint8)]
+# Each network message has a header that encodes the length of the message
+# (header + payload) and a command byte.
+MessageHeader = struct.Struct('!HB')
 
 def encode_message(command, payload):
-    header = MessageHeader()
-    header.message_length = ctypes.sizeof(header) + ctypes.sizeof(payload)
-    header.command = command
-    return buffer(header) + buffer(payload)
+    msg = bytearray()
+    msg.extend(MessageHeader.pack(MessageHeader.size + len(payload), command))
+    msg.extend(payload)
+    return msg
 
 def decode_message(message):
-    header = MessageHeader.from_buffer(message)
-    # ctypes.memmove(ctypes.addressof(header), message, ctypes.sizeof(header))
-    payload = (ctypes.c_uint8 * (header.message_length - ctypes.sizeof(header))).from_buffer(message[ctypes.sizeof(header):])
-    # ctypes.memmove(ctypes.addressof(payload), message[ctypes.sizeof(header):], ctypes.sizeof(payload))
-    return header.message_length, header.command, payload
+    length, command = MessageHeader.unpack_from(str(message), 0)
+    payload = message[MessageHeader.size:]
+    return length, command, payload
 
-def encode_bitmap(bitmap):
-    buf = (ctypes.c_uint8 * len(bitmap))()
-    for i, v in enumerate(bitmap):
-        buf[i] = ctypes.c_uint8(bitmap[i])
-    print buf
-    return buf
+def read_message(sock):
+    message = bytearray()
+    message.extend(sock.recv(MessageHeader.size))
+    length, command = MessageHeader.unpack(str(message))
+    logging.debug('Getting message of length %i (command=0x%x)', length, command)
+    remaining = length - MessageHeader.size
+    while remaining > 0:
+        logging.debug('Still need %i remaining bytes', remaining)
+        chunk = sock.recv(remaining)
+        message.extend(chunk)
+        remaining -= len(chunk)
+    return message
+
+def write_message(sock, message):
+    logging.debug('Sending message %s', binascii.hexlify(message))
+    sock.sendall(message)
 
 if __name__ == '__main__':
-    import binascii
-    p = (ctypes.c_uint8 * 4)()
-    p[0] = 0xDE
-    p[1] = 0xAD
-    p[2] = 0xBE
-    p[3] = 0xEF
-    msg = encode_message(ctypes.c_uint8(0x01), p)
+    p = bytearray()
+    p.extend([0xDE, 0xAD, 0xBE, 0xEF])
+    msg = encode_message(0x01, p)
     print binascii.hexlify(msg)
-
-    print binascii.hexlify(bytearray(msg))
-    a,b,c = decode_message(bytearray(msg))
-    print a, b
-    for v in range(ctypes.sizeof(c)):
-        print c[v]
+    a,b,c = decode_message(msg)
+    print a, b, binascii.hexlify(c)

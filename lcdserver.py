@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import binascii
 import socket
 import time
 import logging
@@ -7,7 +8,7 @@ import random
 import time
 import protocol
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 
 serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 serversocket.bind(('localhost', 7998))
@@ -17,15 +18,13 @@ serversocket.listen(1)
 print clientsocket, address
 # print protocol.decode_message(clientsocket.recv(1024))
 
-message = bytearray()
-message.extend(clientsocket.recv(1))
-remaining = message[0] - 1
-while remaining > 0:
-    chunk = clientsocket.recv(remaining)
-    message.extend(chunk)
-    remaining -= len(chunk)
+message = protocol.read_message(clientsocket)
 
-print protocol.decode_message(message)
+print 'got message', binascii.hexlify(message)
+l, c, p = protocol.decode_message(message)
+
+msg = protocol.encode_message(0x00, bytearray(str(p).upper()))
+protocol.write_message(clientsocket, msg)
 
 clientsocket.close()
 serversocket.close()

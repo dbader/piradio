@@ -1,6 +1,10 @@
+import binascii
 import socket
 import sys
 import protocol
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
 
 HOST, PORT = "localhost", 7998
 data = " ".join(sys.argv[1:])
@@ -11,12 +15,11 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 try:
     # Connect to server and send data
     sock.connect((HOST, PORT))
-    sock.sendall(protocol.encode_message(protocol.CMD_BITBLT, protocol.encode_bitmap([0] * 10)))
+    msg = protocol.encode_message(protocol.CMD_BITBLT, bytearray('asdf'))
+    protocol.write_message(sock, msg)
 
     # Receive data from the server and shut down
-    received = sock.recv(1024)
+    received = protocol.read_message(sock)
+    print protocol.decode_message(received)
 finally:
     sock.close()
-
-print "Sent:     {}".format(data)
-print "Received: {}".format(received)
