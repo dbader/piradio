@@ -1,6 +1,7 @@
 import logging
 import binascii
 import struct
+import bitstring
 
 # Do nothing.
 CMD_NOP = 0x00
@@ -46,6 +47,19 @@ def write_message(sock, message):
     logging.debug('Sending message %s', binascii.hexlify(message)[:20])
     sock.sendall(message)
 
+def encode_bitmap(bitmap):
+    """Return a bytearray with the encoded bitmap data."""
+    b = bitstring.BitArray(uint=1, length=len(bitmap))
+    for i, v in enumerate(bitmap):
+        b[i] = v
+    # print binascii.hexlify(str(b.bytes))
+    return bytearray(str(b.bytes))
+
+def decode_bitmap(bitmap):
+    """Return an iterable that contains a 0 for every pixel that is off, and a 1 for every pixel that is on."""
+    b = bitstring.BitStream(bitmap)
+    return b.readlist(str(len(bitmap)*8) + '*bool')
+
 if __name__ == '__main__':
     p = bytearray()
     p.extend([0xDE, 0xAD, 0xBE, 0xEF])
@@ -53,3 +67,5 @@ if __name__ == '__main__':
     print binascii.hexlify(msg)
     a,b,c = decode_message(msg)
     print a, b, binascii.hexlify(c)
+
+    print decode_bitmap(encode_bitmap([0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0]))

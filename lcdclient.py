@@ -71,7 +71,7 @@ def lcd_bitblt_op(src, src_w, src_h, x, y, op=rop_replace):
                 framebuffer[fb_index] = op(framebuffer[fb_index], src[sy * src_w + sx])
 
 def lcd_update():
-    message = protocol.encode_message(protocol.CMD_BITBLT, bytearray(framebuffer))
+    message = protocol.encode_message(protocol.CMD_BITBLT, protocol.encode_bitmap(framebuffer))
     protocol.write_message(sock, message)
 
 def render_list(top, font, items, selected_index=-1):

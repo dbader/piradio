@@ -26,14 +26,12 @@ def handle_client(clientsocket):
             print 'got message', binascii.hexlify(message[:20])
             l, c, p = protocol.decode_message(message)
             command_queue.put((c, p))
-            msg = protocol.encode_message(0x00, bytearray(str(p).upper()))
-            protocol.write_message(clientsocket, msg)
     finally:
         clientsocket.close()
         logging.info('Client disconnected')
         csock = None
 
-def server_mainloop():
+def server_netloop():
     serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     serversocket.bind(('0.0.0.0', 7998))
     serversocket.listen(1)
@@ -69,10 +67,10 @@ def server_main():
             command, payload = command_queue.get()
             print 'got cmd', command
             if command == protocol.CMD_BITBLT:
-                fakelcd.update(payload)
+                fakelcd.update(protocol.decode_bitmap(payload))
 
         time.sleep(1.0 / 60.0)
 
-network_thread = threading.Thread(target=server_mainloop)
+network_thread = threading.Thread(target=server_netloop)
 network_thread.start()
 server_main()
