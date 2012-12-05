@@ -15,11 +15,12 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 try:
     # Connect to server and send data
     sock.connect((HOST, PORT))
-    msg = protocol.encode_message(protocol.CMD_BITBLT, bytearray('asdf'))
+    msg = protocol.encode_message(protocol.CMD_BITBLT, bytearray([0] * (128 * 64)))
     protocol.write_message(sock, msg)
 
     # Receive data from the server and shut down
-    received = protocol.read_message(sock)
-    print protocol.decode_message(received)
+    while True:
+        received = protocol.read_message(sock)
+        print protocol.decode_message(received)
 finally:
     sock.close()

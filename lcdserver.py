@@ -7,27 +7,44 @@ import fakelcd
 import random
 import time
 import protocol
+import threading
+import Queue
 
+
+command_queue = Queue.Queue()
+csock = None
 logging.basicConfig(level=logging.DEBUG)
 
-serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-serversocket.bind(('localhost', 7998))
-serversocket.listen(1)
+def handle_client(clientsocket):
+    global csock
+    csock = clientsocket
+    try:
+        while True:
+            message = protocol.read_message(clientsocket)
+            if not message:
+                break
+            print 'got message', binascii.hexlify(message[:20])
+            l, c, p = protocol.decode_message(message)
+            command_queue.put((c, p))
+            msg = protocol.encode_message(0x00, bytearray(str(p).upper()))
+            protocol.write_message(clientsocket, msg)
+    finally:
+        clientsocket.close()
+        logging.info('Client disconnected')
+        csock = None
 
-(clientsocket, address) = serversocket.accept()
-print clientsocket, address
-# print protocol.decode_message(clientsocket.recv(1024))
+def server_mainloop():
+    serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    serversocket.bind(('0.0.0.0', 7998))
+    serversocket.listen(1)
 
-message = protocol.read_message(clientsocket)
-
-print 'got message', binascii.hexlify(message)
-l, c, p = protocol.decode_message(message)
-
-msg = protocol.encode_message(0x00, bytearray(str(p).upper()))
-protocol.write_message(clientsocket, msg)
-
-clientsocket.close()
-serversocket.close()
+    try:
+        while True:
+            (clientsocket, address) = serversocket.accept()
+            logging.info('Client connected from %s', address)
+            handle_client(clientsocket)
+    finally:
+        serversocket.close()
 
 def server_main():
     """
@@ -43,17 +60,19 @@ def server_main():
         fakelcd.pollkeys()
         for index, key in enumerate(ALL_KEYS):
             keystates[index] = fakelcd.keydown(key)
-            if keystates[index] and not prev_keystates[index]:
-                eventqueue.put({'name':'key.down', 'key': index})
-            elif prev_keystates[index] and not keystates[index]:
-                eventqueue.put({'name':'key.up', 'key': index})
+        if keystates != prev_keystates and csock:
+            message = protocol.encode_message(protocol.CMD_KEYSTATE, bytearray(keystates))
+            protocol.write_message(csock, message)
         prev_keystates = list(keystates)
 
-        # if framebuffer_needs_redraw.value:
-        #     logging.info('redrawing display')
-        #     framebuffer_lock.acquire()
-        #     fakelcd.update(framebuffer)
-        #     framebuffer_lock.release()
-        #     framebuffer_needs_redraw.value = False
+        if not command_queue.empty():
+            command, payload = command_queue.get()
+            print 'got cmd', command
+            if command == protocol.CMD_BITBLT:
+                fakelcd.update(payload)
 
         time.sleep(1.0 / 60.0)
+
+network_thread = threading.Thread(target=server_mainloop)
+network_thread.start()
+server_main()

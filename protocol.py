@@ -28,7 +28,10 @@ def decode_message(message):
 
 def read_message(sock):
     message = bytearray()
-    message.extend(sock.recv(MessageHeader.size))
+    header = sock.recv(MessageHeader.size)
+    if not header:
+        return None
+    message.extend(header)
     length, command = MessageHeader.unpack(str(message))
     logging.debug('Getting message of length %i (command=0x%x)', length, command)
     remaining = length - MessageHeader.size
@@ -40,7 +43,7 @@ def read_message(sock):
     return message
 
 def write_message(sock, message):
-    logging.debug('Sending message %s', binascii.hexlify(message))
+    logging.debug('Sending message %s', binascii.hexlify(message)[:20])
     sock.sendall(message)
 
 if __name__ == '__main__':
