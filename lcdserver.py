@@ -12,8 +12,10 @@ import threading
 import Queue
 
 import protocol
-import fakelcd as lcd
-# import lcd
+# import fakelcd as lcd
+import lcd
+
+LCD_SLEEPTIME = 60 * 5
 
 HOST = '0.0.0.0'
 PORT = 7998
@@ -61,7 +63,7 @@ def shouldsleep():
 
 def resetsleep():
     global sleeptime
-    sleeptime = time.time() + 10
+    sleeptime = time.time() + LCD_SLEEPTIME
     logging.debug('Sleeptime set to %f', sleeptime)
 
 def sleep():
