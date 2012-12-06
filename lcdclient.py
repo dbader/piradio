@@ -7,7 +7,9 @@ import Queue
 import protocol
 import threading
 import socket
+import os
 
+FONT_PATH = os.path.join(os.getcwd(), 'test-apps/font4.ttf')
 LCD_WIDTH, LCD_HEIGHT = 128, 64
 sock = None
 eventqueue = Queue.Queue()
@@ -71,7 +73,7 @@ def lcd_bitblt_op(src, src_w, src_h, x, y, op=rop_replace):
                 framebuffer[fb_index] = op(framebuffer[fb_index], src[sy * src_w + sx])
 
 def lcd_update():
-    message = protocol.encode_message(protocol.CMD_BITBLT, protocol.encode_bitmap(framebuffer))
+    message = protocol.encode_message(protocol.CMD_DRAW, protocol.encode_bitmap(framebuffer))
     protocol.write_message(sock, message)
 
 def render_list(top, font, items, selected_index=-1):
@@ -91,7 +93,7 @@ def client_main():
     logger = logging.getLogger('client')
     logger.info('starting up')
 
-    font = fontlib.Font('/Users/daniel/dev/piradio/test-apps/font4.ttf', 8)
+    font = fontlib.Font(FONT_PATH, 8)
 
     r = 0.5
     cx = 0

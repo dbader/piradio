@@ -1,7 +1,6 @@
 import logging
 import binascii
 import struct
-import bitstring
 import bitarray
 import time
 
@@ -9,14 +8,23 @@ import time
 CMD_NOP = 0x00
 
 # Update the LCD.
-CMD_BITBLT = 0x01
+CMD_DRAW = 0x01
 
 # A key was pressed or released. Notify client of the new key states.
 CMD_KEYSTATE = 0x02
 
+KEY_LEFT = 0
+KEY_RIGHT = 1
+KEY_UP = 2
+KEY_DOWN = 3
+KEY_CENTER = 4
+
 # Each network message has a header that encodes the length of the message
 # (header + payload) and a command byte.
 MessageHeader = struct.Struct('!HB')
+
+def hexstring(buffer):
+    return binascii.hexlify(buffer)
 
 def encode_message(command, payload):
     msg = bytearray()
@@ -36,7 +44,7 @@ def read_message(sock):
         return None
     message.extend(header)
     length, command = MessageHeader.unpack(str(message))
-    logging.debug('Getting message of length %i (command=0x%x)', length, command)
+    logging.debug('Getting message of length %i (command=0x%.2x)', length, command)
     remaining = length - MessageHeader.size
     while remaining > 0:
         logging.debug('Still need %i remaining bytes', remaining)
@@ -46,7 +54,7 @@ def read_message(sock):
     return message
 
 def write_message(sock, message):
-    logging.debug('Sending message %s', binascii.hexlify(message)[:20])
+    logging.debug('Sending message %s', hexstring(message[:32]))
     sock.sendall(message)
 
 def encode_bitmap(bitmap):
@@ -63,21 +71,20 @@ if __name__ == '__main__':
     p = bytearray()
     p.extend([0xDE, 0xAD, 0xBE, 0xEF])
     msg = encode_message(0x01, p)
-    print binascii.hexlify(msg)
+    print hexstring(msg)
     a,b,c = decode_message(msg)
-    print a, b, binascii.hexlify(c)
+    print a, b, hexstring(c)
 
     inb = [0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0]
-    # print binascii.hexlify(inb)
     outb = decode_bitmap(encode_bitmap(inb))
     print [str(x) for x in inb]
     print [str(x) for x in outb]
     if outb[0]:
         print 'aaa'
-    print binascii.hexlify(outb)
+    print hexstring(outb)
 
     s = time.time()
     for i in range(10000):
         # 3.66
         decode_bitmap(encode_bitmap([0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0]))
-    print time.time() - s
+    print 'benchmark:', time.time() - s

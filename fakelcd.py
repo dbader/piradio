@@ -12,24 +12,16 @@ LCD_COLOR_BG = (148, 175, 204)
 LCD_COLOR_FG = (32, 32, 32)
 BACKGROUND_IMAGE = os.path.join(os.getcwd(), 'test-apps/simulator-frontplate.png')
 
-KEY_CENTER = pygame.K_RETURN
-KEY_LEFT = pygame.K_LEFT
-KEY_RIGHT = pygame.K_RIGHT
-KEY_UP = pygame.K_UP
-KEY_DOWN = pygame.K_DOWN
-
-should_quit = False
+keymap = [
+    pygame.K_LEFT,
+    pygame.K_RIGHT,
+    pygame.K_UP,
+    pygame.K_DOWN,
+    pygame.K_RETURN,
+]
 
 lcd = None
 screen = None
-pressed_keys = None
-
-def update(pixels):
-    for y in range(LCD_HEIGHT):
-        for x in range(LCD_WIDTH):
-            lcd.set_at((x, y), LCD_COLOR_FG if pixels[y*LCD_WIDTH+x] else LCD_COLOR_BG)
-    screen.blit(lcd, (42, 76))
-    pygame.display.flip()
 
 def init():
     global lcd
@@ -45,28 +37,26 @@ def init():
     screen.blit(lcd, (42, 76))
     pygame.display.flip()
 
-def pollkeys():
-    global should_quit
-    global pressed_keys
+def update(pixels):
+    for y in range(LCD_HEIGHT):
+        for x in range(LCD_WIDTH):
+            lcd.set_at((x, y), LCD_COLOR_FG if pixels[y*LCD_WIDTH+x] else LCD_COLOR_BG)
+    screen.blit(lcd, (42, 76))
+    pygame.display.flip()
 
+def readkeys():
     for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            logger.info('Shutdown requested')
-            should_quit = True
-
+        pass
     pressed_keys = pygame.key.get_pressed()
-
-    if pressed_keys[pygame.K_ESCAPE]:
-        logger.info('Shutdown requested')
-        should_quit = True
-
-def keydown(key):
-    return pressed_keys[key]
+    keys = [0] * len(keymap)
+    for i, k in enumerate(keymap):
+        if pressed_keys[k]:
+            keys[i] = True
+    return keys
 
 if __name__ == '__main__':
     import time
     init()
     update([0] * LCD_WIDTH * LCD_HEIGHT)
-    while not should_quit:
-        pollkeys()
+    while not True in readkeys():
         time.sleep(0.01)
