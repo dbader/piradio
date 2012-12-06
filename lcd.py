@@ -38,3 +38,10 @@ def update(pixels):
 
 #raspilcd.SetBacklight(32)
 #raspilcd.LCD_SetContrast(18)
+
+if __name__ == '__main__':
+    init()
+    while not True in readkeys():
+        update([0] * (LCD_WIDTH * LCD_HEIGHT))
+        time.sleep(1.0/60.0)
+        update([1] * (LCD_WIDTH * LCD_HEIGHT))
