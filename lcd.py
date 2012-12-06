@@ -5,18 +5,19 @@ LCD_WIDTH, LCD_HEIGHT = 128, 64
 raspi_lcd = ctypes.cdll.LoadLibrary("./lcd.so")
 
 should_quit = False
-KEY_CENTER = 4
-KEY_LEFT = 0
-KEY_RIGHT = 1
-KEY_UP = 2
-KEY_DOWN = 3
+KEY_CENTER = 0x04
+KEY_LEFT = 0x02
+KEY_RIGHT = 0x08
+KEY_UP = 0x01
+KEY_DOWN = 0x10
 
+buttons = ctypes.c_uint8.in_dll(raspi_lcd, "Button")
 
 def pollkeys():
-    pass
+    raspi_lcd.UpdateButtons()
 
 def keydown(key):
-    return False
+    return bool(self.buttons.value & key)
 
 def init():
     raspi_lcd.RaspiLcdHwInit()
@@ -27,8 +28,6 @@ def init():
 #raspi_lcd.SetBacklight(32)
 #raspi_lcd.LCD_SetContrast(18)
 
-# raspi_lcd.UpdateButtons()
-# buttons = ctypes.c_uint8.in_dll(raspi_lcd, "Button")
 # pressed_buttons = ctypes.c_uint8.in_dll(raspi_lcd, "ButtonPressed")
 
     raspi_lcd.LCD_SetPenColor(1)
