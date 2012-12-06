@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import freetype
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
 def bits(x):
     """Unpack the bits of am 8bit word into a list."""
@@ -36,6 +38,7 @@ def bitmap2str(bmp, width, height, filled_char= '#', empty_char=' '):
 
 class Font(object):
     def __init__(self, filename, size):
+        logging.info('Loading font %s, size %ipx', filename, size)
         self._face = freetype.Face(filename)
         self.set_size(size)
         self._glyphcache = {}
@@ -56,7 +59,7 @@ class Font(object):
         cached_glyph = self._glyphcache.get(c)
         if cached_glyph:
             return cached_glyph
-        print 'caching glyph "%s"' % c
+        logging.debug('Caching glyph "%s"' % c)
         self._face.load_char(c, freetype.FT_LOAD_RENDER | freetype.FT_LOAD_TARGET_MONO)
         glyph = self._face.glyph
         bitmap = glyph.bitmap

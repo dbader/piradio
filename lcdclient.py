@@ -92,7 +92,6 @@ def render_list(top, font, items, selected_index=-1):
 def client_main():
     logger = logging.getLogger('client')
     logger.info('starting up')
-
     font = fontlib.Font(FONT_PATH, 8)
 
     r = 0.5
