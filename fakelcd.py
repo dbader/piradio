@@ -23,7 +23,7 @@ keymap = [
 lcd = None
 screen = None
 
-def init():
+def init(debug=False):
     global lcd
     global screen
     background = pygame.image.load(BACKGROUND_IMAGE)
@@ -53,6 +53,20 @@ def readkeys():
         if pressed_keys[k]:
             keys[i] = True
     return keys
+
+def set_contrast(c):
+    logging.debug('Setting contrast to %.2f', c)
+    LCD_COLOR_FG[0] = 127 - 158 * c
+    LCD_COLOR_FG[1] = 127 - 158 * c
+    LCD_COLOR_FG[2] = 127 - 158 * c
+
+def set_backlight_enabled(enabled):
+    logging.debug('Setting backlight to %s', 'on' if enabled else 'off')
+    if enabled:
+        LCD_COLOR_BG = (148, 175, 204)
+    else:
+        LCD_COLOR_BG = (20, 40, 20)
+
 
 if __name__ == '__main__':
     import time

@@ -12,8 +12,8 @@ import threading
 import Queue
 
 import protocol
-# import fakelcd as lcd
-import lcd
+import fakelcd as lcd
+# import lcd
 
 HOST = '0.0.0.0'
 PORT = 7998
