@@ -4,11 +4,16 @@ import mpd
 import time
 
 logging.basicConfig(level=logging.DEBUG)
-client = None
+
+client = mpd.MPDClient(use_unicode=True)
+client.connect("localhost", 6600)
 
 def printsong():
+    logging.info('Current song: %s', currentsong())
+
+def currentsong():
     currsong = client.currentsong()
-    print '%s - %s' % (currsong.get('name'), currsong.get('title'))
+    return u'%s - %s' % (currsong.get('name'), currsong.get('title'))
 
 def currvolume():
     return int(client.status()['volume'])
@@ -53,14 +58,13 @@ def nextsong():
     printsong()
     fade_in()
 
-def playstream(url, fade=True):
-    global client
-    client = mpd.MPDClient(use_unicode=True)
-    client.connect("localhost", 6600)
+def stop():
+    client.stop()
 
+def playstream(url, fade=True):
     if fade:
         fade_out()
-    print 'Playing stream', url
+    logging.info('Playing stream %s', url)
     client.setvol(100)
     client.clear()
     client.add(url)
@@ -70,6 +74,6 @@ def playstream(url, fade=True):
         printsong()
         fade_in()
 
-    client.close()
-    client.disconnect()
-    client = None
+    # client.close()
+    # client.disconnect()
+    # client = None

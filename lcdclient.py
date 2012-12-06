@@ -9,6 +9,7 @@ import threading
 import socket
 import os
 import graphics
+import json
 
 FONT_PATH = os.path.join(os.getcwd(), 'test-apps/font4.ttf')
 
@@ -21,44 +22,45 @@ def lcd_update():
 
 def client_main():
     logger = logging.getLogger('client')
-    logger.info('starting up')
+    logger.info('Starting up')
     font = fontlib.Font(FONT_PATH, 8)
-
-    r = 0.5
-    cx = 0
+    stations = json.loads(open('stations.json').read())
     cy = 0
     needs_redraw = True
+    currstation = ''
+    prev_timestr = ''
     while True:
         while not eventqueue.empty():
             event = eventqueue.get()
-            logger.info('got event: %s', event)
-            if event == 'quit':
-                return
+            logger.info('Got event: %s', event)
             if event.get('name') == 'key.down':
-                if event.get('key') == 0:
-                    r += 0.05
-                    cx -= 1
-                if event.get('key') == 1:
-                    r -= 0.05
-                    cx += 1
-                if event.get('key') == 2:
+                if event.get('key') == protocol.KEY_UP:
                     cy -= 1
-                if event.get('key') == 3:
+                if event.get('key') == protocol.KEY_DOWN:
                     cy += 1
-                if event.get('key') == 4:
-                    audiolib.playstream([
-                        'http://gffstream.ic.llnwd.net/stream/gffstream_w14b',
-                        'http://mp3stream1.apasf.apa.at:8000',
-                        'http://stream.m945.mwn.de:80/m945-hq.mp3'
-                    ][cy], fade=False)
-                    # cy = -1
+                if event.get('key') == protocol.KEY_CENTER:
+                    if currstation == stations.keys()[cy]:
+                        logging.debug('Stopping playback')
+                        audiolib.stop()
+                        currstation = ''
+                    else:
+                        logging.debug('Switching station')
+                        audiolib.playstream(stations.values()[cy], fade=False)
+                        currstation = stations.keys()[cy]
                 needs_redraw = True
+
+        timestr = str(datetime.datetime.now().strftime('%H:%M'))
+        if timestr != prev_timestr:
+            prev_timestr = timestr
+            logging.debug('Redrawing clock')
+            needs_redraw = True
 
         if needs_redraw:
             graphics.clear()
-            graphics.text(font, 100, 2, str(datetime.datetime.now().strftime('%II:%MM')))
+            graphics.text(font, 100, 2, timestr)
+            graphics.text(font, 2, 2, currstation)
             graphics.hline(11)
-            graphics.render_list(14, font, ['Radio', 'Podcasts', 'Settings'], cy)
+            graphics.render_list(2, 14, font, stations.keys(), cy, minheight=12)
             lcd_update()
             needs_redraw = False
 
@@ -75,9 +77,8 @@ def client_netloop():
             received = protocol.read_message(sock)
             l, c, p = protocol.decode_message(received)
             if c == protocol.CMD_KEYSTATE:
-                print 'got keystate'
+                logging.debug('Got keystate')
                 for i in range(len(p)):
-                    print i, p[i]
                     if p[i]:
                         eventqueue.put({'name': 'key.down', 'key': i})
     finally:

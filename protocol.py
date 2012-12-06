@@ -59,7 +59,7 @@ def write_message(sock, message):
 
 def encode_bitmap(bitmap):
     """Return a bytearray with the encoded bitmap data."""
-    return bytearray(bitarray.bitarray(bitmap).tobytes())
+    return bitarray.bitarray(bitmap).tobytes()
 
 def decode_bitmap(bitmap):
     """Return an iterable that contains a 0 for every pixel that is off, and a 1 for every pixel that is on."""
