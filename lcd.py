@@ -2,7 +2,7 @@ import ctypes
 import time
 
 LCD_WIDTH, LCD_HEIGHT = 128, 64
-raspilcd = ctypes.cdll.LoadLibrary("./raspilcd.so")
+raspilcd = ctypes.cdll.LoadLibrary("./libraspilcd.so")
 buttons = ctypes.c_uint8.in_dll(raspilcd, "Button")
 
 KEY_CENTER = 0x04
@@ -23,10 +23,10 @@ def init():
 
 def readkeys():
     raspilcd.UpdateButtons()
-    return [_keydown(k) for k in keys]
+    return [_keydown(k) for k in _KEYS]
 
 def _keydown(key):
-    return bool(self.buttons.value & key)
+    return bool(buttons.value & key)
 
 def update(pixels):
     raspilcd.LCD_ClearScreen()
@@ -41,7 +41,9 @@ def update(pixels):
 
 if __name__ == '__main__':
     init()
+    t = 1.0 / 8.0
     while not True in readkeys():
         update([0] * (LCD_WIDTH * LCD_HEIGHT))
-        time.sleep(1.0/60.0)
+        time.sleep(t)
         update([1] * (LCD_WIDTH * LCD_HEIGHT))
+	time.sleep(t)
