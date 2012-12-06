@@ -22,6 +22,7 @@ keymap = [
 
 lcd = None
 screen = None
+framebuffer = [0] * (LCD_WIDTH * LCD_HEIGHT)
 
 def init(debug=False):
     global lcd
@@ -43,6 +44,8 @@ def update(pixels):
             lcd.set_at((x, y), LCD_COLOR_FG if pixels[y*LCD_WIDTH+x] else LCD_COLOR_BG)
     screen.blit(lcd, (42, 76))
     pygame.display.flip()
+    global framebuffer
+    framebuffer = pixels
 
 def readkeys():
     for event in pygame.event.get():
@@ -62,10 +65,12 @@ def set_contrast(c):
 
 def set_backlight_enabled(enabled):
     logging.debug('Setting backlight to %s', 'on' if enabled else 'off')
+    global LCD_COLOR_BG
     if enabled:
         LCD_COLOR_BG = (148, 175, 204)
     else:
-        LCD_COLOR_BG = (20, 40, 20)
+        LCD_COLOR_BG = (80, 120, 80)
+    update(framebuffer)
 
 
 if __name__ == '__main__':

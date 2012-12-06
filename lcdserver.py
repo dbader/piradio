@@ -53,6 +53,29 @@ def server_netloop():
         serversocket.close()
     logging.info('Exiting network thread mainloop')
 
+sleeptime = None
+sleeping = False
+
+def shouldsleep():
+    return time.time() > sleeptime
+
+def resetsleep():
+    global sleeptime
+    sleeptime = time.time() + 10
+    logging.debug('Sleeptime set to %f', sleeptime)
+
+def sleep():
+    logging.info('Going to sleep')
+    lcd.set_backlight_enabled(False)
+    global sleeping
+    sleeping = True
+
+def wakeup():
+    logging.info('Waking up')
+    lcd.set_backlight_enabled(True)
+    global sleeping
+    sleeping = False
+
 def server_main():
     """Read input and update the display at a fixed frame rate."""
     logger = logging.getLogger('server')
@@ -61,11 +84,19 @@ def server_main():
     lcd.set_backlight_enabled(True)
     keystates = None
     prev_keystates = None
+    resetsleep()
     while True:
+        if not sleeping and shouldsleep():
+            sleep()
+        elif sleeping and not shouldsleep():
+            wakeup()
+            resetsleep()
+
         while not csock:
             time.sleep(0.25)
         keystates = lcd.readkeys()
         if keystates != prev_keystates:
+            resetsleep()
             logging.debug('Sending keystates %s', keystates)
             message = protocol.encode_message(protocol.CMD_KEYSTATE, bytearray(keystates))
             protocol.write_message(csock, message)
