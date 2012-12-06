@@ -57,7 +57,7 @@ def decode_bitmap(bitmap):
     """Return an iterable that contains a 0 for every pixel that is off, and a 1 for every pixel that is on."""
     b = bitarray.bitarray()
     b.frombytes(bytes(bitmap))
-    return b.unpack(one=b'\x01')
+    return bytearray(b.unpack(one='\x01'))
 
 if __name__ == '__main__':
     p = bytearray()
@@ -67,9 +67,14 @@ if __name__ == '__main__':
     a,b,c = decode_message(msg)
     print a, b, binascii.hexlify(c)
 
-    inb = bytearray([0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0])
-    print binascii.hexlify(inb)
-    print binascii.hexlify(decode_bitmap(encode_bitmap(inb)))
+    inb = [0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0]
+    # print binascii.hexlify(inb)
+    outb = decode_bitmap(encode_bitmap(inb))
+    print [str(x) for x in inb]
+    print [str(x) for x in outb]
+    if outb[0]:
+        print 'aaa'
+    print binascii.hexlify(outb)
 
     s = time.time()
     for i in range(10000):

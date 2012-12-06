@@ -3,7 +3,7 @@ import binascii
 import socket
 import time
 import logging
-import fakelcd
+import lcd
 import random
 import time
 import protocol
@@ -23,7 +23,7 @@ def handle_client(clientsocket):
             message = protocol.read_message(clientsocket)
             if not message:
                 break
-            print 'got message', binascii.hexlify(message[:20])
+            # print 'got message', binascii.hexlify(message[:2048])
             l, c, p = protocol.decode_message(message)
             command_queue.put((c, p))
     finally:
@@ -48,16 +48,16 @@ def server_main():
     """
     Read input and render at a fixed frame rate of 60 Hz.
     """
-    ALL_KEYS = [fakelcd.KEY_LEFT, fakelcd.KEY_RIGHT, fakelcd.KEY_UP, fakelcd.KEY_DOWN, fakelcd.KEY_CENTER]
+    ALL_KEYS = [lcd.KEY_LEFT, lcd.KEY_RIGHT, lcd.KEY_UP, lcd.KEY_DOWN, lcd.KEY_CENTER]
     logger = logging.getLogger('server')
     logger.info('starting up')
-    fakelcd.init()
+    lcd.init()
     keystates = [0] * len(ALL_KEYS)
     prev_keystates = list(keystates)
-    while not fakelcd.should_quit:
-        fakelcd.pollkeys()
+    while not lcd.should_quit:
+        lcd.pollkeys()
         for index, key in enumerate(ALL_KEYS):
-            keystates[index] = fakelcd.keydown(key)
+            keystates[index] = lcd.keydown(key)
         if keystates != prev_keystates and csock:
             message = protocol.encode_message(protocol.CMD_KEYSTATE, bytearray(keystates))
             protocol.write_message(csock, message)
@@ -67,7 +67,9 @@ def server_main():
             command, payload = command_queue.get()
             print 'got cmd', command
             if command == protocol.CMD_BITBLT:
-                fakelcd.update(protocol.decode_bitmap(payload))
+                newfb = protocol.decode_bitmap(payload)
+                # print newfb
+                lcd.update(newfb)
 
         time.sleep(1.0 / 60.0)
 
