@@ -12,8 +12,8 @@ import threading
 import Queue
 
 import protocol
-import fakelcd as lcd
-# import lcd
+# import fakelcd as lcd
+import lcd
 
 HOST = '0.0.0.0'
 PORT = 7998
@@ -54,18 +54,19 @@ def server_netloop():
     logging.info('Exiting network thread mainloop')
 
 def server_main():
-    """
-    Read input and render at a fixed frame rate of 60 Hz.
-    """
+    """Read input and update the display at a fixed frame rate."""
     logger = logging.getLogger('server')
     logger.info('Starting up')
-    lcd.init()
+    lcd.init(debug=True)
+    lcd.set_backlight_enabled(True)
     keystates = None
     prev_keystates = None
     while True:
+        while not csock:
+            time.sleep(0.25)
         keystates = lcd.readkeys()
-        if keystates != prev_keystates and csock:
-            logging.debug('Sending keystate %s', keystates)
+        if keystates != prev_keystates:
+            logging.debug('Sending keystates %s', keystates)
             message = protocol.encode_message(protocol.CMD_KEYSTATE, bytearray(keystates))
             protocol.write_message(csock, message)
         prev_keystates = keystates
@@ -78,7 +79,7 @@ def server_main():
                 logging.debug('Updating framebuffer')
                 lcd.update(newfb)
 
-        time.sleep(1.0 / 60.0)
+        time.sleep(1.0 / 30.0)
     logging.info('Exiting mainloop.')
 
 network_thread = threading.Thread(target=server_netloop)
