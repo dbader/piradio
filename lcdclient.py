@@ -44,7 +44,7 @@ def client_main():
                     cy += 1
                     cy = graphics.clamp(cy, 0, len(stations)-1)
                 if event.get('key') == protocol.KEY_RIGHT:
-                    w, h, img = graphics.loadimage('assets/michelangelo.png')
+                    w, h, img = graphics.loadimage('assets/dithertest.png')
                     print w, h
                     img_dithered = graphics.dither(img, w, h)
                     graphics.bitblt(img_dithered, 128, 64, 0, 0)
