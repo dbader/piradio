@@ -1,0 +1,134 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" 
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="103.000mm" height="56.000mm" version="1.1"
+     viewBox="0 0 103.000 56.000"
+     xmlns="http://www.w3.org/2000/svg">
+  <desc>Diese Zeichnung wurde mit dem Frontplatten Desinger durch den Export der Datei 'piradio-frontplate.fpd' erzeugt.</desc>
+<g transform="scale(1,-1) translate(0, -56.000)" 
+   fill-rule="evenodd"
+   style="stroke-linecap:round; stroke-linejoin:round; stroke-opacity:1.0; stroke-opacity:1.0;">
+<path d="M102.000 56.000 
+L1.000 56.000
+A1.000,1.000 0 0,1 0.000,55.000
+L0.000 1.000
+A1.000,1.000 0 0,1 1.000,0.000
+L102.000 0.000
+A1.000,1.000 0 0,1 103.000,1.000
+L103.000 55.000
+A1.000,1.000 0 0,1 102.000,56.000z"
+fill="#cccccc" stroke="#000000" stroke-width="0.100" />
+<path d="M40.729 43.360 
+L40.729 46.230
+L40.729 49.100
+L40.729 46.804
+A1.800,1.800 0 0,1 44.296,46.435
+A3.612,3.612 0 0,1 44.296,47.788
+A1.798,1.798 0 0,1 40.729,47.460
+M45.239 51.437 L45.239 51.109
+M45.239 49.100 L45.239 45.000
+M46.141 49.100 
+L46.141 45.000
+L46.141 47.460
+A1.831,1.831 0 0,0 47.699,49.264
+M48.888 48.321 
+A1.155,1.155 0 0,0 49.995,49.264
+L50.487 49.264
+A1.142,1.142 0 0,0 51.635,48.116
+L51.635 46.476
+A1.989,1.989 0 0,0 49.708,44.877
+A1.142,1.142 0 0,0 48.560,46.025
+A0.984,0.984 0 0,0 49.380,47.009
+L51.225 47.337
+A0.491,0.491 0 0,1 51.635,47.706
+L51.635 45.656
+A0.653,0.653 0 0,1 52.291,45.000
+M56.801 50.904 
+L56.801 47.952
+L56.801 45.000
+L56.801 47.460
+A1.798,1.798 0 0,1 53.234,47.788
+A3.612,3.612 0 0,1 53.234,46.435
+A1.800,1.800 0 0,1 56.801,46.804
+M57.703 51.437 L57.703 51.109
+M57.703 49.100 L57.703 45.000
+M58.687 46.476 
+A3.612,3.612 0 0,0 58.687,47.829
+A1.795,1.795 0 0,0 62.213,47.829
+A3.612,3.612 0 0,0 62.213,46.476
+A1.795,1.795 0 0,0 58.687,46.476"
+fill="none" stroke="#000000" stroke-width="0.400" />
+<rect x="11.000" y="14.000" width="41.000" height="24.000" rx="1.500"
+fill="#e0e0e0" stroke="#000000" stroke-width="0.100" 
+/>
+<circle cx="3.500" cy="3.500" r="1.500"
+fill="#ffffff" stroke="#000000" stroke-width="0.100" 
+/>
+<rect x="11.500" y="14.500" width="40.000" height="23.000" rx="1.000"
+fill="#ffffff" stroke="#000000" stroke-width="0.100" 
+/>
+<circle cx="78.250" cy="26.000" r="3.125"
+fill="#ffffff" stroke="#000000" stroke-width="0.100" 
+/>
+<circle cx="3.500" cy="52.500" r="1.500"
+fill="#ffffff" stroke="#000000" stroke-width="0.100" 
+/>
+<circle cx="99.500" cy="3.500" r="1.500"
+fill="#ffffff" stroke="#000000" stroke-width="0.100" 
+/>
+<circle cx="99.500" cy="52.500" r="1.500"
+fill="#ffffff" stroke="#000000" stroke-width="0.100" 
+/>
+<circle cx="78.250" cy="39.000" r="3.125"
+fill="#ffffff" stroke="#000000" stroke-width="0.100" 
+/>
+<circle cx="78.250" cy="13.000" r="3.125"
+fill="#ffffff" stroke="#000000" stroke-width="0.100" 
+/>
+<circle cx="65.250" cy="26.000" r="3.125"
+fill="#ffffff" stroke="#000000" stroke-width="0.100" 
+/>
+<circle cx="91.250" cy="26.000" r="3.125"
+fill="#ffffff" stroke="#000000" stroke-width="0.100" 
+/>
+<path d="M-1.000 0.000 L1.000 0.000
+M0.000 -1.000 L0.000 1.000"
+fill="none" stroke="#ff0000" stroke-width="0.100" />
+<path d="M2.500 3.500 L4.500 3.500
+M3.500 2.500 L3.500 4.500"
+fill="none" stroke="#ff0000" stroke-width="0.100" />
+<path d="M30.500 26.000 L32.500 26.000
+M31.500 25.000 L31.500 27.000"
+fill="none" stroke="#ff0000" stroke-width="0.100" />
+<path d="M77.250 26.000 L79.250 26.000
+M78.250 25.000 L78.250 27.000"
+fill="none" stroke="#ff0000" stroke-width="0.100" />
+<path d="M39.729 48.000 L41.729 48.000
+M40.729 47.000 L40.729 49.000"
+fill="none" stroke="#ff0000" stroke-width="0.100" />
+<path d="M2.500 52.500 L4.500 52.500
+M3.500 51.500 L3.500 53.500"
+fill="none" stroke="#ff0000" stroke-width="0.100" />
+<path d="M98.500 3.500 L100.500 3.500
+M99.500 2.500 L99.500 4.500"
+fill="none" stroke="#ff0000" stroke-width="0.100" />
+<path d="M98.500 52.500 L100.500 52.500
+M99.500 51.500 L99.500 53.500"
+fill="none" stroke="#ff0000" stroke-width="0.100" />
+<path d="M77.250 39.000 L79.250 39.000
+M78.250 38.000 L78.250 40.000"
+fill="none" stroke="#ff0000" stroke-width="0.100" />
+<path d="M77.250 13.000 L79.250 13.000
+M78.250 12.000 L78.250 14.000"
+fill="none" stroke="#ff0000" stroke-width="0.100" />
+<path d="M64.250 26.000 L66.250 26.000
+M65.250 25.000 L65.250 27.000"
+fill="none" stroke="#ff0000" stroke-width="0.100" />
+<path d="M90.250 26.000 L92.250 26.000
+M91.250 25.000 L91.250 27.000"
+fill="none" stroke="#ff0000" stroke-width="0.100" />
+<path d="M30.500 26.000 L32.500 26.000
+M31.500 25.000 L31.500 27.000"
+fill="none" stroke="#ff0000" stroke-width="0.100" />
+</g>
+</svg>
