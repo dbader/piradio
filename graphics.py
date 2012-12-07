@@ -70,3 +70,54 @@ def render_list(x, y, font, items, selected_index=-1, minheight=-1):
         top_offset = (maxheight - textheight) / 2
         bitblt_op(textbitmap, textwidth, textheight, x, y+top_offset, rop_xor)
         y += maxheight
+
+def dither(bitmap, width, height):
+    """
+    Return an Atkinson-dithered version of `bitmap`. Each pixel in `bitmap` may take
+    values may lie in [0, 255].
+    Based on code by Michal Migurski: http://mike.teczno.com/notes/atkinson.html
+    """
+    threshold = 128*[0] + 128*[255]
+    out = bytearray(bitmap)
+    for y in range(height):
+        for x in range(width):
+            old = out[y*width+x]
+            new = threshold[old]
+            err = (old - new) >> 3 # divide by 8
+            out[y*width+x] = new
+            for nxy in [(x+1, y), (x+2, y), (x-1, y+1), (x, y+1), (x+1, y+1), (x, y+2)]:
+                try:
+                    out[nxy[1]*width+nxy[0]] = max(min(out[nxy[1]*width+nxy[0]] + err, 255), 0)
+                except IndexError:
+                    pass
+    return out
+
+def bitmap2str(bmp, width, height, filled_char= ' # ', empty_char=' . '):
+    bstr = ''
+    for i in range(height):
+        rowstr = ''
+        for j in range(width):
+            rowstr += filled_char if bmp[i*width+j] else empty_char
+        bstr += rowstr + '\n'
+    return bstr
+
+def loadimage(filename):
+    import png
+    reader = png.Reader(filename)
+    width, height, pixels, metadata = reader.read_flat()
+    pixels = [px for i, px in enumerate(pixels) if i % 3 == 0]
+    return width, height, pixels
+
+if __name__ == '__main__':
+    inb = [32] * (32*32) + [64] * (32*32) + [128] * (32*32) + [255] * (32*32)
+    # inb = [100] * (4096)
+    print inb
+    print bitmap2str(inb, 64, 64)
+    outb = dither(inb, 64, 64)
+    print bitmap2str(outb, 64, 64)
+
+    w, h, img = loadimage('assets/michelangelo.png')
+    print w, h
+    print bitmap2str(img, w, h)
+    img_dithered = dither(img, w, h)
+    print bitmap2str(img_dithered, w, h)

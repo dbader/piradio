@@ -43,6 +43,13 @@ def client_main():
                 if event.get('key') == protocol.KEY_DOWN:
                     cy += 1
                     cy = graphics.clamp(cy, 0, len(stations)-1)
+                if event.get('key') == protocol.KEY_RIGHT:
+                    w, h, img = graphics.loadimage('assets/michelangelo.png')
+                    print w, h
+                    img_dithered = graphics.dither(img, w, h)
+                    graphics.bitblt(img_dithered, 128, 64, 0, 0)
+                    lcd_update()
+                    time.sleep(10)
                 if event.get('key') == protocol.KEY_CENTER:
                     if currstation == stations.keys()[cy]:
                         logging.debug('Stopping playback')
@@ -61,15 +68,15 @@ def client_main():
             needs_redraw = True
 
         if needs_redraw:
-            graphics.clear()
-            if currstation:
-                graphics.text(glyph_font, -1, -3, GLYPH_PLAYING)
-                graphics.text(font, 10, 2, currstation)
-            graphics.text(font, 100, 2, timestr)
-            graphics.hline(12)
-            graphics.render_list(2, 14, font, stations.keys(), cy, minheight=12)
-            lcd_update()
-            needs_redraw = False
+           graphics.clear()
+           if currstation:
+               graphics.text(glyph_font, -1, -3, GLYPH_PLAYING)
+               graphics.text(font, 10, 2, currstation)
+           graphics.text(font, 100, 2, timestr)
+           graphics.hline(12)
+           graphics.render_list(2, 14, font, stations.keys(), cy, minheight=12)
+           lcd_update()
+           needs_redraw = False
 
         time.sleep(1.0 / 30.0)
 
