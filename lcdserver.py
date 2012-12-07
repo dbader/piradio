@@ -10,10 +10,14 @@ import random
 import time
 import threading
 import Queue
+import sys
 
 import protocol
-# import fakelcd as lcd
-import lcd
+
+if 'fake' in sys.argv:
+    import fakelcd as lcd
+else:
+    import lcd
 
 LCD_SLEEPTIME = 60 * 5
 

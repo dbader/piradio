@@ -19,7 +19,7 @@ def currvolume():
     return int(client.status()['volume'])
 
 def is_playing():
-    return float(client.status()['elapsed']) != 0
+    return float(client.status().get('elapsed', 0)) != 0
 
 def wait_playing(timeout=10):
     print 'waiting for new song to start playing'
@@ -77,3 +77,6 @@ def playstream(url, fade=True):
     # client.close()
     # client.disconnect()
     # client = None
+
+if __name__ == '__main__':
+    print is_playing()

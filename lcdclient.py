@@ -11,7 +11,9 @@ import os
 import graphics
 import json
 
-FONT_PATH = os.path.join(os.getcwd(), 'test-apps/font4.ttf')
+FONT_PATH = os.path.join(os.getcwd(), 'assets/font.ttf')
+GLYPHFONT_PATH = os.path.join(os.getcwd(), 'assets/pixarrows.ttf')
+GLYPH_PLAYING = '0'#unichr(9654)
 
 sock = None
 eventqueue = Queue.Queue()
@@ -24,6 +26,7 @@ def client_main():
     logger = logging.getLogger('client')
     logger.info('Starting up')
     font = fontlib.Font(FONT_PATH, 8)
+    glyph_font = fontlib.Font(GLYPHFONT_PATH, 10)
     stations = json.loads(open('stations.json').read())
     cy = 0
     needs_redraw = True
@@ -36,8 +39,10 @@ def client_main():
             if event.get('name') == 'key.down':
                 if event.get('key') == protocol.KEY_UP:
                     cy -= 1
+                    cy = graphics.clamp(cy, 0, len(stations)-1)
                 if event.get('key') == protocol.KEY_DOWN:
                     cy += 1
+                    cy = graphics.clamp(cy, 0, len(stations)-1)
                 if event.get('key') == protocol.KEY_CENTER:
                     if currstation == stations.keys()[cy]:
                         logging.debug('Stopping playback')
@@ -57,9 +62,11 @@ def client_main():
 
         if needs_redraw:
             graphics.clear()
+            if currstation:
+                graphics.text(glyph_font, -1, -3, GLYPH_PLAYING)
+                graphics.text(font, 10, 2, currstation)
             graphics.text(font, 100, 2, timestr)
-            graphics.text(font, 2, 2, currstation)
-            graphics.hline(11)
+            graphics.hline(12)
             graphics.render_list(2, 14, font, stations.keys(), cy, minheight=12)
             lcd_update()
             needs_redraw = False
