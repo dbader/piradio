@@ -38,6 +38,30 @@ def readkeys():
                 eventqueue.put({'name': 'key.down', 'key': i})
     prev_keystates = keystates
 
+LCD_SLEEPTIME = 5 * 60
+sleeptime = None
+sleeping = False
+
+def shouldsleep():
+    return time.time() > sleeptime
+
+def resetsleep():
+    global sleeptime
+    sleeptime = time.time() + LCD_SLEEPTIME
+    logging.debug('Sleeptime set to %f', sleeptime)
+
+def sleep():
+    logging.info('Going to sleep')
+    lcd.set_backlight_enabled(False)
+    global sleeping
+    sleeping = True
+
+def wakeup():
+    logging.info('Waking up')
+    lcd.set_backlight_enabled(True)
+    global sleeping
+    sleeping = False
+
 def client_main():
     logger = logging.getLogger('client')
     logger.info('Starting up')
@@ -50,10 +74,16 @@ def client_main():
     prev_timestr = ''
     while True:
         readkeys()
+        if not sleeping and shouldsleep():
+            sleep()
+        elif sleeping and not shouldsleep():
+            wakeup()
+            resetsleep()
         while not eventqueue.empty():
             event = eventqueue.get()
             logger.info('Got event: %s', event)
             if event.get('name') == 'key.down':
+                resetsleep()
                 if event.get('key') == protocol.KEY_UP:
                     cy -= 1
                     cy = graphics.clamp(cy, 0, len(stations)-1)
@@ -98,27 +128,6 @@ def client_main():
            lcd_update()
            needs_redraw = False
 
-        time.sleep(1.0 / 30.0)
+        time.sleep(1.0 / 60.0)
 
-def client_netloop():
-    global sock
-    HOST, PORT = "localhost", 7998
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-    try:
-        sock.connect((HOST, PORT))
-        while True:
-            received = protocol.read_message(sock)
-            l, c, p = protocol.decode_message(received)
-            if c == protocol.CMD_KEYSTATE:
-                logging.debug('Got keystate')
-                for i in range(len(p)):
-                    if p[i]:
-                        eventqueue.put({'name': 'key.down', 'key': i})
-    finally:
-        sock.close()
-
-# network_thread = threading.Thread(target=client_netloop)
-# network_thread.start()
-# time.sleep(1)
 client_main()
