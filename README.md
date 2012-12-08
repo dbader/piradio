@@ -1,6 +1,6 @@
 piradio
 =======
-A web radio based on the Raspberry Pi.
+An internet radio based on the Raspberry Pi.
 
 ![Simulator screenshot](https://raw.github.com/dbader/piradio/master/images/simulator.png "Optional title")
 
