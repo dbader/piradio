@@ -58,10 +58,13 @@ def bitblt_op(src, src_w, src_h, x, y, op=rop_replace):
             if fb_index < len(framebuffer):
                 framebuffer[fb_index] = op(framebuffer[fb_index], src[sy * src_w + sx])
 
-def render_list(x, y, font, items, selected_index=-1, minheight=-1):
+def render_list(x, y, font, items, selected_index=-1, minheight=-1, maxvisible=4):
     maxheight = max([font.text_extents(text)[1] for text in items])
     maxheight = max(minheight, maxheight)
-    for i, text in enumerate(items):
+    start = max(0, min(selected_index-maxvisible+1, len(items)-maxvisible))
+    end = start + maxvisible
+    selected_index -= start
+    for i, text in enumerate(items[start:end]):
         textwidth, textheight, baseline = font.text_extents(text)
         textbitmap = font.render(text, width=textwidth, height=textheight, baseline=baseline)
         if i == selected_index:

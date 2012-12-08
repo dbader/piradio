@@ -70,8 +70,12 @@ def client_main():
         if needs_redraw:
            graphics.clear()
            if currstation:
-               graphics.text(glyph_font, -1, -3, GLYPH_PLAYING)
-               graphics.text(font, 10, 2, currstation)
+               w, h, baseline = glyph_font.text_extents(currstation)
+               logging.debug('baseline is %i', baseline)
+               graphics.text(glyph_font, -1, -baseline-1, GLYPH_PLAYING)
+               w, h, baseline = font.text_extents(currstation)
+               logging.debug('baseline is %i', baseline)
+               graphics.text(font, 10, 3 - baseline, currstation)
            graphics.text(font, 100, 2, timestr)
            graphics.hline(12)
            graphics.render_list(2, 14, font, stations.keys(), cy, minheight=12)
