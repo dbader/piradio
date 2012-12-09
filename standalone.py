@@ -11,8 +11,8 @@ import os
 import graphics
 import json
 
-# import fakelcd as lcd
-import lcd
+import fakelcd as lcd
+# import lcd
 
 FONT_PATH = os.path.join(os.getcwd(), 'assets/font.ttf')
 GLYPHFONT_PATH = os.path.join(os.getcwd(), 'assets/pixarrows.ttf')
@@ -21,10 +21,12 @@ GLYPH_PLAYING = '0'#unichr(9654)
 sock = None
 eventqueue = Queue.Queue()
 
+framebuffer = graphics.Surface(128, 64)
+
 lcd.init()
 
 def lcd_update():
-    lcd.update(graphics.framebuffer)
+    lcd.update(framebuffer)
     # message = protocol.encode_message(protocol.CMD_DRAW, protocol.encode_bitmap(graphics.framebuffer))
     # protocol.write_message(sock, message)
 
@@ -93,7 +95,7 @@ def client_main():
                 if event.get('key') == protocol.KEY_RIGHT:
                     img = graphics.Surface(filename='assets/dithertest.png')
                     img.dither()
-                    graphics.bitblt(img.pixels, 128, 64, 0, 0)
+                    framebuffer.bitblt(img, 0, 0)
                     lcd_update()
                     time.sleep(10)
                 if event.get('key') == protocol.KEY_CENTER:
@@ -114,17 +116,21 @@ def client_main():
             needs_redraw = True
 
         if needs_redraw:
-           graphics.clear()
+           framebuffer.fill(0)
            if currstation:
                w, h, baseline = glyph_font.text_extents(currstation)
                logging.debug('baseline is %i', baseline)
-               graphics.text(glyph_font, -1, -baseline-1, GLYPH_PLAYING)
+               framebuffer.text(glyph_font, -1, -baseline-1, GLYPH_PLAYING)
+               print repr(framebuffer)
                w, h, baseline = font.text_extents(currstation)
                logging.debug('baseline is %i', baseline)
-               graphics.text(font, 10, 3 - baseline, currstation)
-           graphics.text(font, 100, 2, timestr)
-           graphics.hline(12)
-           graphics.render_list(2, 14, font, stations.keys(), cy, minheight=12)
+               framebuffer.text(font, 10, 3 - baseline, currstation)
+           framebuffer.text(font, 100, 2, timestr)
+           framebuffer.hline(12)
+           graphics.render_list(framebuffer, 2, 14, font, stations.keys(), cy, minheight=12)
+           framebuffer.apply(lambda pixel: 0 if pixel else 1)
+           framebuffer.apply(lambda pixel: pixel * 200)
+           framebuffer.dither()
            lcd_update()
            needs_redraw = False
 
