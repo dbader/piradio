@@ -78,9 +78,6 @@ def client_main():
     logger.info('Starting up')
     font = fontlib.Font(FONT_PATH, 8)
     glyph_font = fontlib.Font(GLYPHFONT_PATH, 10)
-    playing_glyph = graphics.Surface(8,8)
-    playing_glyph.blt(glyph_font.render(GLYPH_PLAYING), 0, 0, graphics.Rect(0,5,8,8))
-    print repr(playing_glyph)
     stations = json.loads(open('stations.json').read())
     cy = 0
     needs_redraw = True

@@ -119,7 +119,13 @@ class Surface(object):
         for x in range(self._width):
             self.setpixel(x, y, color)
 
-# http://www.yaldex.com/games-programming/0672323699_ch07lev1sec6.html
+    def bitblt_fast(self, src, x, y):
+        """Blit without range checks, clipping and a hardwired rop_copy raster operation."""
+        for sx in range(src.width):
+            for sy in range(src.height):
+                dstpixel = (y + sy) * self.width + x + sx
+                self.pixels[dstpixel] = src.pixels[sy * src.width + sx]
+
     def bitblt(self, src, x=0, y=0, op=rop_copy):
         # This is the area within the current surface we want to draw in.
         # It potentially lies outside of the bounds of the current surface.
@@ -127,51 +133,16 @@ class Surface(object):
         dstrect = Rect(x, y, src.width, src.height)
         cliprect = self.rect.clipped(dstrect)
 
-        xoffs = src.width - cliprect.width
-        yoffs = src.height - cliprect.height
+        # xoffs and yoffs are important when we clip against the left or top edge.
+        xoffs = src.width - cliprect.width if x <= 0 else 0
+        yoffs = src.height - cliprect.height if y <= 0 else 0
 
         # Copy pixels from `src` to `cliprect`.
         for cx in range(cliprect.x, cliprect.rx):
             for cy in range(cliprect.y, cliprect.ry):
                 dstpixel = cy * self._width + cx
-
-                # # Clips correctly against the right and bottom edges
-                # sx = cx - cliprect.x
-                # sy = cy - cliprect.y
-                #
-                # # Clips correctly agains the left and top edges
-                # sx = src.width - cliprect.width + cx - cliprect.x
-                # sy = src.height - cliprect.height + cy - cliprect.y
-
-                if x > 0:
-                    # Clip against the right edge
-                    sx = cx - cliprect.x
-                else:
-                    # Clip against the left edge
-                    sx = xoffs + cx - cliprect.x
-
-                if y > 0:
-                    # Clip against the bottom edge
-                    sy = cy - cliprect.y
-                else:
-                    # Clip against the top edge
-                    sy = yoffs + cy - cliprect.y
-
-                srcpixel = sy * src._width + sx
+                srcpixel = (yoffs + cy - cliprect.y) * src._width + (xoffs + cx - cliprect.x)
                 self.pixels[dstpixel] = op(self.pixels[dstpixel], src.pixels[srcpixel])
-
-    def blt(self, src, x=0, y=0, src_rect=None, op=rop_copy):
-        if src_rect:
-            srcrect = src.rect.intersection(src_rect)
-        else:
-            srcrect = src.rect
-        cliprect = self.rect.intersection(Rect(x, y, srcrect.width, srcrect.height))
-        # x, y = cliprect.x, cliprect.y
-        print self.rect, srcrect, cliprect
-        for sx in range(cliprect.width):
-            for sy in range(cliprect.height):
-                pixel = (cliprect.y + sy) * self._width + cliprect.x + sx
-                self.pixels[pixel] = op(self.pixels[pixel], src.pixels[sy * src.width + sx])
 
     # TODO: REFACTOR: Font rendering into Surfaces should be done solely through fontlib.
     def text(self, font, x, y, text):

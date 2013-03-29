@@ -97,13 +97,13 @@ class Font(object):
             y = height - baseline - top
             kerning = self._face.get_kerning(previous, c)
             x += (kerning.x >> 6)
-            outbuffer.bitblt(surface, x, y)
+            outbuffer.bitblt_fast(surface, x, y)
             x += advance_x
             previous = c
         return outbuffer
 
 if __name__ == '__main__':
-    f = Font('/Users/daniel/dev/piradio/test-apps/font4.ttf', 16)
+    f = Font('test-apps/font4.ttf', 16)
     text = u'one, two, three'
     # text = 'T,'
     width, height, baseline = f.text_extents(text)
