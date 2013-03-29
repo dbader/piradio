@@ -4,6 +4,12 @@ import logging
 
 logging.basicConfig(level=logging.DEBUG)
 
+K_LEFT = 0
+K_RIGHT = 1
+K_UP = 2,
+K_DOWN = 3
+K_CENTER = 4
+
 LCD_WIDTH, LCD_HEIGHT = 128, 64
 KEY_CENTER = 0x04
 KEY_LEFT = 0x02

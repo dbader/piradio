@@ -8,6 +8,11 @@ import logging
 logger = logging.getLogger('fakelcd')
 
 LCD_WIDTH, LCD_HEIGHT = 128, 64
+K_LEFT = 0
+K_RIGHT = 1
+K_UP = 2
+K_DOWN = 3
+K_CENTER = 4
 LCD_COLOR_BG = (148, 175, 204)
 LCD_COLOR_FG = (32, 32, 32)
 BACKGROUND_IMAGE = os.path.join(os.getcwd(), 'test-apps/simulator-frontplate.png')

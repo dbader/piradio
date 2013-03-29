@@ -152,6 +152,10 @@ class Surface(object):
         bmp = font.render(text, w, h, baseline)
         self.bitblt(bmp, x, y)
 
+    def center_text(self, font, text):
+        w, h, baseline = font.text_extents(text)
+        self.text(font, self.width / 2 - w / 2, self.height / 2 - h / 2, text)
+
     # def rect(x, y, w, h, color=1):
     #     pass
 
