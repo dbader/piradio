@@ -113,12 +113,12 @@ if __name__ == '__main__':
     print f.size
 
     def benchmark():
-        for i in range(100):
+        for i in range(1000):
             f.render('Hello, World.')
 
-    # import cProfile
-    # import pstats
-    # cProfile.run('benchmark()', 'fontbench.profile')
-    # p = pstats.Stats('fontbench.profile')
-    # print p.sort_stats('cumulative').print_stats(20)
-    # print p.sort_stats('time').print_stats(20)
+    import cProfile
+    import pstats
+    cProfile.run('benchmark()', 'fontbench.profile')
+    p = pstats.Stats('fontbench.profile')
+    print p.sort_stats('cumulative').print_stats(20)
+    print p.sort_stats('time').print_stats(20)

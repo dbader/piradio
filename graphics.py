@@ -52,8 +52,6 @@ class Rect(object):
         rx = clamp(other.rx, x, self.rx)
         ry = clamp(other.ry, y, self.ry)
 
-        # print other.x, other.y, '--->', x, y
-        # print other.rx, other.ry, '--->', rx, ry
         return Rect(x, y, rx - x, ry - y)
 
 class Surface(object):
@@ -121,10 +119,14 @@ class Surface(object):
 
     def bitblt_fast(self, src, x, y):
         """Blit without range checks, clipping and a hardwired rop_copy raster operation."""
-        for sx in range(src.width):
-            for sy in range(src.height):
-                dstpixel = (y + sy) * self.width + x + sx
-                self.pixels[dstpixel] = src.pixels[sy * src.width + sx]
+        width = self.width
+        pixels = self.pixels
+        src_width, src_height = src.width, src.height
+        src_pixels = src.pixels
+        for sx in xrange(src_width):
+            for sy in xrange(src_height):
+                dstpixel = (y + sy) * width + x + sx
+                pixels[dstpixel] = src_pixels[sy * src_width + sx]
 
     def bitblt(self, src, x=0, y=0, op=rop_copy):
         # This is the area within the current surface we want to draw in.
@@ -148,14 +150,7 @@ class Surface(object):
     def text(self, font, x, y, text):
         w, h, baseline = font.text_extents(text)
         bmp = font.render(text, w, h, baseline)
-        print 'rendering text to', x, y, '\n', repr(bmp)
         self.bitblt(bmp, x, y)
-
-    def textr(self, font, text, x, y, textrect=None):
-        w, h, baseline = font.text_extents(text)
-        bmp = font.render(text, w, h, baseline)
-        print repr(bmp)
-        self.blt(bmp, x, y, Rect(0, -baseline, bmp.width, bmp.height))
 
     # def rect(x, y, w, h, color=1):
     #     pass
