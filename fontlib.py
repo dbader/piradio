@@ -41,26 +41,9 @@ def unpack_mono_bitmap(bitmap):
             byte_index = x / 8
             byte_value = bitmap.buffer[y * bitmap.pitch + byte_index]
             bit_index = x - (byte_index * 8)
+            data[y * bitmap.width + x] = 1 if (  byte_value & (1 << (7 - bit_index)) ) else 0
             # Correct:
             # data[y * bitmap.width + x] = bits(byte_value)[bit_index]
-            data[y * bitmap.width + x] = 1 if (     byte_value & (1 << (7 - bit_index))         ) else 0
-
-    new = list(data)
-    old = unpack_mono_bitmapX(bitmap)
-    if not (new == old):
-        print new
-        print
-        print old
-        print
-        print len(new), len(old)
-    else:
-        print 'matched.'
-
-    print 'new:'
-    print buf2str(data, bitmap.width, bitmap.rows)
-    print 'old:'
-    print buf2str(unpack_mono_bitmapX(bitmap), bitmap.width, bitmap.rows)
-
     return data
 
 def buf2str(pixels, width, height):
@@ -175,9 +158,9 @@ if __name__ == '__main__':
         for i in range(10):
             f.render(random_string(30))
 
-    # import cProfile
-    # import pstats
-    # cProfile.run('benchmark()', 'fontbench.profile')
-    # p = pstats.Stats('fontbench.profile')
-    # print p.sort_stats('cumulative').print_stats(20)
-    # print p.sort_stats('time').print_stats(20)
+    import cProfile
+    import pstats
+    cProfile.run('benchmark()', 'fontbench.profile')
+    p = pstats.Stats('fontbench.profile')
+    print p.sort_stats('cumulative').print_stats(20)
+    print p.sort_stats('time').print_stats(20)
