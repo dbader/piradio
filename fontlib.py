@@ -7,7 +7,7 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger('fonts')
 
-def unpack_mono_bitmap(bitmap):
+def unpack_mono_bitmapX(bitmap):
     """Unpack a freetype FT_LOAD_TARGET_MONO bitmap into a list that has one element per pixel."""
 
     def bits(x):
@@ -26,26 +26,51 @@ def unpack_mono_bitmap(bitmap):
         data.extend(row[:bitmap.width])
     return data
 
-def unpack_mono_bitmapX(bitmap):
+def bits(x):
+    """Unpack the bits of am 8bit word into a list."""
+    data = []
+    for i in range(8):
+        data.insert(0, int((x & 1) == 1))
+        x = x >> 1
+    return data
+
+def unpack_mono_bitmap(bitmap):
     data = bytearray(bitmap.rows * bitmap.width)
     for y in range(bitmap.rows):
         for x in range(bitmap.width):
-            byte_index = x / 7
+            byte_index = x / 8
             byte_value = bitmap.buffer[y * bitmap.pitch + byte_index]
-            data[y * bitmap.width + x] = 1 if ( byte_value & ( 1 << (7 - (x - byte_index * 7)) ) ) else 0
+            bit_index = x - (byte_index * 8)
+            # Correct:
+            # data[y * bitmap.width + x] = bits(byte_value)[bit_index]
+            data[y * bitmap.width + x] = 1 if (     byte_value & (1 << (7 - bit_index))         ) else 0
 
     new = list(data)
     old = unpack_mono_bitmapX(bitmap)
-    # if not (new == old):
-    #     print new
-    #     print
-    #     print old
-    #     print
-    #     print len(new), len(old)
-    # else:
-    #     print 'matched.'
+    if not (new == old):
+        print new
+        print
+        print old
+        print
+        print len(new), len(old)
+    else:
+        print 'matched.'
+
+    print 'new:'
+    print buf2str(data, bitmap.width, bitmap.rows)
+    print 'old:'
+    print buf2str(unpack_mono_bitmapX(bitmap), bitmap.width, bitmap.rows)
 
     return data
+
+def buf2str(pixels, width, height):
+    bstr = ''
+    for i in range(height):
+        rowstr = ''
+        for j in range(width):
+            rowstr += '#' if pixels[i * width + j] else '.'
+        bstr += rowstr + '\n'
+    return bstr
 
 class Font(object):
     def __init__(self, filename, size):
@@ -133,13 +158,13 @@ if __name__ == '__main__':
     print repr(f.render(text))
     print f.size
 
-    global unpack_mono_bitmap
-    global unpack_mono_bitmapX
-    tmp = unpack_mono_bitmap
-    unpack_mono_bitmap = unpack_mono_bitmapX
-    unpack_mono_bitmapX = tmp
-    f = Font('test-apps/font4.ttf', 16)
-    print repr(f.render(text))
+    # global unpack_mono_bitmap
+    # global unpack_mono_bitmapX
+    # tmp = unpack_mono_bitmap
+    # unpack_mono_bitmap = unpack_mono_bitmapX
+    # unpack_mono_bitmapX = tmp
+    # f = Font('test-apps/font4.ttf', 16)
+    # print repr(f.render(text))
 
     import random
     import string
