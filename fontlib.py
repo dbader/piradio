@@ -7,7 +7,7 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger('fonts')
 
-def unpack_mono_bitmap(bitmap):
+def unpack_mono_bitmapX(bitmap):
     """Unpack a freetype FT_LOAD_TARGET_MONO bitmap into a list that has one element per pixel."""
 
     def bits(x):
@@ -24,6 +24,15 @@ def unpack_mono_bitmap(bitmap):
         for j in range(bitmap.pitch):
             row.extend(bits(bitmap.buffer[i*bitmap.pitch+j]))
         data.extend(row[:bitmap.width])
+    return data
+
+def unpack_mono_bitmap(bitmap):
+    data = bytearray(bitmap.rows * bitmap.width)
+    for y in range(bitmap.rows):
+        for x in range(bitmap.width):
+            byte_index = x / 7
+            byte_value = bitmap.buffer[y * bitmap.pitch + byte_index]
+            data[y * bitmap.width + x] = byte_value & ( 1 << (7 - (x - byte_index * 7)) )
     return data
 
 class Font(object):
@@ -112,9 +121,14 @@ if __name__ == '__main__':
     print repr(f.render(text))
     print f.size
 
+    import random
+    import string
+    def random_string(l):
+        return ''.join( random.choice(string.ascii_letters + string.digits) for n in xrange(l) )
+
     def benchmark():
-        for i in range(1000):
-            f.render('Hello, World.')
+        for i in range(10):
+            f.render(random_string(30))
 
     import cProfile
     import pstats
