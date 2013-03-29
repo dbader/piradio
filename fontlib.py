@@ -7,7 +7,7 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger('fonts')
 
-def unpack_mono_bitmapX(bitmap):
+def unpack_mono_bitmap(bitmap):
     """Unpack a freetype FT_LOAD_TARGET_MONO bitmap into a list that has one element per pixel."""
 
     def bits(x):
@@ -26,13 +26,25 @@ def unpack_mono_bitmapX(bitmap):
         data.extend(row[:bitmap.width])
     return data
 
-def unpack_mono_bitmap(bitmap):
+def unpack_mono_bitmapX(bitmap):
     data = bytearray(bitmap.rows * bitmap.width)
     for y in range(bitmap.rows):
         for x in range(bitmap.width):
             byte_index = x / 7
             byte_value = bitmap.buffer[y * bitmap.pitch + byte_index]
-            data[y * bitmap.width + x] = byte_value & ( 1 << (7 - (x - byte_index * 7)) )
+            data[y * bitmap.width + x] = 1 if ( byte_value & ( 1 << (7 - (x - byte_index * 7)) ) ) else 0
+
+    new = list(data)
+    old = unpack_mono_bitmapX(bitmap)
+    # if not (new == old):
+    #     print new
+    #     print
+    #     print old
+    #     print
+    #     print len(new), len(old)
+    # else:
+    #     print 'matched.'
+
     return data
 
 class Font(object):
@@ -113,13 +125,21 @@ class Font(object):
 
 if __name__ == '__main__':
     f = Font('test-apps/font4.ttf', 16)
-    text = u'one, two, three'
+    text = u'hello, world.'
     # text = 'T,'
     width, height, baseline = f.text_extents(text)
     print '"%s": width=%i height=%i baseline=%i' % (text, width, height, baseline)
     print f
     print repr(f.render(text))
     print f.size
+
+    global unpack_mono_bitmap
+    global unpack_mono_bitmapX
+    tmp = unpack_mono_bitmap
+    unpack_mono_bitmap = unpack_mono_bitmapX
+    unpack_mono_bitmapX = tmp
+    f = Font('test-apps/font4.ttf', 16)
+    print repr(f.render(text))
 
     import random
     import string
@@ -130,9 +150,9 @@ if __name__ == '__main__':
         for i in range(10):
             f.render(random_string(30))
 
-    import cProfile
-    import pstats
-    cProfile.run('benchmark()', 'fontbench.profile')
-    p = pstats.Stats('fontbench.profile')
-    print p.sort_stats('cumulative').print_stats(20)
-    print p.sort_stats('time').print_stats(20)
+    # import cProfile
+    # import pstats
+    # cProfile.run('benchmark()', 'fontbench.profile')
+    # p = pstats.Stats('fontbench.profile')
+    # print p.sort_stats('cumulative').print_stats(20)
+    # print p.sort_stats('time').print_stats(20)
