@@ -1,19 +1,19 @@
 import png
 
-def rop_replace(a, b):
-    return b
+WHITE = 0
+BLACK = 1
 
-def rop_invert(a, b):
-    return not b
-
-def rop_and(a, b):
-    return a and b
-
-def rop_or(a, b):
-    return a or b
-
-def rop_xor(a, b):
-    return a ^ b
+# See http://msdn.microsoft.com/de-de/library/dd162892(v=vs.85).aspx for inspiration
+rop_nop = lambda a, b: a
+rop_copy = lambda a, b: b
+rop_replace = rop_copy
+rop_not = lambda a, b: not b
+rop_invert = rop_not
+rop_and = lambda a, b: a and b
+rop_or = lambda a, b: a or b
+rop_xor = lambda a, b: a ^ b
+rop_black = lambda a, b: 0
+rop_white = lambda a, b: 1
 
 class Rect(object):
     def __init__(self, x, y, width, height):
@@ -23,7 +23,7 @@ class Rect(object):
         self.ry = y + height
 
     def __repr__(self):
-        return '%s(%i, %i, %i, %i)' % (self.__class__.__name__, self.x, self.y, self.width, self.height)
+        return self.__class__.__name__ + repr((self.x, self.y, self.width, self.height))
 
     @property
     def width(self):
@@ -40,6 +40,22 @@ class Rect(object):
         ry = min(self.ry, other.ry)
         return Rect(x, y, rx - x, ry - y)
 
+    def clipped(self, other):
+        def clamp(v, min_value, max_value):
+            return min(max(min_value, v), max_value)
+
+        # (x,y) must not be negative or larger than the right or bottom edge.
+        x = clamp(other.x, self.x, self.rx)
+        y = clamp(other.y, self.y, self.ry)
+
+        # (rx,ry) must not be less than (x,y) or larger than the right or bottom edge.
+        rx = clamp(other.rx, x, self.rx)
+        ry = clamp(other.ry, y, self.ry)
+
+        # print other.x, other.y, '--->', x, y
+        # print other.rx, other.ry, '--->', rx, ry
+        return Rect(x, y, rx - x, ry - y)
+
 class Surface(object):
     def __init__(self, width=0, height=0, filename=None, pixels=None):
         self._width = width
@@ -52,7 +68,7 @@ class Surface(object):
             self.pixels = bytearray(width * height)
 
     def __str__(self):
-        return '%s<%ix%i>' % (self.__class__.__name__, self._width, self._height)
+        return self.__class__.__name__ + repr((self.width, self.height))
 
     def __repr__(self):
         bstr = ''
@@ -62,6 +78,9 @@ class Surface(object):
                 rowstr += '#' if self.pixels[i * self._width + j] else '.'
             bstr += rowstr + '\n'
         return bstr
+
+    def __len__(self):
+        return len(self.pixels)
 
     def __getitem__(self, key):
         return self.pixels[key]
@@ -82,6 +101,9 @@ class Surface(object):
         for i in range(len(self.pixels)):
             self.pixels[i] = color
 
+    def clear(self):
+        self.fill(color=0)
+
     def getpixel(self, x, y):
         return self.pixels[y * self._width + x]
 
@@ -97,20 +119,72 @@ class Surface(object):
         for x in range(self._width):
             self.setpixel(x, y, color)
 
-    def bitblt(self, src, x=0, y=0, op=rop_replace):
-        srcrect = Rect(x, y, src.width, src.height)
-        cliprect = self.rect.intersection(srcrect)
+# http://www.yaldex.com/games-programming/0672323699_ch07lev1sec6.html
+    def bitblt(self, src, x=0, y=0, op=rop_copy):
+        # This is the area within the current surface we want to draw in.
+        # It potentially lies outside of the bounds of the current surface.
+        # Therefore we must clip it to only cover valid pixels within the surface.
+        dstrect = Rect(x, y, src.width, src.height)
+        cliprect = self.rect.clipped(dstrect)
+
+        xoffs = src.width - cliprect.width
+        yoffs = src.height - cliprect.height
+
+        # Copy pixels from `src` to `cliprect`.
+        for cx in range(cliprect.x, cliprect.rx):
+            for cy in range(cliprect.y, cliprect.ry):
+                dstpixel = cy * self._width + cx
+
+                # # Clips correctly against the right and bottom edges
+                # sx = cx - cliprect.x
+                # sy = cy - cliprect.y
+                #
+                # # Clips correctly agains the left and top edges
+                # sx = src.width - cliprect.width + cx - cliprect.x
+                # sy = src.height - cliprect.height + cy - cliprect.y
+
+                if x > 0:
+                    # Clip against the right edge
+                    sx = cx - cliprect.x
+                else:
+                    # Clip against the left edge
+                    sx = xoffs + cx - cliprect.x
+
+                if y > 0:
+                    # Clip against the bottom edge
+                    sy = cy - cliprect.y
+                else:
+                    # Clip against the top edge
+                    sy = yoffs + cy - cliprect.y
+
+                srcpixel = sy * src._width + sx
+                self.pixels[dstpixel] = op(self.pixels[dstpixel], src.pixels[srcpixel])
+
+    def blt(self, src, x=0, y=0, src_rect=None, op=rop_copy):
+        if src_rect:
+            srcrect = src.rect.intersection(src_rect)
+        else:
+            srcrect = src.rect
+        cliprect = self.rect.intersection(Rect(x, y, srcrect.width, srcrect.height))
+        # x, y = cliprect.x, cliprect.y
         print self.rect, srcrect, cliprect
         for sx in range(cliprect.width):
             for sy in range(cliprect.height):
-                pixel = (y + sy) * self._width + x + sx
+                pixel = (cliprect.y + sy) * self._width + cliprect.x + sx
                 self.pixels[pixel] = op(self.pixels[pixel], src.pixels[sy * src.width + sx])
 
+    # TODO: REFACTOR: Font rendering into Surfaces should be done solely through fontlib.
     def text(self, font, x, y, text):
         w, h, baseline = font.text_extents(text)
         bmp = font.render(text, w, h, baseline)
-        print repr(bmp)
+        print 'rendering text to', x, y, '\n', repr(bmp)
         self.bitblt(bmp, x, y)
+
+    def textr(self, font, text, x, y, textrect=None):
+        w, h, baseline = font.text_extents(text)
+        bmp = font.render(text, w, h, baseline)
+        print repr(bmp)
+        self.blt(bmp, x, y, Rect(0, -baseline, bmp.width, bmp.height))
 
     # def rect(x, y, w, h, color=1):
     #     pass
@@ -123,8 +197,7 @@ class Surface(object):
     def dither(self):
         """
         Return an Atkinson-dithered version of `bitmap`. Each pixel in `bitmap` may take
-        values may lie in [0, 255].
-        Based on code by Michal Migurski: http://mike.teczno.com/notes/atkinson.html
+        a value in [0, 255]. Based on code by Michal Migurski: http://mike.teczno.com/notes/atkinson.html
         """
         threshold = 128*[0] + 128*[255]
         for y in range(self._height):
@@ -143,25 +216,6 @@ class Surface(object):
     def apply(self, func):
         for i in range(len(self.pixels)):
             self.pixels[i] = func(self.pixels[i])
-
-def clamp(v, min_value, max_value):
-    return min(max(min_value, v), max_value)
-
-def render_list(framebuffer, x, y, font, items, selected_index=-1, minheight=-1, maxvisible=4):
-    maxheight = max([font.text_extents(text)[1] for text in items])
-    maxheight = max(minheight, maxheight)
-    start = max(0, min(selected_index-maxvisible+1, len(items)-maxvisible))
-    end = start + maxvisible
-    selected_index -= start
-    for i, text in enumerate(items[start:end]):
-        textwidth, textheight, baseline = font.text_extents(text)
-        textbitmap = font.render(text, width=textwidth, height=textheight, baseline=baseline)
-        if i == selected_index:
-            for i in range(y,y+maxheight):
-                framebuffer.hline(i)
-        top_offset = (maxheight - textheight) / 2
-        framebuffer.bitblt(textbitmap, x, y+top_offset, op=rop_xor)
-        y += maxheight
 
 if __name__ == '__main__':
     s = Surface(32, 32)
@@ -199,7 +253,53 @@ if __name__ == '__main__':
     s1.bitblt(s2, 7, 3)
     print repr(s1)
 
+    print '--- clipping'
     r1 = Rect(100, 100, 50, 50)
     r2 = Rect(50, 50, 100, 100)
     print r1, r2
     print r2.intersection(r1)
+    print r2.clipped(r1)
+
+    print
+
+
+    s2.clear()
+    s2.setpixel(0,0)
+    s2.setpixel(1,1)
+    r1 = Rect(50, 50, 50, 50)
+    r2 = Rect(0, 0, 100, 100)
+    print r1, r2
+    print r2.intersection(r1)
+    print r2.clipped(r1)
+
+    print repr(s1)
+    print "blt:"
+    print repr(s2)
+    s1.clear()
+    # s1.blt(s2, 0, 0, Rect(1,1,2,2))
+    s1.bitblt(s2, -1, -1)
+    print repr(s1)
+    # s1.clear()
+    s1.bitblt(s2, 7, 7)
+    print repr(s1)
+
+    print '////'
+
+    s2 = Surface(3,3)
+    s2.setpixel(1,1)
+    s2.setpixel(0,1)
+    s2.setpixel(2,1)
+    s2.setpixel(1,0)
+    s2.setpixel(1,2)
+
+    s1.clear()
+    print repr(s1)
+    print "blt:"
+    print repr(s2)
+    s1.clear()
+    # s1.blt(s2, 0, 0, Rect(1,1,2,2))
+    s1.bitblt(s2, -1, -1)
+    print repr(s1)
+    # s1.clear()
+    s1.bitblt(s2, 6, 6)
+    print repr(s1)

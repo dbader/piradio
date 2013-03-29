@@ -10,6 +10,8 @@ import socket
 import os
 import graphics
 import json
+import commons
+import ui
 
 import fakelcd as lcd
 # import lcd
@@ -21,12 +23,15 @@ GLYPH_PLAYING = '0'#unichr(9654)
 sock = None
 eventqueue = Queue.Queue()
 
+UPDATE_RATE = 60.0
+
 framebuffer = graphics.Surface(128, 64)
 
 lcd.init()
 
 def lcd_update():
     lcd.update(framebuffer)
+    # print repr(framebuffer)
     # message = protocol.encode_message(protocol.CMD_DRAW, protocol.encode_bitmap(graphics.framebuffer))
     # protocol.write_message(sock, message)
 
@@ -57,23 +62,32 @@ def sleep():
     lcd.set_backlight_enabled(False)
     global sleeping
     sleeping = True
+    global UPDATE_RATE
+    UPDATE_RATE /= 4
 
 def wakeup():
     logging.info('Waking up')
     lcd.set_backlight_enabled(True)
     global sleeping
     sleeping = False
+    global UPDATE_RATE
+    UPDATE_RATE *= 4
 
 def client_main():
     logger = logging.getLogger('client')
     logger.info('Starting up')
     font = fontlib.Font(FONT_PATH, 8)
     glyph_font = fontlib.Font(GLYPHFONT_PATH, 10)
+    playing_glyph = graphics.Surface(8,8)
+    playing_glyph.blt(glyph_font.render(GLYPH_PLAYING), 0, 0, graphics.Rect(0,5,8,8))
+    print repr(playing_glyph)
     stations = json.loads(open('stations.json').read())
     cy = 0
     needs_redraw = True
     currstation = ''
     prev_timestr = ''
+    resetsleep()
+    audiolib.stop()
     while True:
         readkeys()
         if not sleeping and shouldsleep():
@@ -88,10 +102,10 @@ def client_main():
                 resetsleep()
                 if event.get('key') == protocol.KEY_UP:
                     cy -= 1
-                    cy = graphics.clamp(cy, 0, len(stations)-1)
+                    cy = commons.clamp(cy, 0, len(stations)-1)
                 if event.get('key') == protocol.KEY_DOWN:
                     cy += 1
-                    cy = graphics.clamp(cy, 0, len(stations)-1)
+                    cy = commons.clamp(cy, 0, len(stations)-1)
                 if event.get('key') == protocol.KEY_RIGHT:
                     img = graphics.Surface(filename='assets/dithertest.png')
                     img.dither()
@@ -119,21 +133,20 @@ def client_main():
            framebuffer.fill(0)
            if currstation:
                w, h, baseline = glyph_font.text_extents(currstation)
-               logging.debug('baseline is %i', baseline)
-               framebuffer.text(glyph_font, -1, -baseline-1, GLYPH_PLAYING)
-               print repr(framebuffer)
+               framebuffer.text(glyph_font, 0, -baseline-1, GLYPH_PLAYING)
                w, h, baseline = font.text_extents(currstation)
-               logging.debug('baseline is %i', baseline)
-               framebuffer.text(font, 10, 3 - baseline, currstation)
-           framebuffer.text(font, 100, 2, timestr)
+               framebuffer.text(font, 10, 2 - baseline, currstation)
+           w, h, baseline = font.text_extents(timestr)
+           framebuffer.text(font, 100, 2-baseline, timestr)
            framebuffer.hline(12)
-           graphics.render_list(framebuffer, 2, 14, font, stations.keys(), cy, minheight=12)
-           framebuffer.apply(lambda pixel: 0 if pixel else 1)
-           framebuffer.apply(lambda pixel: pixel * 200)
-           framebuffer.dither()
+           ui.render_list(framebuffer, 2, 14, font, stations.keys(), cy, minheight=12)
+           # framebuffer.apply(lambda pixel: 0 if pixel else 1)
+           # framebuffer.apply(lambda pixel: pixel * 200)
+           # framebuffer.dither()
+           print repr(framebuffer)
            lcd_update()
            needs_redraw = False
 
-        time.sleep(1.0 / 60.0)
+        time.sleep(1.0 / UPDATE_RATE)
 
 client_main()
