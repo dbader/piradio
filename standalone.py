@@ -12,165 +12,211 @@ import ui
 import fakelcd as lcd
 # import lcd
 
+class Panel(object):
+    def __init__(self):
+        pass
+
+    def paint(self, surface):
+        pass
+
+    def down_pressed(self):
+        pass
+
+    def up_pressed(self):
+        pass
+
+class ClockPanel(Panel):
+    def __init__(self):
+        pass
+
+    def paint(self, surface):
+        pass
+
+    def down_pressed(self):
+        pass
+
+    def up_pressed(self):
+        pass
+
+class RadioPanel(Panel):
+    def __init__(self):
+        pass
+
+    def paint(self, surface):
+        pass
+
+    def down_pressed(self):
+        pass
+
+    def up_pressed(self):
+        pass
+
 FONT_PATH = os.path.join(os.getcwd(), 'assets/font.ttf')
 GLYPHFONT_PATH = os.path.join(os.getcwd(), 'assets/pixarrows.ttf')
-CLOCK_FONT_PATH = os.path.join(os.getcwd(), 'assets/SourceCodePro-Regular.otf')
+CLOCK_FONT_PATH = os.path.join(os.getcwd(), 'assets/font.ttf')
 GLYPH_PLAYING = '0'#unichr(9654)
 
-
+LCD_SLEEPTIME = 5 * 1
 UPDATE_RATE = 60.0
 
-framebuffer = graphics.Surface(lcd.LCD_WIDTH, lcd.LCD_HEIGHT)
-lcd.init()
+PANELS = [RadioPanel(), ClockPanel()]
+active_panel = PANELS[0]
 
-def lcd_update():
-    # framebuffer.apply(lambda pixel: 0 if pixel else 1)
-    # framebuffer.apply(lambda pixel: pixel * 200)
-    # framebuffer.dither()
-    print repr(framebuffer)
-    logging.debug('Updating LCD')
-    lcd.update(framebuffer)
-
-prev_keystates = None
-def trigger_key_events():
-    global prev_keystates
-    keystates = lcd.readkeys()
-    if keystates != prev_keystates:
-        for i in range(len(keystates)):
-            if keystates[i]:
-                on_key_down(i)
-    prev_keystates = keystates
-
-# ----------- SLEEP
-LCD_SLEEPTIME = 5 * 60
-sleeptime = None
-sleeping = False
-
-def shouldsleep():
-    return time.time() > sleeptime
-
-def resetsleep():
-    global sleeptime
-    sleeptime = time.time() + LCD_SLEEPTIME
-    logging.debug('Sleeptime set to %f', sleeptime)
-
-def sleep():
-    logging.info('Going to sleep')
-    lcd.set_backlight_enabled(False)
-    global sleeping
-    sleeping = True
-    global UPDATE_RATE
-    UPDATE_RATE /= 4
-
-def wakeup():
-    logging.info('Waking up')
-    lcd.set_backlight_enabled(True)
-    global sleeping
-    sleeping = False
-    global UPDATE_RATE
-    UPDATE_RATE *= 4
-
-def update_sleep():
-    global sleeping
-    if not sleeping and shouldsleep():
-        sleep()
-    elif sleeping and not shouldsleep():
-        wakeup()
-        resetsleep()
-# ------------------------
 
 logger = logging.getLogger('client')
 logger.info('Starting up')
 
-font = fontlib.Font(FONT_PATH, 8)
-glyph_font = fontlib.Font(GLYPHFONT_PATH, 10)
-stations = json.loads(open('stations.json').read())
 
-cy = 0
-needs_redraw = True
-currstation = ''
-prev_timestr = ''
-resetsleep()
-audiolib.stop()
+class RadioApp(object):
+    def __init__(self):
+        self.framebuffer = None
+        self.prev_keystates = None
+        self.needs_redraw = True
+        self.sleeptime = None
+        self.sleeping = False
 
-def dither_test():
-    img = graphics.Surface(filename='assets/dithertest.png')
-    img.dither()
-    framebuffer.bitblt(img, 0, 0)
-    lcd_update()
-    time.sleep(5)
+        self.font = fontlib.Font(FONT_PATH, 8)
+        self.glyph_font = fontlib.Font(GLYPHFONT_PATH, 10)
+        self.stations = json.loads(open('stations.json').read())['stations']
+        print self.stations
 
-def big_clock():
-    time_of_day = str(datetime.datetime.now().strftime('%H:%M'))
-    clock_font = fontlib.Font(CLOCK_FONT_PATH, 40)
-    framebuffer.fill(0)
-    framebuffer.center_text(clock_font, time_of_day)
-    lcd_update()
-    time.sleep(5)
+        self.cy = 0
+        self.needs_redraw = True
+        self.currstation = ''
+        self.prev_timestr = ''
 
-def on_key_down(key):
-    global cy, needs_redraw, currstation
-    resetsleep()
-    if key == lcd.K_UP:
-        cy -= 1
-        cy = commons.clamp(cy, 0, len(stations)-1)
-    if key == lcd.K_DOWN:
-        cy += 1
-        cy = commons.clamp(cy, 0, len(stations)-1)
-    if key == lcd.K_RIGHT:
-        dither_test()
-    if key == lcd.K_LEFT:
-        big_clock()
-    if key == lcd.K_CENTER:
-        if currstation == stations.keys()[cy]:
-            logging.debug('Stopping playback')
-            audiolib.stop()
-            currstation = ''
-        else:
-            logging.debug('Switching station')
-            audiolib.playstream(stations.values()[cy], fade=False)
-            currstation = stations.keys()[cy]
-    needs_redraw = True
+    def run(self):
+        self.resetsleep()
+        audiolib.stop()
+        self.framebuffer = graphics.Surface(lcd.LCD_WIDTH, lcd.LCD_HEIGHT)
+        lcd.init()
 
-def update_clock():
-    global timestr, prev_timestr, needs_redraw
-    timestr = str(datetime.datetime.now().strftime('%H:%M'))
-    if timestr != prev_timestr:
-        prev_timestr = timestr
-        logging.debug('Redrawing the clock')
-        needs_redraw = True
+        while True:
+            self.update_sleep()
+            self.trigger_key_events()
+            self.update_clock()
 
-def redraw():
-    # Clear the framebuffer
-    framebuffer.fill(0)
+            if self.needs_redraw:
+                self.redraw()
+                self.needs_redraw = False
 
-    # If necessary, draw the 'playing' icon and the name of the current station
-    if currstation:
-        w, h, baseline = glyph_font.text_extents(currstation)
-        framebuffer.text(glyph_font, 0, -baseline-1, GLYPH_PLAYING)
+            time.sleep(1.0 / UPDATE_RATE)
 
-        w, h, baseline = font.text_extents(currstation)
-        framebuffer.text(font, 10, 2 - baseline, currstation)
+    def lcd_update(self):
+        # framebuffer.apply(lambda pixel: 0 if pixel else 1)
+        # framebuffer.apply(lambda pixel: pixel * 200)
+        # framebuffer.dither()
+        print repr(self.framebuffer)
+        logging.debug('Updating LCD')
+        lcd.update(self.framebuffer)
 
-    # Draw the clock
-    w, h, baseline = font.text_extents(timestr)
-    framebuffer.text(font, framebuffer.width - w - 2, 2-baseline, timestr)
+    def trigger_key_events(self):
+        keystates = lcd.readkeys()
+        if keystates != self.prev_keystates:
+            for i in range(len(keystates)):
+                if keystates[i]:
+                    self.on_key_down(i)
+        self.prev_keystates = keystates
 
-    # Draw separator between the 'status area' and the station selector
-    framebuffer.hline(11)
+    # ----------- SLEEP
+    def shouldsleep(self):
+        return time.time() > self.sleeptime
 
-    # Draw the station selector
-    ui.render_list(framebuffer, 2, 14, font, stations.keys(), cy, minheight=12)
+    def resetsleep(self):
+        self.sleeptime = time.time() + LCD_SLEEPTIME
+        logging.debug('Sleeptime set to %f', self.sleeptime)
 
-    lcd_update()
+    def sleep(self):
+        logging.info('Going to sleep')
+        lcd.set_backlight_enabled(False)
+        self.sleeping = True
+        global UPDATE_RATE
+        UPDATE_RATE /= 4
 
-while True:
-    update_sleep()
-    trigger_key_events()
-    update_clock()
+    def wakeup(self):
+        logging.info('Waking up')
+        lcd.set_backlight_enabled(True)
+        self.sleeping = False
+        global UPDATE_RATE
+        UPDATE_RATE *= 4
 
-    if needs_redraw:
-        redraw()
-        needs_redraw = False
+    def update_sleep(self):
+        if not self.sleeping and self.shouldsleep():
+            self.sleep()
+        elif self.sleeping and not self.shouldsleep():
+            self.wakeup()
+            self.resetsleep()
+    # ------------------------
 
-    time.sleep(1.0 / UPDATE_RATE)
+    def dither_test(self):
+        img = graphics.Surface(filename='assets/dithertest.png')
+        img.dither()
+        self.framebuffer.bitblt(img, 0, 0)
+        self.lcd_update()
+        time.sleep(5)
+
+    def big_clock(self):
+        time_of_day = str(datetime.datetime.now().strftime('%H:%M'))
+        clock_font = fontlib.Font(CLOCK_FONT_PATH, 40)
+        self.framebuffer.fill(0)
+        self.framebuffer.center_text(clock_font, time_of_day)
+        self.lcd_update()
+        time.sleep(5)
+
+    def on_key_down(self, key):
+        self.resetsleep()
+        if key == lcd.K_UP:
+            self.cy -= 1
+            self.cy = commons.clamp(self.cy, 0, len(self.stations)-1)
+        if key == lcd.K_DOWN:
+            self.cy += 1
+            self.cy = commons.clamp(self.cy, 0, len(self.stations)-1)
+        if key == lcd.K_RIGHT:
+            self.dither_test()
+        if key == lcd.K_LEFT:
+            self.big_clock()
+        if key == lcd.K_CENTER:
+            if self.currstation == self.stations.keys()[self.cy]:
+                logging.debug('Stopping playback')
+                audiolib.stop()
+                self.currstation = ''
+            else:
+                logging.debug('Switching station')
+                audiolib.playstream(self.stations.values()[self.cy], fade=False)
+                self.currstation = self.stations.keys()[self.cy]
+        self.needs_redraw = True
+
+    def update_clock(self):
+        self.timestr = str(datetime.datetime.now().strftime('%H:%M'))
+        if self.timestr != self.prev_timestr:
+            self.prev_timestr = self.timestr
+            logging.debug('Redrawing the clock')
+            self.needs_redraw = True
+
+    def redraw(self):
+        # Clear the framebuffer
+        self.framebuffer.fill(0)
+
+        # If necessary, draw the 'playing' icon and the name of the current station
+        if self.currstation:
+            w, h, baseline = self.glyph_font.text_extents(self.currstation)
+            self.framebuffer.text(self.glyph_font, 0, -baseline-1, GLYPH_PLAYING)
+
+            w, h, baseline = self.font.text_extents(self.currstation)
+            self.framebuffer.text(self.font, 10, 2 - baseline, self.currstation)
+
+        # Draw the clock
+        w, h, baseline = self.font.text_extents(self.timestr)
+        self.framebuffer.text(self.font, self.framebuffer.width - w - 2, 2-baseline, self.timestr)
+
+        # Draw separator between the 'status area' and the station selector
+        self.framebuffer.hline(11)
+
+        # Draw the station selector
+        ui.render_list(self.framebuffer, 2, 14, self.font, self.stations.keys(), self.cy, minheight=12)
+
+        self.lcd_update()
+
+if __name__ == '__main__':
+    app = RadioApp()
+    app.run()
