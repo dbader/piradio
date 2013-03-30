@@ -8,6 +8,7 @@ import graphics
 import json
 import commons
 import ui
+import weather
 
 import fakelcd as lcd
 # import lcd
@@ -38,6 +39,30 @@ class ClockPanel(Panel):
         framebuffer.fill(0)
         framebuffer.center_text(self.clock_font, time_of_day)
         self.needs_redraw = True
+
+    def up_pressed(self):
+        pass
+
+    def down_pressed(self):
+        pass
+
+    def center_pressed(self):
+        pass
+
+class WeatherPanel(Panel):
+    def __init__(self, city):
+        self.city = city
+        self.font = fontlib.Font(FONT_PATH, 16)
+        logging.info('Getting weather for %s', self.city)
+        self.w = weather.weather(self.city)
+
+    def update(self):
+        self.needs_redraw = True
+
+    def paint(self, framebuffer):
+        framebuffer.fill(0)
+        framebuffer.text(self.font, 0, 0, self.w[0])
+        framebuffer.center_text(self.font, '%.1f C' % self.w[1])
 
     def up_pressed(self):
         pass
@@ -176,7 +201,17 @@ GLYPH_PLAYING = '0'#unichr(9654)
 LCD_SLEEPTIME = 5 * 60
 UPDATE_RATE = 60.0
 
-PANELS = [RadioPanel(), ClockPanel(), DitherTestPanel(), AnimationTestPanel()]
+# Possible panels, by priority:
+# wheather
+# timer
+# wifi-test
+# settings
+# public transport
+# random images
+# twitter
+# newsticker
+# emails
+PANELS = [RadioPanel(), ClockPanel(), WeatherPanel('munich,de'), DitherTestPanel(), AnimationTestPanel()]
 
 logger = logging.getLogger('client')
 logger.info('Starting up')
@@ -219,8 +254,7 @@ class RadioApp(object):
         self.sleepmanager = SleepManager()
         self.framebuffer = None
         self.prev_keystates = None
-        self.panel_idx = 0
-        self.active_panel = PANELS[self.panel_idx]
+        self.activate_panel(0)
 
     @property
     def needs_redraw(self):
@@ -246,10 +280,6 @@ class RadioApp(object):
             time.sleep(1.0 / UPDATE_RATE)
 
     def lcd_update(self):
-        # framebuffer.apply(lambda pixel: 0 if pixel else 1)
-        # framebuffer.apply(lambda pixel: pixel * 200)
-        # framebuffer.dither()
-        # print repr(self.framebuffer)
         logging.debug('Updating LCD')
         lcd.update(self.framebuffer)
 
@@ -263,6 +293,8 @@ class RadioApp(object):
 
     def on_key_down(self, key):
         self.sleepmanager.resetsleep()
+
+        # Forward up, down, and center button presses to the active panel.
         if key == lcd.K_UP:
             self.active_panel.up_pressed()
         if key == lcd.K_DOWN:
@@ -270,24 +302,21 @@ class RadioApp(object):
         if key == lcd.K_CENTER:
             self.active_panel.center_pressed()
 
-        if key == lcd.K_RIGHT:
-            self.go_panel_right()
+        # Left and right button presses switch to another panel.
         if key == lcd.K_LEFT:
-            self.go_panel_left()
+            self.activate_panel(self.panel_idx - 1)
+        if key == lcd.K_RIGHT:
+            self.activate_panel(self.panel_idx + 1)
 
     def redraw(self):
         self.active_panel.paint(self.framebuffer)
         self.lcd_update()
 
-    def go_panel_left(self):
-        self.panel_idx = commons.clamp(self.panel_idx - 1, 0, len(PANELS) - 1)
+    def activate_panel(self, panel_idx):
+        self.panel_idx = commons.clamp(panel_idx, 0, len(PANELS) - 1)
         self.active_panel = PANELS[self.panel_idx]
         self.active_panel.needs_redraw = True
-
-    def go_panel_right(self):
-        self.panel_idx = commons.clamp(self.panel_idx + 1, 0, len(PANELS) - 1)
-        self.active_panel = PANELS[self.panel_idx]
-        self.active_panel.needs_redraw = True
+        logging.debug('Activated panel %s', self.active_panel.__class__.__name__)
 
 if __name__ == '__main__':
     app = RadioApp()
