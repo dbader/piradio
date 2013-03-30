@@ -56,69 +56,20 @@ GLYPHFONT_PATH = os.path.join(os.getcwd(), 'assets/pixarrows.ttf')
 CLOCK_FONT_PATH = os.path.join(os.getcwd(), 'assets/font.ttf')
 GLYPH_PLAYING = '0'#unichr(9654)
 
-LCD_SLEEPTIME = 5 * 1
+LCD_SLEEPTIME = 5
 UPDATE_RATE = 60.0
 
 PANELS = [RadioPanel(), ClockPanel()]
 active_panel = PANELS[0]
 
-
 logger = logging.getLogger('client')
 logger.info('Starting up')
 
-
-class RadioApp(object):
+class SleepManager(object):
     def __init__(self):
-        self.framebuffer = None
-        self.prev_keystates = None
-        self.needs_redraw = True
         self.sleeptime = None
         self.sleeping = False
 
-        self.font = fontlib.Font(FONT_PATH, 8)
-        self.glyph_font = fontlib.Font(GLYPHFONT_PATH, 10)
-        self.stations = json.loads(open('stations.json').read())['stations']
-        print self.stations
-
-        self.cy = 0
-        self.needs_redraw = True
-        self.currstation = ''
-        self.prev_timestr = ''
-
-    def run(self):
-        self.resetsleep()
-        audiolib.stop()
-        self.framebuffer = graphics.Surface(lcd.LCD_WIDTH, lcd.LCD_HEIGHT)
-        lcd.init()
-
-        while True:
-            self.update_sleep()
-            self.trigger_key_events()
-            self.update_clock()
-
-            if self.needs_redraw:
-                self.redraw()
-                self.needs_redraw = False
-
-            time.sleep(1.0 / UPDATE_RATE)
-
-    def lcd_update(self):
-        # framebuffer.apply(lambda pixel: 0 if pixel else 1)
-        # framebuffer.apply(lambda pixel: pixel * 200)
-        # framebuffer.dither()
-        print repr(self.framebuffer)
-        logging.debug('Updating LCD')
-        lcd.update(self.framebuffer)
-
-    def trigger_key_events(self):
-        keystates = lcd.readkeys()
-        if keystates != self.prev_keystates:
-            for i in range(len(keystates)):
-                if keystates[i]:
-                    self.on_key_down(i)
-        self.prev_keystates = keystates
-
-    # ----------- SLEEP
     def shouldsleep(self):
         return time.time() > self.sleeptime
 
@@ -146,7 +97,56 @@ class RadioApp(object):
         elif self.sleeping and not self.shouldsleep():
             self.wakeup()
             self.resetsleep()
-    # ------------------------
+
+class RadioApp(object):
+    def __init__(self):
+        self.sleepmanager = SleepManager()
+        self.framebuffer = None
+        self.prev_keystates = None
+        self.needs_redraw = True
+
+        self.font = fontlib.Font(FONT_PATH, 8)
+        self.glyph_font = fontlib.Font(GLYPHFONT_PATH, 10)
+        self.stations = json.loads(open('stations.json').read())['stations']
+        print self.stations
+
+        self.cy = 0
+        self.needs_redraw = True
+        self.currstation = ''
+        self.prev_timestr = ''
+
+    def run(self):
+        self.sleepmanager.resetsleep()
+        audiolib.stop()
+        self.framebuffer = graphics.Surface(lcd.LCD_WIDTH, lcd.LCD_HEIGHT)
+        lcd.init()
+
+        while True:
+            self.sleepmanager.update_sleep()
+            self.trigger_key_events()
+            self.update_clock()
+
+            if self.needs_redraw:
+                self.redraw()
+                self.needs_redraw = False
+
+            time.sleep(1.0 / UPDATE_RATE)
+
+    def lcd_update(self):
+        # framebuffer.apply(lambda pixel: 0 if pixel else 1)
+        # framebuffer.apply(lambda pixel: pixel * 200)
+        # framebuffer.dither()
+        # print repr(self.framebuffer)
+        logging.debug('Updating LCD')
+        lcd.update(self.framebuffer)
+
+    def trigger_key_events(self):
+        keystates = lcd.readkeys()
+        if keystates != self.prev_keystates:
+            for i in range(len(keystates)):
+                if keystates[i]:
+                    self.on_key_down(i)
+        self.prev_keystates = keystates
 
     def dither_test(self):
         img = graphics.Surface(filename='assets/dithertest.png')
@@ -164,7 +164,7 @@ class RadioApp(object):
         time.sleep(5)
 
     def on_key_down(self, key):
-        self.resetsleep()
+        self.sleepmanager.resetsleep()
         if key == lcd.K_UP:
             self.cy -= 1
             self.cy = commons.clamp(self.cy, 0, len(self.stations)-1)
