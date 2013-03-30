@@ -27,7 +27,7 @@ def lcd_update():
     # framebuffer.apply(lambda pixel: 0 if pixel else 1)
     # framebuffer.apply(lambda pixel: pixel * 200)
     # framebuffer.dither()
-    # print repr(framebuffer)
+    print repr(framebuffer)
     logging.debug('Updating LCD')
     lcd.update(framebuffer)
 
@@ -42,7 +42,7 @@ def trigger_key_events():
     prev_keystates = keystates
 
 # ----------- SLEEP
-LCD_SLEEPTIME = 5 * 2
+LCD_SLEEPTIME = 5 * 60
 sleeptime = None
 sleeping = False
 
@@ -154,10 +154,10 @@ def redraw():
 
     # Draw the clock
     w, h, baseline = font.text_extents(timestr)
-    framebuffer.text(font, 100, 2-baseline, timestr)
+    framebuffer.text(font, framebuffer.width - w - 2, 2-baseline, timestr)
 
     # Draw separator between the 'status area' and the station selector
-    framebuffer.hline(12)
+    framebuffer.hline(11)
 
     # Draw the station selector
     ui.render_list(framebuffer, 2, 14, font, stations.keys(), cy, minheight=12)
