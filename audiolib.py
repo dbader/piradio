@@ -15,6 +15,9 @@ def currentsong():
     currsong = client.currentsong()
     return u'%s - %s' % (currsong.get('name'), currsong.get('title'))
 
+def currentstation():
+    return client.currentsong().get('name', '')
+
 def currvolume():
     return int(client.status()['volume'])
 

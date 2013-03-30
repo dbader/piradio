@@ -80,9 +80,9 @@ def print_bitmap(bmp, width, height):
         print rowstr
 
 if __name__ == '__main__':
-    face = freetype.Face('/Users/daniel/dev/piradio/test-apps/font3.ttf')
+    face = freetype.Face('/Users/daniel/dev/github/piradio/test-apps/font4.ttf')
     text = u'one, two, three'
-    face.set_char_size( 24*64 )
+    face.set_char_size( 20*64 )
 
     width, height, baseline = text_extents(face, text)
     text_bmp = text_render(face, width, height, baseline, text)

@@ -8,13 +8,13 @@ The solution: Have one thread (process via multiprocessing) poll the buttons at 
 import multiprocessing
 import time
 import logging
-import lcd
+import fakelcd
 import random
 import time
 
 logging.basicConfig(level=logging.INFO)
 
-LCD_WIDTH, LCD_HEIGHT = lcd.LCD_WIDTH, lcd.LCD_HEIGHT
+LCD_WIDTH, LCD_HEIGHT = fakelcd.LCD_WIDTH, fakelcd.LCD_HEIGHT
 
 framebuffer_lock = multiprocessing.Lock()
 framebuffer = multiprocessing.Array('b', LCD_WIDTH * LCD_HEIGHT, lock=False)
