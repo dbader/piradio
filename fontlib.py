@@ -48,15 +48,18 @@ def unpack_mono_bitmap(bitmap):
             # data[y * bitmap.width + x] = bits(byte_value)[bit_index]
     return data
 
-# 0.26
+# 0.24
 def unpack_mono_bitmap(bitmap):
     data = bytearray(bitmap.rows * bitmap.width)
+
     for y in range(bitmap.rows):
         for byte_index in range(bitmap.pitch):
             byte_value = bitmap.buffer[y * bitmap.pitch + byte_index]
             num_bits_done = byte_index * 8
+            rowstart = y * bitmap.width + byte_index * 8
             for bit_index in range(0, min(8, bitmap.width - num_bits_done)):
-                data[y * bitmap.width + byte_index*8 + bit_index] = 1 if (  byte_value & (1 << (7 - bit_index)) ) else 0
+                data[rowstart + bit_index] = 1 if (  byte_value & (1 << (7 - bit_index)) ) else 0
+
     return data
 
 
