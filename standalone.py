@@ -250,7 +250,7 @@ UPDATE_RATE = 60.0
 logger = logging.getLogger('client')
 logger.info('Starting up')
 
-class SleepManager(object):
+class SleepTimer(object):
     def __init__(self):
         self.sleeptime = None
         self.sleeping = False
@@ -285,7 +285,7 @@ class SleepManager(object):
 
 class RadioApp(object):
     def __init__(self):
-        self.sleepmanager = SleepManager()
+        self.sleepmanager = SleepTimer()
         self.framebuffer = None
         self.prev_keystates = None
         self.font = fontlib.Font(FONT_PATH, 8)
@@ -306,7 +306,11 @@ class RadioApp(object):
         self.framebuffer.center_text(self.font, pannel_class.__name__, rop=graphics.rop_xor)
         self.lcd_update()
         lcd.readkeys()
-        self.panels.append(pannel_class(*args))
+        try:
+            self.panels.append(pannel_class(*args))
+        except Exception as e:
+            logging.error('Failed to initialize panel %s', pannel_class.__name__)
+            logging.exception(e)
 
     def run(self):
         self.sleepmanager.resetsleep()
@@ -321,7 +325,7 @@ class RadioApp(object):
         self.addpannel(WeatherPanel, 'wurzburg,de')
         self.addpannel(DitherTestPanel)
         self.addpannel(AnimationTestPanel)
-        self.addpannel(RandomPodcastPanel, 'http://domian.alpha-labs.net/domian.rss')
+        self.addpannel(RandomPodcastPanel, 'file://' + os.path.join(os.getcwd(),'assets/example.rss'))
 
         self.activate_panel(0)
 
