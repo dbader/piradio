@@ -7,7 +7,8 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger('fonts')
 
-def unpack_mono_bitmapX(bitmap):
+# 0.27
+def unpack_mono_bitmap(bitmap):
     """Unpack a freetype FT_LOAD_TARGET_MONO bitmap into a list that has one element per pixel."""
 
     def bits(x):
@@ -34,6 +35,7 @@ def bits(x):
         x = x >> 1
     return data
 
+# 1.0
 def unpack_mono_bitmap(bitmap):
     data = bytearray(bitmap.rows * bitmap.width)
     for y in range(bitmap.rows):
@@ -45,6 +47,18 @@ def unpack_mono_bitmap(bitmap):
             # Correct:
             # data[y * bitmap.width + x] = bits(byte_value)[bit_index]
     return data
+
+# 0.26
+def unpack_mono_bitmap(bitmap):
+    data = bytearray(bitmap.rows * bitmap.width)
+    for y in range(bitmap.rows):
+        for byte_index in range(bitmap.pitch):
+            byte_value = bitmap.buffer[y * bitmap.pitch + byte_index]
+            num_bits_done = byte_index * 8
+            for bit_index in range(0, min(8, bitmap.width - num_bits_done)):
+                data[y * bitmap.width + byte_index*8 + bit_index] = 1 if (  byte_value & (1 << (7 - bit_index)) ) else 0
+    return data
+
 
 def buf2str(pixels, width, height):
     bstr = ''
@@ -132,7 +146,7 @@ class Font(object):
         return outbuffer
 
 if __name__ == '__main__':
-    f = Font('test-apps/font4.ttf', 16)
+    f = Font('test-apps/font4.ttf', 32)
     text = u'hello, world.'
     # text = 'T,'
     width, height, baseline = f.text_extents(text)
@@ -155,8 +169,8 @@ if __name__ == '__main__':
         return ''.join( random.choice(string.ascii_letters + string.digits) for n in xrange(l) )
 
     def benchmark():
-        for i in range(10):
-            f.render(random_string(30))
+        for c in string.ascii_letters + string.digits:
+            f.render(c)
 
     import cProfile
     import pstats
