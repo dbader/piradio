@@ -40,7 +40,7 @@ class Panel(object):
 
 class ClockPanel(Panel):
     def __init__(self):
-        self.clock_font = fontlib.Font(CLOCK_FONT_PATH, 40)
+        self.clock_font = fontlib.Font(CLOCK_FONT_PATH, 32)
         self.prev_timestr = None
 
     def update(self):
@@ -314,9 +314,10 @@ class RadioApp(object):
 
     def run(self):
         self.sleepmanager.resetsleep()
-        self.framebuffer = graphics.Surface(lcd.LCD_WIDTH, lcd.LCD_HEIGHT)
         audiolib.stop()
         lcd.init()
+        self.framebuffer = graphics.Surface(lcd.LCD_WIDTH, lcd.LCD_HEIGHT)
+        lcd.set_backlight_enabled(True)
 
         logging.info('Initializing panels')
         self.addpannel(RadioPanel)
@@ -325,7 +326,8 @@ class RadioApp(object):
         self.addpannel(WeatherPanel, 'wurzburg,de')
         self.addpannel(DitherTestPanel)
         self.addpannel(AnimationTestPanel)
-        self.addpannel(RandomPodcastPanel, 'file://' + os.path.join(os.getcwd(),'assets/example.rss'))
+        self.addpannel(RandomPodcastPanel, 'http://domian.alpha-labs.net/domian.rss')
+        # self.addpannel(RandomPodcastPanel, 'file://' + os.path.join(os.getcwd(),'assets/example.rss'))
 
         self.activate_panel(0)
 

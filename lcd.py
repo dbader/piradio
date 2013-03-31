@@ -6,7 +6,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 K_LEFT = 0
 K_RIGHT = 1
-K_UP = 2,
+K_UP = 2
 K_DOWN = 3
 K_CENTER = 4
 
