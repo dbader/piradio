@@ -27,50 +27,45 @@ def unpack_mono_bitmap(bitmap):
         data.extend(row[:bitmap.width])
     return data
 
-def bits(x):
-    """Unpack the bits of am 8bit word into a list."""
-    data = []
-    for i in range(8):
-        data.insert(0, int((x & 1) == 1))
-        x = x >> 1
-    return data
-
-# 1.0
 def unpack_mono_bitmap(bitmap):
-    data = bytearray(bitmap.rows * bitmap.width)
-    for y in range(bitmap.rows):
-        for x in range(bitmap.width):
-            byte_index = x / 8
-            byte_value = bitmap.buffer[y * bitmap.pitch + byte_index]
-            bit_index = x - (byte_index * 8)
-            data[y * bitmap.width + x] = 1 if (  byte_value & (1 << (7 - bit_index)) ) else 0
-            # Correct:
-            # data[y * bitmap.width + x] = bits(byte_value)[bit_index]
-    return data
-
-# 0.24
-def unpack_mono_bitmap(bitmap):
+    """
+    Unpack a freetype FT_LOAD_TARGET_MONO glyph bitmap into a bytearray where each pixel
+    is represented by a single byte.
+    """
+    # Allocate a bytearray of sufficient size to hold the glyph bitmap.
     data = bytearray(bitmap.rows * bitmap.width)
 
+    # Iterate over every byte in the glyph bitmap. Note that we're not
+    # iterating over every pixel in the resulting unpacked bitmap --
+    # we're iterating over the packed bytes in the input bitmap.
     for y in range(bitmap.rows):
         for byte_index in range(bitmap.pitch):
+
+            # Read the byte that contains the packed pixel data.
             byte_value = bitmap.buffer[y * bitmap.pitch + byte_index]
+
+            # We've processed this many bits (=pixels) so far. This determines
+            # where we'll read the next batch of pixels from.
             num_bits_done = byte_index * 8
+
+            # Pre-compute where we should write the pixels that we're going
+            # to unpack from the current byte in the glyph bitmap.
             rowstart = y * bitmap.width + byte_index * 8
+
+            # Iterate over every bit (=pixel) that's still a part of the output bitmap.
+            # Sometimes we're only unpacking a fraction of a byte because glyphs may
+            # not always fit on a byte boundary. So we make sure to stop if we unpack
+            # past the current row of pixels.
             for bit_index in range(0, min(8, bitmap.width - num_bits_done)):
-                data[rowstart + bit_index] = 1 if (  byte_value & (1 << (7 - bit_index)) ) else 0
+
+                # Unpack the next pixel from the current glyph byte.
+                bit = byte_value & (1 << (7 - bit_index))
+
+                # Write the pixel to the output bytearray. We ensure that `off` pixels
+                # have a value of 0 and `on` pixels have a value of 1.
+                data[rowstart + bit_index] = 1 if bit else 0
 
     return data
-
-
-def buf2str(pixels, width, height):
-    bstr = ''
-    for i in range(height):
-        rowstr = ''
-        for j in range(width):
-            rowstr += '#' if pixels[i * width + j] else '.'
-        bstr += rowstr + '\n'
-    return bstr
 
 class Font(object):
     def __init__(self, filename, size):
