@@ -1,4 +1,5 @@
 import graphics
+import commons
 
 class Widget(object):
     def __init__(self, bounds, parent=None):
@@ -26,3 +27,18 @@ def render_list(framebuffer, x, y, font, items, selected_index=-1, minheight=-1,
         top_offset = (maxheight - textheight) / 2
         framebuffer.bitblt(textbitmap, x, y+top_offset, op=graphics.rop_xor)
         y += maxheight
+
+def render_progressbar(surface, x, y, w, h, progress):
+    surface.strokerect(x, y, w, h)
+    surface.fillrect(x + 2, y + 2, int((w-4) * commons.clamp(progress, 0, 1)), h - 4)
+
+if __name__ == '__main__':
+    s = graphics.Surface(64, 20)
+    render_progressbar(s, 2, 2, 50, 16, -1)
+    print repr(s)
+    render_progressbar(s, 2, 2, 50, 16, 0.5)
+    print repr(s)
+    render_progressbar(s, 2, 2, 50, 16, 0.9)
+    print repr(s)
+    render_progressbar(s, 2, 2, 50, 16, 10)
+    print repr(s)

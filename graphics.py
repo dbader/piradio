@@ -147,17 +147,27 @@ class Surface(object):
                 self.pixels[dstpixel] = op(self.pixels[dstpixel], src.pixels[srcpixel])
 
     # TODO: REFACTOR: Font rendering into Surfaces should be done solely through fontlib.
-    def text(self, font, x, y, text):
+    def text(self, font, x, y, text, rop=rop_copy):
         w, h, baseline = font.text_extents(text)
         bmp = font.render(text, w, h, baseline)
-        self.bitblt(bmp, x, y)
+        self.bitblt(bmp, x, y, op=rop)
 
-    def center_text(self, font, text):
+    def center_text(self, font, text, rop=rop_copy):
         w, h, baseline = font.text_extents(text)
-        self.text(font, self.width / 2 - w / 2, self.height / 2 - h / 2, text)
+        self.text(font, self.width / 2 - w / 2, self.height / 2 - h / 2, text, rop)
 
-    # def rect(x, y, w, h, color=1):
-    #     pass
+    def strokerect(self, x, y, w, h, color=1):
+        for dx in range(x, x + w):
+            self.setpixel(dx, y, color)
+            self.setpixel(dx, y + h - 1, color)
+        for dy in range(y, y + h):
+            self.setpixel(x, dy, color)
+            self.setpixel(x + w - 1, dy, color)
+
+    def fillrect(self, x, y, w, h, color=1):
+        for dx in range(x, x + w):
+            for dy in range(y, y + h):
+                self.setpixel(dx, dy, color)
 
     def loadimage(self, filename):
         reader = png.Reader(filename)
@@ -272,4 +282,12 @@ if __name__ == '__main__':
     print repr(s1)
     # s1.clear()
     s1.bitblt(s2, 6, 6)
+    print repr(s1)
+
+    s1.clear()
+    s1.strokerect(1,1,6,3)
+    print repr(s1)
+
+    # s1.clear()
+    s1.fillrect(1,5,6,2)
     print repr(s1)
