@@ -144,8 +144,8 @@ class Font(object):
         return outbuffer
 
 if __name__ == '__main__':
-    f = Font('test-apps/font4.ttf', 32)
-    text = u'hello, world.'
+    f = Font('test-apps/font4.ttf', 40)
+    text = u'22:50'
     # text = 'T,'
     width, height, baseline = f.text_extents(text)
     print '"%s": width=%i height=%i baseline=%i' % (text, width, height, baseline)
