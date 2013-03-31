@@ -81,5 +81,14 @@ def playstream(url, fade=True):
     # client.disconnect()
     # client = None
 
+def progress():
+    if not is_playing():
+        return 0.0
+    done, total = tuple(map(int, client.status()['time'].split(':')))
+    if not total:
+        return 0.0
+    return float(done) / float(total)
+
 if __name__ == '__main__':
+    print progress()
     print is_playing()

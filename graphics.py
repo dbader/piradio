@@ -152,9 +152,9 @@ class Surface(object):
         bmp = font.render(text, w, h, baseline)
         self.bitblt(bmp, x, y, op=rop)
 
-    def center_text(self, font, text, rop=rop_copy):
+    def center_text(self, font, text, x=None, y=None, rop=rop_copy):
         w, h, baseline = font.text_extents(text)
-        self.text(font, self.width / 2 - w / 2, self.height / 2 - h / 2, text, rop)
+        self.text(font, x or self.width / 2 - w / 2, y or self.height / 2 - h / 2, text, rop)
 
     def strokerect(self, x, y, w, h, color=1):
         for dx in range(x, x + w):

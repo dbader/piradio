@@ -1,3 +1,13 @@
+# Possible panels, by priority:
+# timer
+# wifi-test
+# settings
+# public transport
+# random images
+# twitter
+# newsticker
+# emails
+
 import logging
 import os
 import fontlib
@@ -66,7 +76,8 @@ class WeatherPanel(Panel):
 
     def paint(self, framebuffer):
         framebuffer.fill(0)
-        framebuffer.text(self.font, 0, 0, self.w[0])
+
+        framebuffer.center_text(self.font, self.w[0], y=2)
         framebuffer.center_text(self.font, '%.1f C' % self.w[1])
 
     def up_pressed(self):
@@ -97,6 +108,7 @@ class RandomPodcastPanel(Panel):
     def paint(self, framebuffer):
         framebuffer.fill(0)
         framebuffer.center_text(self.font, self.episode_title)
+        ui.render_progressbar(framebuffer, 0, 2, framebuffer.width, 16, audiolib.progress())
 
     def up_pressed(self):
         pass
@@ -152,7 +164,6 @@ class AnimationTestPanel(Panel):
     def paint(self, framebuffer):
         framebuffer.fill(0)
         framebuffer.bitblt(self.img, self.x, self.y)
-        self.needs_redraw = True
 
     def up_pressed(self):
         pass
@@ -236,19 +247,6 @@ GLYPH_PLAYING = '0'#unichr(9654)
 LCD_SLEEPTIME = 5 * 60
 UPDATE_RATE = 60.0
 
-# Possible panels, by priority:
-# wheather
-# random podcast from feed, up/down selects a new random episode
-# timer
-# wifi-test
-# settings
-# public transport
-# random images
-# twitter
-# newsticker
-# emails
-PANELS = []
-
 logger = logging.getLogger('client')
 logger.info('Starting up')
 
@@ -291,6 +289,7 @@ class RadioApp(object):
         self.framebuffer = None
         self.prev_keystates = None
         self.font = fontlib.Font(FONT_PATH, 8)
+        self.panels = []
 
     @property
     def needs_redraw(self):
@@ -303,12 +302,11 @@ class RadioApp(object):
         ui.render_progressbar(self.framebuffer,
                               2, self.framebuffer.height / 2 - 8,
                               self.framebuffer.width - 2 * 2, 16,
-                              len(PANELS) / 7.0)
+                              len(self.panels) / 7.0)
         self.framebuffer.center_text(self.font, pannel_class.__name__, rop=graphics.rop_xor)
         self.lcd_update()
         lcd.readkeys()
-        pannel = pannel_class(*args)
-        PANELS.append(pannel)
+        self.panels.append(pannel_class(*args))
 
     def run(self):
         self.sleepmanager.resetsleep()
@@ -372,8 +370,8 @@ class RadioApp(object):
         self.lcd_update()
 
     def activate_panel(self, panel_idx):
-        self.panel_idx = commons.clamp(panel_idx, 0, len(PANELS) - 1)
-        self.active_panel = PANELS[self.panel_idx]
+        self.panel_idx = commons.clamp(panel_idx, 0, len(self.panels) - 1)
+        self.active_panel = self.panels[self.panel_idx]
         self.active_panel.needs_redraw = True
         logging.debug('Activated panel %s', self.active_panel.__class__.__name__)
 
