@@ -9,6 +9,8 @@ import json
 import commons
 import ui
 import weather
+import podcast
+import random
 
 import fakelcd as lcd
 # import lcd
@@ -28,17 +30,20 @@ class Panel(object):
 
 class ClockPanel(Panel):
     def __init__(self):
-        self.needs_redraw = True
         self.clock_font = fontlib.Font(CLOCK_FONT_PATH, 40)
+        self.prev_timestr = None
 
     def update(self):
-        self.needs_redraw = True
+        self.timestr = str(datetime.datetime.now().strftime('%H:%M'))
+        if self.timestr != self.prev_timestr:
+            self.prev_timestr = self.timestr
+            logging.debug('Redrawing the clock')
+            self.needs_redraw = True
 
     def paint(self, framebuffer):
-        time_of_day = str(datetime.datetime.now().strftime('%H:%M'))
+        # time_of_day = str(datetime.datetime.now().strftime('%H:%M'))
         framebuffer.fill(0)
-        framebuffer.center_text(self.clock_font, time_of_day)
-        self.needs_redraw = True
+        framebuffer.center_text(self.clock_font, self.timestr)
 
     def up_pressed(self):
         pass
@@ -57,7 +62,7 @@ class WeatherPanel(Panel):
         self.w = weather.weather(self.city)
 
     def update(self):
-        self.needs_redraw = True
+        pass
 
     def paint(self, framebuffer):
         framebuffer.fill(0)
@@ -71,7 +76,38 @@ class WeatherPanel(Panel):
         pass
 
     def center_pressed(self):
+        logging.info('Getting weather for %s', self.city)
+        self.w = weather.weather(self.city)
+        self.needs_redraw = True
+
+class RandomPodcastEpisodePanel(Panel):
+    def __init__(self, feed_url):
+        self.font = fontlib.Font(FONT_PATH, 8)
+        logging.info('Loading podcast feed from %s', feed_url)
+        self.episodes = podcast.load_podcast(feed_url)
+        logging.info('Got %i episodes', len(self.episodes))
+        self.select_random_episode()
+
+    def select_random_episode(self):
+        self.episode_title, self.episode_url = random.choice(self.episodes)
+
+    def update(self):
         pass
+
+    def paint(self, framebuffer):
+        framebuffer.fill(0)
+        framebuffer.center_text(self.font, self.episode_title)
+
+    def up_pressed(self):
+        pass
+
+    def down_pressed(self):
+        pass
+
+    def center_pressed(self):
+        self.select_random_episode()
+        self.needs_redraw = True
+        audiolib.playstream(self.episode_url, fade=False)
 
 class DitherTestPanel(Panel):
     def __init__(self):
@@ -80,11 +116,10 @@ class DitherTestPanel(Panel):
         self.img.dither()
 
     def update(self):
-        self.needs_redraw = True
+        pass
 
     def paint(self, framebuffer):
         framebuffer.bitblt(self.img, 0, 0)
-        self.needs_redraw = True
 
     def up_pressed(self):
         pass
@@ -203,6 +238,7 @@ UPDATE_RATE = 60.0
 
 # Possible panels, by priority:
 # wheather
+# random podcast from feed, up/down selects a new random episode
 # timer
 # wifi-test
 # settings
@@ -211,7 +247,7 @@ UPDATE_RATE = 60.0
 # twitter
 # newsticker
 # emails
-PANELS = [RadioPanel(), ClockPanel(), WeatherPanel('munich,de'), DitherTestPanel(), AnimationTestPanel()]
+PANELS = []
 
 logger = logging.getLogger('client')
 logger.info('Starting up')
@@ -254,7 +290,7 @@ class RadioApp(object):
         self.sleepmanager = SleepManager()
         self.framebuffer = None
         self.prev_keystates = None
-        self.activate_panel(0)
+        self.font = fontlib.Font(FONT_PATH, 16)
 
     @property
     def needs_redraw(self):
@@ -262,11 +298,29 @@ class RadioApp(object):
             return self.active_panel.needs_redraw
         return False
 
+    def addpannel(self, pannel):
+        PANELS.append(pannel)
+        self.framebuffer.fill(0)
+        self.framebuffer.center_text(self.font, '.' * len(PANELS))
+        self.lcd_update()
+        lcd.readkeys()
+
     def run(self):
         self.sleepmanager.resetsleep()
         self.framebuffer = graphics.Surface(lcd.LCD_WIDTH, lcd.LCD_HEIGHT)
         audiolib.stop()
         lcd.init()
+
+        logging.info('Initializing panels')
+        self.addpannel(RadioPanel())
+        self.addpannel(ClockPanel())
+        self.addpannel(WeatherPanel('munich,de'))
+        self.addpannel(WeatherPanel('wurzburg,de'))
+        self.addpannel(DitherTestPanel())
+        self.addpannel(AnimationTestPanel())
+        self.addpannel(RandomPodcastEpisodePanel('http://domian.alpha-labs.net/domian.rss'))
+
+        self.activate_panel(0)
 
         while True:
             self.sleepmanager.update_sleep()
@@ -319,5 +373,15 @@ class RadioApp(object):
         logging.debug('Activated panel %s', self.active_panel.__class__.__name__)
 
 if __name__ == '__main__':
-    app = RadioApp()
-    app.run()
+    # RadioApp().run()
+    while True:
+        try:
+            logging.info("Booting app")
+            app = RadioApp()
+            app.run()
+        except KeyboardInterrupt:
+            logging.info('Shutting down')
+            audiolib.stop()
+            break
+        except Exception as e:
+            logging.exception(e)
