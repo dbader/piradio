@@ -22,20 +22,28 @@ import weather
 import podcast
 import random
 
-# import fakelcd as lcd
-import lcd
+try:
+    import lcd
+except OSError:
+    import fakelcd as lcd
 
 class Panel(object):
     def __init__(self):
         pass
 
+    def update(self):
+        pass
+
     def paint(self, surface):
+        pass
+
+    def up_pressed(self):
         pass
 
     def down_pressed(self):
         pass
 
-    def up_pressed(self):
+    def center_pressed(self):
         pass
 
 class ClockPanel(Panel):
@@ -51,7 +59,6 @@ class ClockPanel(Panel):
             self.needs_redraw = True
 
     def paint(self, framebuffer):
-        # time_of_day = str(datetime.datetime.now().strftime('%H:%M'))
         framebuffer.fill(0)
         framebuffer.center_text(self.clock_font, self.timestr)
 
@@ -76,7 +83,6 @@ class WeatherPanel(Panel):
 
     def paint(self, framebuffer):
         framebuffer.fill(0)
-
         framebuffer.center_text(self.font, self.w[0], y=2)
         framebuffer.center_text(self.font, '%.1f C' % self.w[1])
 
@@ -98,12 +104,15 @@ class RandomPodcastPanel(Panel):
         self.episodes = podcast.load_podcast(feed_url)
         logging.info('Got %i episodes', len(self.episodes))
         self.select_random_episode()
+        self.lastrefresh = 0
 
     def select_random_episode(self):
         self.episode_title, self.episode_url = random.choice(self.episodes)
 
     def update(self):
-        pass
+        if time.time() - self.lastrefresh > 10:
+            self.lastrefresh = time.time()
+            self.needs_redraw = True
 
     def paint(self, framebuffer):
         framebuffer.fill(0)
@@ -149,8 +158,8 @@ class AnimationTestPanel(Panel):
         self.img = font.render('piradio')
         self.x = 0
         self.y = 0
-        self.dirx = 1
-        self.diry = 1
+        self.dirx = 3
+        self.diry = 3
 
     def update(self):
         self.x += self.dirx
@@ -244,7 +253,7 @@ GLYPHFONT_PATH = os.path.join(os.getcwd(), 'assets/pixarrows.ttf')
 CLOCK_FONT_PATH = os.path.join(os.getcwd(), 'assets/font.ttf')
 GLYPH_PLAYING = '0'#unichr(9654)
 
-LCD_SLEEPTIME = 5 * 60
+LCD_SLEEPTIME = 60 * 60
 UPDATE_RATE = 60.0
 
 logger = logging.getLogger('client')
@@ -382,15 +391,15 @@ class RadioApp(object):
         logging.debug('Activated panel %s', self.active_panel.__class__.__name__)
 
 if __name__ == '__main__':
-    RadioApp().run()
-    # while True:
-    #     try:
-    #         logging.info("Booting app")
-    #         app = RadioApp()
-    #         app.run()
-    #     except KeyboardInterrupt:
-    #         logging.info('Shutting down')
-    #         audiolib.stop()
-    #         break
-    #     except Exception as e:
-    #         logging.exception(e)
+    # RadioApp().run()
+    while True:
+        try:
+            logging.info("Booting app")
+            app = RadioApp()
+            app.run()
+        except KeyboardInterrupt:
+            logging.info('Shutting down')
+            audiolib.stop()
+            break
+        except Exception as e:
+            logging.exception(e)
