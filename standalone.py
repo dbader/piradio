@@ -189,11 +189,13 @@ class AnimationTestPanel(Panel):
     def __init__(self):
         self.needs_redraw = True
         font = fontlib.Font(FONT_PATH, 16)
+        self.fps_font = fontlib.Font(FONT_PATH, 8)
         self.img = font.render('piradio')
         self.x = 0
         self.y = 0
         self.dirx = 3
         self.diry = 3
+        self.fps = 0
 
     def update(self):
         self.x += self.dirx
@@ -205,8 +207,12 @@ class AnimationTestPanel(Panel):
         self.needs_redraw = True
 
     def paint(self, framebuffer):
+        framestart = time.time()
         framebuffer.fill(0)
         framebuffer.bitblt(self.img, self.x, self.y)
+        framebuffer.text(self.fps_font, 0, 0, '%.1f fps' % self.fps)
+        frameend = time.time()
+        self.fps = 1.0 / (frameend - framestart)
 
     def up_pressed(self):
         pass
