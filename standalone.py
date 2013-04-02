@@ -21,6 +21,7 @@ import ui
 import weather
 import podcast
 import random
+import mvg
 
 try:
     import lcd
@@ -95,6 +96,39 @@ class WeatherPanel(Panel):
     def center_pressed(self):
         logging.info('Getting weather for %s', self.city)
         self.w = weather.weather(self.city)
+        self.needs_redraw = True
+
+class PublicTransportPanel(Panel):
+    def __init__(self, station):
+        self.station = station
+        self.font = fontlib.Font(FONT_PATH, 8)
+        self.refresh()
+
+    def refresh(self):
+        logging.info('Getting public transport data for station %s', self.station)
+        self.upcoming_trains = mvg.get_upcoming_trains(self.station)
+
+    def update(self):
+        pass
+
+    def paint(self, framebuffer):
+        def format_train(t):
+            return '%s %s %s' % (str(t['minutes']).rjust(2, ' '), t['line'].rjust(3, ' '), t['destination'][:16])
+        framebuffer.fill(0)
+        framebuffer.fillrect(0, 0, framebuffer.width, 10)
+        framebuffer.center_text(self.font, self.station, y=0, rop=graphics.rop_xor)
+        framebuffer.hline(11)
+        trains = map(format_train, self.upcoming_trains[:5])
+        ui.render_static_list(framebuffer, 2, 14, self.font, trains, minheight=12)
+
+    def up_pressed(self):
+        pass
+
+    def down_pressed(self):
+        pass
+
+    def center_pressed(self):
+        self.refresh()
         self.needs_redraw = True
 
 class RandomPodcastPanel(Panel):
@@ -292,6 +326,18 @@ class SleepTimer(object):
             self.wakeup()
             self.resetsleep()
 
+PANELS = [
+    (RadioPanel, ()),
+    (ClockPanel, ()),
+    (PublicTransportPanel, ('Hohenzollernplatz',)),
+    (WeatherPanel, ('munich,de',)),
+    (WeatherPanel, ('vancouver,ca',)),
+    (DitherTestPanel, ()),
+    (AnimationTestPanel, ()),
+    (RandomPodcastPanel, ('http://domian.alpha-labs.net/domian.rss',)),
+    # (RandomPodcastPanel, 'file://' + os.path.join(os.getcwd(),'assets/example.rss'))
+]
+
 class RadioApp(object):
     def __init__(self):
         self.sleepmanager = SleepTimer()
@@ -311,7 +357,7 @@ class RadioApp(object):
         ui.render_progressbar(self.framebuffer,
                               2, self.framebuffer.height / 2 - 8,
                               self.framebuffer.width - 2 * 2, 16,
-                              len(self.panels) / 7.0)
+                              len(self.panels) / float(len(PANELS)))
         self.framebuffer.center_text(self.font, pannel_class.__name__, rop=graphics.rop_xor)
         self.lcd_update()
         lcd.readkeys()
@@ -329,15 +375,8 @@ class RadioApp(object):
         lcd.set_backlight_enabled(True)
 
         logging.info('Initializing panels')
-        self.addpannel(RadioPanel)
-        self.addpannel(ClockPanel)
-        self.addpannel(WeatherPanel, 'munich,de')
-        self.addpannel(WeatherPanel, 'wurzburg,de')
-        self.addpannel(DitherTestPanel)
-        self.addpannel(AnimationTestPanel)
-        self.addpannel(RandomPodcastPanel, 'http://domian.alpha-labs.net/domian.rss')
-        # self.addpannel(RandomPodcastPanel, 'file://' + os.path.join(os.getcwd(),'assets/example.rss'))
-
+        for p, args in PANELS:
+            self.addpannel(p, *args)
         self.activate_panel(0)
 
         while True:
@@ -391,15 +430,15 @@ class RadioApp(object):
         logging.debug('Activated panel %s', self.active_panel.__class__.__name__)
 
 if __name__ == '__main__':
-    # RadioApp().run()
-    while True:
-        try:
-            logging.info("Booting app")
-            app = RadioApp()
-            app.run()
-        except KeyboardInterrupt:
-            logging.info('Shutting down')
-            audiolib.stop()
-            break
-        except Exception as e:
-            logging.exception(e)
+    RadioApp().run()
+    # while True:
+    #     try:
+    #         logging.info("Booting app")
+    #         app = RadioApp()
+    #         app.run()
+    #     except KeyboardInterrupt:
+    #         logging.info('Shutting down')
+    #         audiolib.stop()
+    #         break
+    #     except Exception as e:
+    #         logging.exception(e)
