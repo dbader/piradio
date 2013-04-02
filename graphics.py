@@ -154,7 +154,9 @@ class Surface(object):
 
     def center_text(self, font, text, x=None, y=None, rop=rop_copy):
         w, h, baseline = font.text_extents(text)
-        self.text(font, x or self.width / 2 - w / 2, y or self.height / 2 - h / 2, text, rop)
+        x = x if x is not None else self.width / 2 - w / 2
+        y = y if y is not None else y or self.height / 2 - h / 2
+        self.text(font, x, y, text, rop)
 
     def strokerect(self, x, y, w, h, color=1):
         for dx in range(x, x + w):
