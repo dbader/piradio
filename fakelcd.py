@@ -47,6 +47,7 @@ def update(pixels):
     for y in range(LCD_HEIGHT):
         for x in range(LCD_WIDTH):
             lcd.set_at((x, y), LCD_COLOR_FG if pixels[y*LCD_WIDTH+x] else LCD_COLOR_BG)
+    screen.fill(LCD_COLOR_BG, pygame.Rect(40, 74, LCD_WIDTH + 4, LCD_HEIGHT + 4))
     screen.blit(lcd, (42, 76))
     pygame.display.flip()
     global framebuffer
