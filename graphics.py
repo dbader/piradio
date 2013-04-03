@@ -96,7 +96,7 @@ class Surface(object):
         return Rect(0, 0, self._width, self._height)
 
     def fill(self, color=1):
-        for i in range(len(self.pixels)):
+        for i in xrange(len(self.pixels)):
             self.pixels[i] = color
 
     def clear(self):
@@ -110,12 +110,16 @@ class Surface(object):
         self.pixels[pixel] = color
 
     def vline(self, x, color=1):
+        px = x
         for y in range(self._height):
-            self.setpixel(x, y, color)
+            self.pixels[px] = color
+            px += self._width
 
     def hline(self, y, color=1):
+        px = y * self._width
         for x in range(self._width):
-            self.setpixel(x, y, color)
+            self.pixels[px] = color
+            px += 1
 
     def bitblt_fast(self, src, x, y):
         """Blit without range checks, clipping and a hardwired rop_copy raster operation."""
@@ -140,11 +144,22 @@ class Surface(object):
         yoffs = src.height - cliprect.height if y <= 0 else 0
 
         # Copy pixels from `src` to `cliprect`.
-        for cx in range(cliprect.x, cliprect.rx):
-            for cy in range(cliprect.y, cliprect.ry):
-                dstpixel = cy * self._width + cx
-                srcpixel = (yoffs + cy - cliprect.y) * src._width + (xoffs + cx - cliprect.x)
-                self.pixels[dstpixel] = op(self.pixels[dstpixel], src.pixels[srcpixel])
+        # 0.75, 0.68, 0.49, 0.47, 0.40
+        dstrowwidth = cliprect.rx - cliprect.x
+        srcpixel = yoffs * src._width + xoffs
+        dstpixel = cliprect.y * self._width + cliprect.x
+        dstpixels = self.pixels
+        srcpixels = src.pixels
+        for cy in xrange(cliprect.ry - cliprect.y):
+            # srcpixel = (yoffs + cy) * src._width + xoffs
+            # dstpixel = (cy + cliprect.y) * self._width + cliprect.x
+            for cx in xrange(dstrowwidth):
+                dstpixels[dstpixel] = op(dstpixels[dstpixel], srcpixels[srcpixel])
+                srcpixel += 1
+                dstpixel += 1
+            srcpixel += src._width - dstrowwidth
+            dstpixel += self._width - dstrowwidth
+
 
     # TODO: REFACTOR: Font rendering into Surfaces should be done solely through fontlib.
     def text(self, font, x, y, text, rop=rop_copy):
@@ -167,9 +182,9 @@ class Surface(object):
             self.setpixel(x + w - 1, dy, color)
 
     def fillrect(self, x, y, w, h, color=1):
-        for dx in range(x, x + w):
-            for dy in range(y, y + h):
-                self.setpixel(dx, dy, color)
+        for dy in range(y, y + h):
+            for dx in range(x, x + w):
+                self.pixels[dy * self._width + dx] = color
 
     def loadimage(self, filename):
         reader = png.Reader(filename)
@@ -293,3 +308,11 @@ if __name__ == '__main__':
     # s1.clear()
     s1.fillrect(1,5,6,2)
     print repr(s1)
+
+    print 'fill test:'
+    t0 = time.time()
+    s = Surface(128 * 64)
+    for i in xrange(10000):
+        s.fill(0)
+        s.fill(1)
+    print time.time() - t0
