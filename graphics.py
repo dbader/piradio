@@ -127,10 +127,15 @@ class Surface(object):
         pixels = self.pixels
         src_width, src_height = src.width, src.height
         src_pixels = src.pixels
-        for sx in xrange(src_width):
-            for sy in xrange(src_height):
-                dstpixel = (y + sy) * width + x + sx
-                pixels[dstpixel] = src_pixels[sy * src_width + sx]
+        srcpixel = 0
+        dstpixel = y * width + x
+
+        for sy in xrange(src_height):
+            for sx in xrange(src_width):
+                pixels[dstpixel] = src_pixels[srcpixel]
+                srcpixel += 1
+                dstpixel += 1
+            dstpixel += width - src_width
 
     def bitblt(self, src, x=0, y=0, op=rop_copy):
         # This is the area within the current surface we want to draw in.
@@ -144,15 +149,12 @@ class Surface(object):
         yoffs = src.height - cliprect.height if y <= 0 else 0
 
         # Copy pixels from `src` to `cliprect`.
-        # 0.75, 0.68, 0.49, 0.47, 0.40
         dstrowwidth = cliprect.rx - cliprect.x
         srcpixel = yoffs * src._width + xoffs
         dstpixel = cliprect.y * self._width + cliprect.x
         dstpixels = self.pixels
         srcpixels = src.pixels
         for cy in xrange(cliprect.ry - cliprect.y):
-            # srcpixel = (yoffs + cy) * src._width + xoffs
-            # dstpixel = (cy + cliprect.y) * self._width + cliprect.x
             for cx in xrange(dstrowwidth):
                 dstpixels[dstpixel] = op(dstpixels[dstpixel], srcpixels[srcpixel])
                 srcpixel += 1
