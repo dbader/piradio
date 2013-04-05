@@ -186,8 +186,17 @@ class RandomPodcastPanel(Panel):
 
     def paint(self, framebuffer):
         framebuffer.fill(0)
-        framebuffer.center_text(self.font, self.episode_title)
-        ui.render_progressbar(framebuffer, 0, 2, framebuffer.width, 16, audiolib.progress())
+        framebuffer.center_text(self.font, 'Random Episode', y=2)
+        framebuffer.hline(11)
+
+        words = self.episode_title.split()
+        line1 = ' '.join(words[:len(words)/2])
+        line2 = ' '.join(words[len(words)/2:])
+        framebuffer.center_text(self.font, line1, y=22)
+        framebuffer.center_text(self.font, line2, y=32)
+
+        ui.render_progressbar(framebuffer, 0, 48, framebuffer.width, 14, audiolib.progress())
+
 
     def up_pressed(self):
         pass
