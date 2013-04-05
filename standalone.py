@@ -244,7 +244,7 @@ class RadioPanel(Panel):
 
         # If necessary, draw the 'playing' icon and the name of the current station
         if self.currstation:
-            framebuffer.text(self.glyph_font, -3, -1, GLYPH_PLAYING)
+            framebuffer.text(self.glyph_font, -3, -2, GLYPH_PLAYING)
             framebuffer.text(self.font, 7, 2, self.currstation)
 
         # Draw the clock
