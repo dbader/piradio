@@ -244,21 +244,18 @@ class RadioPanel(Panel):
 
         # If necessary, draw the 'playing' icon and the name of the current station
         if self.currstation:
-            w, h, baseline = self.glyph_font.text_extents(self.currstation)
-            framebuffer.text(self.glyph_font, -3, -baseline-1, GLYPH_PLAYING)
-
-            w, h, baseline = self.font.text_extents(self.currstation)
-            framebuffer.text(self.font, 7, 2 - baseline, self.currstation)
+            framebuffer.text(self.glyph_font, -3, -2, GLYPH_PLAYING)
+            framebuffer.text(self.font, 7, 1, self.currstation)
 
         # Draw the clock
         w, h, baseline = self.font.text_extents(self.timestr)
-        framebuffer.text(self.font, framebuffer.width - w, 2-baseline, self.timestr)
+        framebuffer.text(self.font, framebuffer.width - w, 1, self.timestr)
 
         # Draw separator between the 'status area' and the station selector
         framebuffer.hline(11)
 
         # Draw the station selector
-        ui.render_list(framebuffer, 2, 14, self.font, self.stations.keys(), self.cy, minheight=12)
+        ui.render_list(framebuffer, 2, 14, self.font, self.stations.keys(), self.cy, minheight=12, maxvisible=4)
 
     def up_pressed(self):
         self.cy -= 1
