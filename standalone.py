@@ -329,17 +329,6 @@ class RadioPanel(Panel):
             logging.debug('Redrawing the clock')
             self.needs_redraw = True
 
-FONT_PATH = os.path.join(os.getcwd(), 'assets/font.ttf')
-GLYPHFONT_PATH = os.path.join(os.getcwd(), 'assets/pixarrows.ttf')
-CLOCK_FONT_PATH = os.path.join(os.getcwd(), 'assets/font.ttf')
-GLYPH_PLAYING = '0'#unichr(9654)
-
-LCD_SLEEPTIME = CONFIG['sleep_after_minutes'] * 60
-UPDATE_RATE = float(CONFIG['update_rate_hz'])
-
-logger = logging.getLogger('client')
-logger.info('Starting up')
-
 class SleepTimer(object):
     def __init__(self):
         self.sleeptime = None
@@ -373,17 +362,16 @@ class SleepTimer(object):
             self.wakeup()
             self.resetsleep()
 
-def read_panels(panels):
-    ps = []
-    for p in panels:
-        classname = p[0]
-        args = p[1:]
-        logging.info('Looking up class %s', classname)
-        clazz = globals()[classname]
-        ps.append((clazz, args))
-    return ps
+FONT_PATH = os.path.join(os.getcwd(), 'assets/font.ttf')
+GLYPHFONT_PATH = os.path.join(os.getcwd(), 'assets/pixarrows.ttf')
+CLOCK_FONT_PATH = os.path.join(os.getcwd(), 'assets/font.ttf')
+GLYPH_PLAYING = '0'
 
-PANELS = read_panels(CONFIG['panels'])
+LCD_SLEEPTIME = CONFIG['sleep_after_minutes'] * 60
+UPDATE_RATE = float(CONFIG['update_rate_hz'])
+
+logger = logging.getLogger('client')
+logger.info('Starting up')
 
 class RadioApp(object):
     def __init__(self):
@@ -393,25 +381,35 @@ class RadioApp(object):
         self.font = fontlib.Font(FONT_PATH, 8)
         self.panels = []
 
+    def read_panels(self, panels):
+        ps = []
+        for p in panels:
+            classname = p[0]
+            args = p[1:]
+            logging.info('Looking up class %s', classname)
+            clazz = globals()[classname]
+            ps.append((clazz, args))
+        return ps
+
     @property
     def needs_redraw(self):
         if self.active_panel:
             return self.active_panel.needs_redraw
         return False
 
-    def addpannel(self, pannel_class, *args):
+    def addpanel(self, panel_class, *args):
         self.framebuffer.fill(0)
         ui.render_progressbar(self.framebuffer,
                               2, self.framebuffer.height / 2 - 8,
                               self.framebuffer.width - 2 * 2, 16,
-                              len(self.panels) / float(len(PANELS)))
-        self.framebuffer.center_text(self.font, pannel_class.__name__, rop=graphics.rop_xor)
+                              len(self.panels) / float(len(self.panel_defs)))
+        self.framebuffer.center_text(self.font, panel_class.__name__, rop=graphics.rop_xor)
         self.lcd_update()
         lcd.readkeys()
         try:
-            self.panels.append(pannel_class(*args))
+            self.panels.append(panel_class(*args))
         except Exception as e:
-            logging.error('Failed to initialize panel %s', pannel_class.__name__)
+            logging.error('Failed to initialize panel %s', panel_class.__name__)
             logging.exception(e)
 
     def run(self):
@@ -422,8 +420,9 @@ class RadioApp(object):
         lcd.set_backlight_enabled(True)
 
         logging.info('Initializing panels')
-        for p, args in PANELS:
-            self.addpannel(p, *args)
+        self.panel_defs = self.read_panels(CONFIG['panels'])
+        for p, args in self.panel_defs:
+            self.addpanel(p, *args)
         self.activate_panel(0)
 
         while True:
