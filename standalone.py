@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 # Possible panels, by priority:
 # timer
 # wifi-test
@@ -73,19 +76,43 @@ class ClockPanel(Panel):
         pass
 
 class WeatherPanel(Panel):
-    def __init__(self, city):
+    def __init__(self, city, lat, lon):
+        self.apikey = ""
         self.city = city
-        self.font = fontlib.Font(FONT_PATH, 16)
-        logging.info('Getting weather for %s', self.city)
-        self.w = weather.weather(self.city)
+        self.lat, self.lon = lat, lon
+        self.font_big = fontlib.Font(FONT_PATH, 16)
+        self.font = fontlib.Font(FONT_PATH, 8)
+        self.climacons = fontlib.Font(os.path.join(os.getcwd(), 'assets/climacons.ttf'), 32)
+        self.load_weather()
+
+    def glyph_for_icon(self, icon):
+        GLYPH_FOR_ICON = {
+            "clear-day": "I",
+            "clear-night": "N",
+            "rain": "$",
+            "snow": "0",
+            "sleet": "3",
+            "wind": "B",
+            "fog": "?",
+            "cloudy": "!",
+            "partly-cloudy-day": "\"",
+            "partly-cloudy-night": "#",
+        }
+        return GLYPH_FOR_ICON.get(icon, 'Y')
 
     def update(self):
         pass
 
     def paint(self, framebuffer):
+        words = self.weather_summary.split()
+        line1 = ' '.join(words[:len(words)/2])
+        line2 = ' '.join(words[len(words)/2:])
+
         framebuffer.fill(0)
-        framebuffer.center_text(self.font, self.w[0], y=2)
-        framebuffer.center_text(self.font, '%.1f C' % self.w[1])
+        framebuffer.center_text(self.font_big, self.city, y=2)
+        framebuffer.center_text(self.font, line1, y=20)
+        framebuffer.center_text(self.font, line2, y=30)
+        framebuffer.center_text(self.climacons, self.weather_glyph, y=40)
 
     def up_pressed(self):
         pass
@@ -93,10 +120,17 @@ class WeatherPanel(Panel):
     def down_pressed(self):
         pass
 
-    def center_pressed(self):
+    def load_weather(self):
         logging.info('Getting weather for %s', self.city)
-        self.w = weather.weather(self.city)
+        icon, summary = weather.forecastioweather(self.apikey, self.lat, self.lon)
+
+        self.weather_glyph = self.glyph_for_icon(icon)
+        self.weather_summary = summary
+
         self.needs_redraw = True
+
+    def center_pressed(self):
+        self.load_weather()
 
 class PublicTransportPanel(Panel):
     def __init__(self, station):
@@ -333,8 +367,8 @@ PANELS = [
     (RadioPanel, ()),
     (ClockPanel, ()),
     (PublicTransportPanel, ('Hohenzollernplatz',)),
-    (WeatherPanel, ('munich,de',)),
-    (WeatherPanel, ('vancouver,ca',)),
+    (WeatherPanel, (u'München', 48.181853, 11.608897)),
+    (WeatherPanel, ('Vancouver', 49.261226, -123.113927)),
     (DitherTestPanel, ()),
     (AnimationTestPanel, ()),
     (RandomPodcastPanel, ('http://domian.alpha-labs.net/domian.rss',)),
