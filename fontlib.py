@@ -125,7 +125,6 @@ class Font(object):
         if char in self.glyphcache:
             return self.glyphcache[char]
 
-        print 'Loading char', char
         self.face.load_char(char, freetype.FT_LOAD_RENDER | freetype.FT_LOAD_TARGET_MONO)
         glyph = Glyph.from_glyphslot(self.face.glyph)
         self.glyphcache[char] = glyph
