@@ -26,7 +26,7 @@ def render_list(surface, x, y, font, items, selected_index=-1, minheight=-1, max
 
         textwidth, textheight, baseline = font.text_extents(text)
         textbitmap = font.render(text, width=textwidth, height=textheight, baseline=baseline)
-        top_offset = (maxheight - textheight) / 2
+        top_offset = (maxheight - textheight + baseline) / 2
         surface.bitblt(textbitmap, x, y+top_offset, op=graphics.rop_xor)
 
         y += maxheight
@@ -60,8 +60,13 @@ if __name__ == '__main__':
 
     import fontlib
     f = fontlib.Font('assets/font.ttf', 8)
-    surf = graphics.Surface(128, 64)
-    render_list(surf, 0, 0, f, ['one', 'gwo', 'thry', 'four', 'five', 'six', 'seven', 'eight'], 1, 11, 7)
+    surf = graphics.Surface(128, 32)
+
+    render_list(surf, 0, 0, f, ['B5 Aktuell', 'Bob Marley Radio', 'thry', 'four', 'five', 'six', 'seven', 'eight'], 0, 11, 3)
+    print repr(surf)
+
+    surf.clear()
+    render_list(surf, 0, 0, f, ['B5 Aktuell', 'Bob Marley Radio', 'thry', 'four', 'five', 'six', 'seven', 'eight'], 1, 11, 3)
     print repr(surf)
 
     #
