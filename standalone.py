@@ -31,6 +31,8 @@ try:
 except OSError:
     import fakelcd as lcd
 
+CONFIG = json.loads(open('config.json').read())
+
 class Panel(object):
     def __init__(self):
         pass
@@ -56,7 +58,7 @@ class ClockPanel(Panel):
         self.prev_timestr = None
 
     def update(self):
-        self.timestr = str(datetime.datetime.now().strftime('%H:%M'))
+        self.timestr = str(datetime.datetime.now().strftime(CONFIG['clock_format']))
         if self.timestr != self.prev_timestr:
             self.prev_timestr = self.timestr
             logging.debug('Redrawing the clock')
@@ -77,7 +79,7 @@ class ClockPanel(Panel):
 
 class WeatherPanel(Panel):
     def __init__(self, city, lat, lon):
-        self.apikey = ""
+        self.apikey = CONFIG['forecastio_api_key']
         self.city = city
         self.lat, self.lon = lat, lon
         self.font_big = fontlib.Font(FONT_PATH, 16)
@@ -261,8 +263,7 @@ class RadioPanel(Panel):
     def __init__(self):
         self.font = fontlib.Font(FONT_PATH, 8)
         self.glyph_font = fontlib.Font(GLYPHFONT_PATH, 10)
-        self.stations = json.loads(open('stations.json').read())['stations']
-        print self.stations
+        self.stations = json.loads(open('stations.json').read())
 
         self.cy = 0
         self.currstation = ''
@@ -313,7 +314,7 @@ class RadioPanel(Panel):
         self.needs_redraw = True
 
     def update_clock(self):
-        self.timestr = str(datetime.datetime.now().strftime('%H:%M'))
+        self.timestr = str(datetime.datetime.now().strftime(CONFIG['clock_format']))
         if self.timestr != self.prev_timestr:
             self.prev_timestr = self.timestr
             logging.debug('Redrawing the clock')
@@ -324,8 +325,8 @@ GLYPHFONT_PATH = os.path.join(os.getcwd(), 'assets/pixarrows.ttf')
 CLOCK_FONT_PATH = os.path.join(os.getcwd(), 'assets/font.ttf')
 GLYPH_PLAYING = '0'#unichr(9654)
 
-LCD_SLEEPTIME = 60 * 60
-UPDATE_RATE = 60.0
+LCD_SLEEPTIME = CONFIG['sleep_after_minutes'] * 60
+UPDATE_RATE = float(CONFIG['update_rate_hz'])
 
 logger = logging.getLogger('client')
 logger.info('Starting up')
@@ -347,14 +348,14 @@ class SleepTimer(object):
         lcd.set_backlight_enabled(False)
         self.sleeping = True
         global UPDATE_RATE
-        UPDATE_RATE /= 4
+        UPDATE_RATE = float(CONFIG['update_rate_sleep_hz'])
 
     def wakeup(self):
         logging.info('Waking up')
         lcd.set_backlight_enabled(True)
         self.sleeping = False
         global UPDATE_RATE
-        UPDATE_RATE *= 4
+        UPDATE_RATE = float(CONFIG['update_rate_hz'])
 
     def update_sleep(self):
         if not self.sleeping and self.shouldsleep():
@@ -363,17 +364,17 @@ class SleepTimer(object):
             self.wakeup()
             self.resetsleep()
 
-PANELS = [
-    (RadioPanel, ()),
-    (ClockPanel, ()),
-    (PublicTransportPanel, ('Hohenzollernplatz',)),
-    (WeatherPanel, (u'München', 48.181853, 11.608897)),
-    (WeatherPanel, ('Vancouver', 49.261226, -123.113927)),
-    (DitherTestPanel, ()),
-    (AnimationTestPanel, ()),
-    (RandomPodcastPanel, ('http://domian.alpha-labs.net/domian.rss',)),
-    # (RandomPodcastPanel, 'file://' + os.path.join(os.getcwd(),'assets/example.rss'))
-]
+def read_panels(panels):
+    ps = []
+    for p in panels:
+        classname = p[0]
+        args = p[1:]
+        logging.info('Looking up class %s', classname)
+        clazz = globals()[classname]
+        ps.append((clazz, args))
+    return ps
+
+PANELS = read_panels(CONFIG['panels'])
 
 class RadioApp(object):
     def __init__(self):
