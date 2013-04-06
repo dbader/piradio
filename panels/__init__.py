@@ -300,7 +300,7 @@ class AnimationTestPanel(Panel):
 class RadioPanel(Panel):
     def __init__(self):
         self.font = fontlib.get('tempesta', 8)
-        self.glyph_font = fontlib.get('tempesta', 10)
+        self.glyph_font = fontlib.get('pixarrows', 10)
         self.stations = json.loads(open('stations.json').read())
 
         self.cy = 0

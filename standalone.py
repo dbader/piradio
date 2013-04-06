@@ -175,15 +175,15 @@ class RadioApp(object):
         logging.debug('Activated panel %s', self.active_panel.__class__.__name__)
 
 if __name__ == '__main__':
-    RadioApp().run()
-    # while True:
-    #     try:
-    #         logging.info("Booting app")
-    #         app = RadioApp()
-    #         app.run()
-    #     except KeyboardInterrupt:
-    #         logging.info('Shutting down')
-    #         audiolib.stop()
-    #         break
-    #     except Exception as e:
-    #         logging.exception(e)
+    # RadioApp().run()
+    while True:
+        try:
+            logging.info("Booting app")
+            app = RadioApp()
+            app.run()
+        except KeyboardInterrupt:
+            logging.info('Shutting down')
+            audiolib.stop()
+            break
+        except Exception as e:
+            logging.exception(e)
