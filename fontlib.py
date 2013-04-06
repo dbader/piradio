@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import freetype
 import graphics
+import logging
 
 class Bitmap(object):
     """
@@ -215,6 +216,28 @@ class Font(object):
         bmp = self.render_text(text, width, height, baseline)
         return graphics.Surface(bmp.width, bmp.height, pixels=bmp.pixels)
 
+_registered_fonts = {}
+_loaded_fonts = {}
+
+def register(name, path):
+    _registered_fonts[name] = path
+    logging.info('Registered font %s --> %s', name, path)
+
+def get(name, size):
+    hashedname = '%s-%i' % (name, size)
+
+    if hashedname in _loaded_fonts:
+        return _loaded_fonts[hashedname]
+
+    logging.info('Loading font %s', hashedname)
+
+    if not name in _registered_fonts:
+        raise KeyError('Unknown font name %s' % name)
+
+    fnt = Font(_registered_fonts[name], size)
+    _loaded_fonts[hashedname] = fnt
+
+    return fnt
 
 if __name__ == '__main__':
     f = Font('test-apps/font4.ttf', 16)
