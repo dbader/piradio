@@ -7,6 +7,7 @@
   "panels": [
     ["RadioPanel"],
     ["ClockPanel"],
+    ["AlarmPanel"],
     ["PublicTransportPanel", "Hohenzollernplatz"],
     ["WeatherPanel", "München", 48.181853, 11.608897],
     ["WeatherPanel", "Vancouver", 49.261226, -123.113927],

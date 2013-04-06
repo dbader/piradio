@@ -52,6 +52,56 @@ class Panel(object):
     def center_pressed(self):
         pass
 
+class AlarmPanel(Panel):
+    def __init__(self):
+        self.font = fontlib.Font(CLOCK_FONT_PATH, 32)
+        self.prev_timestr = None
+        self.countdown = 90
+        self.alarmtime = None
+        self.countdown_str = None
+        self.state = 'SET_TIME'
+
+    def fire_alarm(self):
+        self.state = 'ALARM'
+        self.alarmtime = None
+
+    def countdownstring(self):
+        remaining = int(self.alarmtime - time.time() if self.alarmtime else self.countdown)
+        minutes = remaining / 60
+        seconds = remaining - minutes * 60
+        return '%.2i:%.2i' % (minutes, seconds)
+
+    def update(self):
+        if self.state == 'COUNTDOWN':
+            if self.alarmtime and time.time() >= self.alarmtime:
+                self.fire_alarm()
+        elif self.state == 'ALARM':
+            lcd.set_backlight_enabled(bool(int(time.time()) % 2 == 0))
+        if self.countdown_str != self.countdownstring():
+            self.countdown_str = self.countdownstring()
+            self.needs_redraw = True
+
+    def paint(self, framebuffer):
+        framebuffer.fill(0)
+        framebuffer.center_text(self.font, self.countdown_str)
+
+    def up_pressed(self):
+        self.countdown += 30
+        self.needs_redraw = True
+
+    def down_pressed(self):
+        self.countdown -= 30
+        self.needs_redraw = True
+
+    def center_pressed(self):
+        if self.state == 'SET_TIME':
+            self.state = 'COUNTDOWN'
+            self.alarmtime = time.time() + self.countdown if not self.alarmtime else None
+        elif self.state == 'ALARM':
+            lcd.set_backlight_enabled(True)
+            self.state = 'SET_TIME'
+        self.needs_redraw = True
+
 class ClockPanel(Panel):
     def __init__(self):
         self.clock_font = fontlib.Font(CLOCK_FONT_PATH, 32)
@@ -476,15 +526,15 @@ class RadioApp(object):
         logging.debug('Activated panel %s', self.active_panel.__class__.__name__)
 
 if __name__ == '__main__':
-    RadioApp().run()
-    # while True:
-    #     try:
-    #         logging.info("Booting app")
-    #         app = RadioApp()
-    #         app.run()
-    #     except KeyboardInterrupt:
-    #         logging.info('Shutting down')
-    #         audiolib.stop()
-    #         break
-    #     except Exception as e:
-    #         logging.exception(e)
+    # RadioApp().run()
+    while True:
+        try:
+            logging.info("Booting app")
+            app = RadioApp()
+            app.run()
+        except KeyboardInterrupt:
+            logging.info('Shutting down')
+            audiolib.stop()
+            break
+        except Exception as e:
+            logging.exception(e)
