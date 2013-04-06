@@ -470,7 +470,7 @@ class RadioApp(object):
         self.lcd_update()
 
     def activate_panel(self, panel_idx):
-        self.panel_idx = commons.clamp(panel_idx, 0, len(self.panels) - 1)
+        self.panel_idx = panel_idx % len(self.panels)
         self.active_panel = self.panels[self.panel_idx]
         self.active_panel.needs_redraw = True
         logging.debug('Activated panel %s', self.active_panel.__class__.__name__)
