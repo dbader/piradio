@@ -44,7 +44,6 @@ class SleepTimer(object):
 
     def resetsleep(self):
         self.sleeptime = time.time() + self.sleep_after_minutes
-        logging.debug('Sleeptime set to %f', self.sleeptime)
 
     def sleep(self):
         logging.info('Going to sleep')
@@ -74,7 +73,7 @@ class RadioApp(object):
         fontlib.register('climacons', os.path.join(os.getcwd(), 'assets/climacons.ttf'))
         fontlib.register('helvetica', os.path.join(os.getcwd(), 'assets/helvetica.ttf'))
 
-        self.sleepmanager = SleepTimer(CONFIG['sleep_after_minutes'] * 60)
+        self.sleeptimer = SleepTimer(CONFIG['sleep_after_minutes'] * 60)
         self.framebuffer = None
         self.prev_keystates = None
         self.font = fontlib.get('tempesta', 8)
@@ -105,6 +104,7 @@ class RadioApp(object):
         self.framebuffer.center_text(self.font, panel_class.__name__, rop=graphics.rop_xor)
         self.lcd_update()
         lcd.readkeys()
+        logging.info('Initializing %s', panel_class.__name__)
         try:
             self.panels.append(panel_class(*args))
         except Exception as e:
@@ -112,7 +112,7 @@ class RadioApp(object):
             logging.exception(e)
 
     def run(self):
-        self.sleepmanager.resetsleep()
+        self.sleeptimer.resetsleep()
         audiolib.stop()
         lcd.init()
         self.framebuffer = graphics.Surface(lcd.LCD_WIDTH, lcd.LCD_HEIGHT)
@@ -125,7 +125,7 @@ class RadioApp(object):
         self.activate_panel(0)
 
         while True:
-            self.sleepmanager.update_sleep()
+            self.sleeptimer.update_sleep()
             self.trigger_key_events()
             self.active_panel.update()
 
@@ -148,7 +148,7 @@ class RadioApp(object):
         self.prev_keystates = keystates
 
     def on_key_down(self, key):
-        self.sleepmanager.resetsleep()
+        self.sleeptimer.resetsleep()
 
         # Forward up, down, and center button presses to the active panel.
         if key == lcd.K_UP:
