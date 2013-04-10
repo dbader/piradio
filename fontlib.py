@@ -232,15 +232,16 @@ def register(name, path):
     logging.info('Registered font %s --> %s', name, path)
 
 def get(name, size):
-    hashedname = '%s-%i' % (name, size)
+    if not name in _registered_fonts:
+        raise KeyError('Unknown font name %s' % name)
+
+    path = _registered_fonts[name]
+    hashedname = '%s-%i' % (path, size)
 
     if hashedname in _loaded_fonts:
         return _loaded_fonts[hashedname]
 
-    logging.info('Loading font %s', hashedname)
-
-    if not name in _registered_fonts:
-        raise KeyError('Unknown font name %s' % name)
+    logging.info('Loading font %s-%i', name, size)
 
     fnt = Font(_registered_fonts[name], size)
     _loaded_fonts[hashedname] = fnt
