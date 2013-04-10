@@ -49,6 +49,9 @@ class Glyph(object):
         # baseline to the bitmap's top-most scanline.
         self.top = top
 
+        self.descent = max(0, self.height - self.top)
+        self.ascent = max(0, max(self.top, self.height) - self.descent)
+
         # The glyph's advance width in pixels.
         self.advance_x = advance_x
 
@@ -158,14 +161,18 @@ class Font(object):
         width, height, baseline = 0, 0, 0
         previous_char = None
 
+        ascent = 0
+        descent = 0
+
         # For each character in the text string we load its glyph bitmap
         # and update TODO
         for char in text:
             glyph = self.glyph_for_character(char)
 
             # Update the overall height and baseline.
-            height = max(height, glyph.height)
-            baseline = max(baseline, max(0, glyph.height - glyph.top))
+            ascent = max(ascent, glyph.ascent)
+            descent = max(descent, glyph.descent)
+            baseline = max(baseline, glyph.descent)
 
             kerning_x = self.kerning_offset(previous_char, char)
 
@@ -176,7 +183,8 @@ class Font(object):
 
             previous_char = char
 
-        return (width, height + baseline, baseline)
+        height = ascent + descent
+        return (width, height, baseline)
 
     def render_text(self, text, width=None, height=None, baseline=None):
         """
@@ -199,7 +207,7 @@ class Font(object):
             x += self.kerning_offset(previous_char, char)
 
             glyph = self.glyph_for_character(char)
-            y = height - baseline - min(glyph.top, glyph.height)
+            y = height - glyph.ascent - baseline
 
             outbuffer.bitblt(glyph.bitmap, x, y)
 
