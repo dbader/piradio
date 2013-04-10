@@ -35,10 +35,11 @@ class AlarmPanel(Panel):
     def __init__(self):
         self.font = fontlib.get('tempesta', 32)
         self.prev_timestr = None
-        self.countdown = 90
+        self.countdown = 60 * 3
         self.alarmtime = None
         self.countdown_str = None
         self.state = 'SET_TIME'
+        self.STEPSIZE = 60
 
     def fire_alarm(self):
         self.state = 'ALARM'
@@ -66,11 +67,11 @@ class AlarmPanel(Panel):
         framebuffer.center_text(self.font, self.countdown_str)
 
     def up_pressed(self):
-        self.countdown += 30
+        self.countdown += self.STEPSIZE
         self.needs_redraw = True
 
     def down_pressed(self):
-        self.countdown = max(0, self.countdown - 30)
+        self.countdown = max(0, self.countdown - self.STEPSIZE)
         self.needs_redraw = True
 
     def center_pressed(self):
