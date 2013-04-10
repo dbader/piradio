@@ -69,7 +69,7 @@ class AlarmPanel(Panel):
         self.needs_redraw = True
 
     def down_pressed(self):
-        self.countdown -= 30
+        self.countdown = max(0, self.countdown - 30)
         self.needs_redraw = True
 
     def center_pressed(self):
