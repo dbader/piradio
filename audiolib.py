@@ -2,6 +2,7 @@
 import logging
 import mpd
 import time
+import os
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -88,6 +89,9 @@ def progress():
     if not total:
         return 0.0
     return float(done) / float(total)
+
+def playfile(path):
+    os.system('mpg321 ' + path)
 
 if __name__ == '__main__':
     print progress()
