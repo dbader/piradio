@@ -3,7 +3,7 @@
   "update_rate_sleep_hz": 15,
   "sleep_after_minutes": 60,
   "clock_format": "%H:%M",
-  "forecastio_api_key": "",
+  "forecastio_api_key": "bb6bb9af70b9742d84883be1aa354346",
   "panels": [
     ["RadioPanel"],
     ["ClockPanel"],
@@ -13,6 +13,7 @@
     ["WeatherPanel", "Vancouver", 49.261226, -123.113927],
     ["DitherTestPanel"],
     ["AnimationTestPanel"],
-    ["RandomPodcastPanel", "http://domian.alpha-labs.net/domian.rss"]
+    ["RandomPodcastPanel", "http://domian.alpha-labs.net/domian.rss"],
+    ["RandomPodcastPanel", "http://lessconversation.podomatic.com/rss2.xml"]
   ]
 }

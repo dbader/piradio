@@ -4,6 +4,7 @@ import freetype
 import graphics
 import logging
 
+
 class Bitmap(object):
     """
     A 2D bitmap image represented as a list of byte values. Each byte indicates the state
@@ -40,6 +41,7 @@ class Bitmap(object):
                 srcpixel += 1
                 dstpixel += 1
             dstpixel += row_offset
+
 
 class Glyph(object):
     def __init__(self, pixels, width, height, top, advance_x):
@@ -116,6 +118,7 @@ class Glyph(object):
                     data[rowstart + bit_index] = 1 if bit else 0
 
         return data
+
 
 class Font(object):
     def __init__(self, filename, size):
@@ -227,9 +230,11 @@ class Font(object):
 _registered_fonts = {}
 _loaded_fonts = {}
 
+
 def register(name, path):
     _registered_fonts[name] = path
     logging.info('Registered font %s --> %s', name, path)
+
 
 def get(name, size):
     if not name in _registered_fonts:
@@ -268,8 +273,9 @@ if __name__ == '__main__':
 
     import random
     import string
+
     def random_string(l):
-        return ''.join( random.choice(string.ascii_letters + string.digits) for n in xrange(l) )
+        return ''.join(random.choice(string.ascii_letters + string.digits) for n in xrange(l))
 
     def benchmark():
         # for c in string.ascii_letters + string.digits:

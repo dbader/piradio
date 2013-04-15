@@ -15,6 +15,7 @@ rop_xor = lambda a, b: a ^ b
 rop_black = lambda a, b: 0
 rop_white = lambda a, b: 1
 
+
 class Rect(object):
     def __init__(self, x, y, width, height):
         self.x = x
@@ -53,6 +54,7 @@ class Rect(object):
         ry = clamp(other.ry, y, self.ry)
 
         return Rect(x, y, rx - x, ry - y)
+
 
 class Surface(object):
     def __init__(self, width=0, height=0, filename=None, pixels=None):
@@ -162,7 +164,6 @@ class Surface(object):
             srcpixel += src._width - dstrowwidth
             dstpixel += self._width - dstrowwidth
 
-
     # TODO: REFACTOR: Font rendering into Surfaces should be done solely through fontlib.
     def text(self, font, x, y, text, rop=rop_copy):
         w, h, baseline = font.text_extents(text)
@@ -203,7 +204,7 @@ class Surface(object):
             for x in range(self._width):
                 old = self.pixels[y * self._width + x]
                 new = threshold[old]
-                err = (old - new) >> 3 # divide by 8
+                err = (old - new) >> 3  # divide by 8
                 self.pixels[y * self._width + x] = new
                 for nxy in [(x+1, y), (x+2, y), (x-1, y+1), (x, y+1), (x+1, y+1), (x, y+2)]:
                     try:
@@ -261,10 +262,9 @@ if __name__ == '__main__':
 
     print
 
-
     s2.clear()
-    s2.setpixel(0,0)
-    s2.setpixel(1,1)
+    s2.setpixel(0, 0)
+    s2.setpixel(1, 1)
     r1 = Rect(50, 50, 50, 50)
     r2 = Rect(0, 0, 100, 100)
     print r1, r2
@@ -284,12 +284,12 @@ if __name__ == '__main__':
 
     print '////'
 
-    s2 = Surface(3,3)
-    s2.setpixel(1,1)
-    s2.setpixel(0,1)
-    s2.setpixel(2,1)
-    s2.setpixel(1,0)
-    s2.setpixel(1,2)
+    s2 = Surface(3, 3)
+    s2.setpixel(1, 1)
+    s2.setpixel(0, 1)
+    s2.setpixel(2, 1)
+    s2.setpixel(1, 0)
+    s2.setpixel(1, 2)
 
     s1.clear()
     print repr(s1)
@@ -304,11 +304,11 @@ if __name__ == '__main__':
     print repr(s1)
 
     s1.clear()
-    s1.strokerect(1,1,6,3)
+    s1.strokerect(1, 1, 6, 3)
     print repr(s1)
 
     # s1.clear()
-    s1.fillrect(1,5,6,2)
+    s1.fillrect(1, 5, 6, 2)
     print repr(s1)
 
     print 'fill test:'

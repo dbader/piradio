@@ -1,6 +1,7 @@
 import xml.etree.cElementTree as ET
 import urllib2
 
+
 def load_podcast(url):
     xmldata = urllib2.urlopen(url)
     tree = ET.parse(xmldata)

@@ -9,27 +9,34 @@ logging.basicConfig(level=logging.DEBUG)
 client = mpd.MPDClient(use_unicode=True)
 client.connect("localhost", 6600)
 
+
 def printsong():
     logging.info('Current song: %s', currentsong())
+
 
 def currentsong():
     currsong = client.currentsong()
     return u'%s - %s' % (currsong.get('name'), currsong.get('title'))
 
+
 def currentstation():
     return client.currentsong().get('name', '')
+
 
 def currvolume():
     return int(client.status()['volume'])
 
+
 def is_playing():
     return float(client.status().get('elapsed', 0)) != 0
+
 
 def wait_playing(timeout=10):
     print 'waiting for new song to start playing'
     while not is_playing() and timeout > 0:
         time.sleep(0.1)
         timeout -= 0.1
+
 
 def fade_out():
     startvolume = currvolume()
@@ -45,6 +52,7 @@ def fade_out():
     time.sleep(1)
     print ('fade - done')
 
+
 def fade_in():
     startvolume = currvolume()
     print 'fading in from %i to 100' % startvolume
@@ -54,6 +62,7 @@ def fade_in():
     time.sleep(1)
     print ('fade - done')
 
+
 def nextsong():
     fade_out()
     print '>> next'
@@ -62,8 +71,10 @@ def nextsong():
     printsong()
     fade_in()
 
+
 def stop():
     client.stop()
+
 
 def playstream(url, fade=True):
     if fade:
@@ -82,6 +93,7 @@ def playstream(url, fade=True):
     # client.disconnect()
     # client = None
 
+
 def progress():
     if not is_playing():
         return 0.0
@@ -89,6 +101,7 @@ def progress():
     if not total:
         return 0.0
     return float(done) / float(total)
+
 
 def playfile(path):
     os.system('mpg321 ' + path)

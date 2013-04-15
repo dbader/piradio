@@ -6,11 +6,23 @@ try:
 except OSError:
     import fakelcd as lcd
 
-import graphics, fontlib, mvg, podcast, weather, ui, commons, audiolib
-import json, os, datetime, logging, random, time
+import graphics
+import fontlib
+import mvg
+import podcast
+import weather
+import ui
+import commons
+import audiolib
+import json
+import datetime
+import logging
+import random
+import time
 
 CONFIG = json.loads(open('config.json').read())
 GLYPH_PLAYING = '0'
+
 
 class Panel(object):
     def __init__(self):
@@ -30,6 +42,7 @@ class Panel(object):
 
     def center_pressed(self):
         pass
+
 
 class AlarmPanel(Panel):
     def __init__(self):
@@ -83,6 +96,7 @@ class AlarmPanel(Panel):
             self.state = 'SET_TIME'
         self.needs_redraw = True
 
+
 class ClockPanel(Panel):
     def __init__(self):
         self.clock_font = fontlib.get('tempesta', 32)
@@ -107,6 +121,7 @@ class ClockPanel(Panel):
 
     def center_pressed(self):
         pass
+
 
 class WeatherPanel(Panel):
     def __init__(self, city, lat, lon):
@@ -165,6 +180,7 @@ class WeatherPanel(Panel):
     def center_pressed(self):
         self.load_weather()
 
+
 class PublicTransportPanel(Panel):
     def __init__(self, station):
         self.station = station
@@ -198,6 +214,7 @@ class PublicTransportPanel(Panel):
         self.refresh()
         self.needs_redraw = True
 
+
 class RandomPodcastPanel(Panel):
     def __init__(self, feed_url):
         self.font = fontlib.get('tempesta', 8)
@@ -228,7 +245,6 @@ class RandomPodcastPanel(Panel):
 
         ui.render_progressbar(framebuffer, 0, 48, framebuffer.width, 14, audiolib.progress())
 
-
     def up_pressed(self):
         pass
 
@@ -239,6 +255,7 @@ class RandomPodcastPanel(Panel):
         self.select_random_episode()
         self.needs_redraw = True
         audiolib.playstream(self.episode_url, fade=False)
+
 
 class DitherTestPanel(Panel):
     def __init__(self):
@@ -261,6 +278,7 @@ class DitherTestPanel(Panel):
     def center_pressed(self):
         pass
 
+
 class AnimationTestPanel(Panel):
     def __init__(self):
         self.needs_redraw = True
@@ -276,9 +294,9 @@ class AnimationTestPanel(Panel):
     def update(self):
         self.x += self.dirx
         self.y += self.diry
-        if self.x < -5 or self.x + self.img.width -5 >= lcd.LCD_WIDTH:
+        if self.x < -5 or self.x + self.img.width - 5 >= lcd.LCD_WIDTH:
             self.dirx = -self.dirx
-        if self.y < -5 or self.y + self.img.height -5 >= lcd.LCD_HEIGHT:
+        if self.y < -5 or self.y + self.img.height - 5 >= lcd.LCD_HEIGHT:
             self.diry = -self.diry
         self.needs_redraw = True
 
@@ -298,6 +316,7 @@ class AnimationTestPanel(Panel):
 
     def center_pressed(self):
         pass
+
 
 class RadioPanel(Panel):
     def __init__(self):
