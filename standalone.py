@@ -12,12 +12,10 @@
 import logging
 import os
 import fontlib
-import datetime
 import audiolib
 import time
 import graphics
 import json
-import commons
 import ui
 
 from panels import *
@@ -32,6 +30,7 @@ UPDATE_RATE = float(CONFIG['update_rate_hz'])
 
 logger = logging.getLogger('client')
 logger.info('Starting up')
+
 
 class SleepTimer(object):
     def __init__(self, sleep_after_minutes):
@@ -65,6 +64,7 @@ class SleepTimer(object):
         elif self.sleeping and not self.shouldsleep():
             self.wakeup()
             self.resetsleep()
+
 
 class RadioApp(object):
     def __init__(self):

@@ -29,6 +29,7 @@ lcd = None
 screen = None
 framebuffer = [0] * (LCD_WIDTH * LCD_HEIGHT)
 
+
 def init(debug=False):
     global lcd
     global screen
@@ -43,6 +44,7 @@ def init(debug=False):
     screen.blit(lcd, (42, 76))
     pygame.display.flip()
 
+
 def update(pixels):
     for y in range(LCD_HEIGHT):
         for x in range(LCD_WIDTH):
@@ -52,6 +54,7 @@ def update(pixels):
     pygame.display.flip()
     global framebuffer
     framebuffer = pixels
+
 
 def readkeys():
     for event in pygame.event.get():
@@ -63,11 +66,13 @@ def readkeys():
             keys[i] = True
     return keys
 
+
 def set_contrast(c):
     logging.debug('Setting contrast to %.2f', c)
     LCD_COLOR_FG[0] = 127 - 158 * c
     LCD_COLOR_FG[1] = 127 - 158 * c
     LCD_COLOR_FG[2] = 127 - 158 * c
+
 
 def set_backlight_enabled(enabled):
     logging.debug('Setting backlight to %s', 'on' if enabled else 'off')

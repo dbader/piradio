@@ -21,6 +21,7 @@ raspilcd = ctypes.cdll.LoadLibrary("./libraspilcd.so")
 buttons = ctypes.c_uint8.in_dll(raspilcd, "Button")
 _KEYS = [KEY_LEFT, KEY_RIGHT, KEY_UP, KEY_DOWN, KEY_CENTER]
 
+
 def init(debug=True):
     raspilcd.RaspiLcdHwInit()
     raspilcd.LCD_Init()
@@ -32,12 +33,15 @@ def init(debug=True):
         raspilcd.LCD_DrawLine(0, LCD_HEIGHT-1, LCD_WIDTH-1, 0)
         raspilcd.LCD_WriteFramebuffer()
 
+
 def readkeys():
     raspilcd.UpdateButtons()
     return [_keydown(k) for k in _KEYS]
 
+
 def _keydown(key):
     return bool(buttons.value & key)
+
 
 def update(pixels):
     raspilcd.LCD_ClearScreen()
@@ -47,11 +51,13 @@ def update(pixels):
                 raspilcd.LCD_PutPixel(x, y)
     raspilcd.LCD_WriteFramebuffer()
 
+
 def set_contrast(c):
     MAX_CONTRAST = 10
     value = int(min(MAX_CONTRAST, max(0, c)) * MAX_CONTRAST)
     logging.debug('Setting contrast to %.2f (%i)', c, value)
     raspilcd.LCD_SetContrast(value)
+
 
 def set_backlight_enabled(enabled):
     logging.debug('Setting backlight to %s', 'on' if enabled else 'off')
