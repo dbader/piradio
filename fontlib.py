@@ -258,9 +258,9 @@ if __name__ == '__main__':
     text = u'22:50'
     # text = 'T,'
     width, height, baseline = f.text_extents(text)
-    print '"%s": width=%i height=%i baseline=%i' % (text, width, height, baseline)
-    print f
-    print repr(f.render(text))
+    print('"%s": width=%i height=%i baseline=%i' % (text, width, height, baseline))
+    print(f)
+    print(repr(f.render(text)))
     # print f.size
 
     # global unpack_mono_bitmap
@@ -287,5 +287,5 @@ if __name__ == '__main__':
     import pstats
     cProfile.run('benchmark()', 'fontbench.profile')
     p = pstats.Stats('fontbench.profile')
-    print p.sort_stats('cumulative').print_stats(20)
-    print p.sort_stats('time').print_stats(20)
+    print(p.sort_stats('cumulative').print_stats(20))
+    print(p.sort_stats('time').print_stats(20))

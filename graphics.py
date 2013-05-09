@@ -98,7 +98,7 @@ class Surface(object):
         return Rect(0, 0, self._width, self._height)
 
     def fill(self, color=1):
-        for i in xrange(len(self.pixels)):
+        for i in range(len(self.pixels)):
             self.pixels[i] = color
 
     def clear(self):
@@ -132,8 +132,8 @@ class Surface(object):
         srcpixel = 0
         dstpixel = y * width + x
 
-        for sy in xrange(src_height):
-            for sx in xrange(src_width):
+        for sy in range(src_height):
+            for sx in range(src_width):
                 pixels[dstpixel] = src_pixels[srcpixel]
                 srcpixel += 1
                 dstpixel += 1
@@ -156,8 +156,8 @@ class Surface(object):
         dstpixel = cliprect.y * self._width + cliprect.x
         dstpixels = self.pixels
         srcpixels = src.pixels
-        for cy in xrange(cliprect.ry - cliprect.y):
-            for cx in xrange(dstrowwidth):
+        for cy in range(cliprect.ry - cliprect.y):
+            for cx in range(dstrowwidth):
                 dstpixels[dstpixel] = op(dstpixels[dstpixel], srcpixels[srcpixel])
                 srcpixel += 1
                 dstpixel += 1
@@ -204,7 +204,7 @@ class Surface(object):
             for x in range(self._width):
                 old = self.pixels[y * self._width + x]
                 new = threshold[old]
-                err = (old - new) >> 3  # divide by 8
+                err = (old - new) // 8
                 self.pixels[y * self._width + x] = new
                 for nxy in [(x+1, y), (x+2, y), (x-1, y+1), (x, y+1), (x+1, y+1), (x, y+2)]:
                     try:
@@ -219,70 +219,70 @@ class Surface(object):
 
 if __name__ == '__main__':
     s = Surface(32, 32)
-    print s
-    print repr(s)
+    print(s)
+    print(repr(s))
     s.fill()
-    print repr(s)
+    print(repr(s))
     s.loadimage('assets/dithertest.png')
     s.dither()
-    print repr(s)
+    print(repr(s))
 
     s = Surface(16, 16)
     s.vline(0)
     s.hline(0)
-    print repr(s)
+    print(repr(s))
 
     import time
     t0 = time.time()
-    for i in range(10000):
-        s = Surface('assets/dithertest.png')
+    for i in range(10):
+        s = Surface(filename='assets/dithertest.png')
         s.dither()
-    print time.time() - t0
+    print(time.time() - t0)
 
     s1 = Surface(8, 8)
     s2 = Surface(2, 2)
     s2.fill(1)
-    print repr(s1)
-    print repr(s2)
+    print(repr(s1))
+    print(repr(s2))
     s1.bitblt(s2, 0, 0)
     s1.bitblt(s2, 0, 6)
     s1.bitblt(s2, 6, 0)
     s1.bitblt(s2, 6, 6)
     s1.bitblt(s2, 3, 3)
-    print repr(s1)
+    print(repr(s1))
     s1.bitblt(s2, 7, 3)
-    print repr(s1)
+    print(repr(s1))
 
-    print '--- clipping'
+    print('--- clipping')
     r1 = Rect(100, 100, 50, 50)
     r2 = Rect(50, 50, 100, 100)
-    print r1, r2
-    print r2.intersection(r1)
-    print r2.clipped(r1)
+    print(r1, r2)
+    print(r2.intersection(r1))
+    print(r2.clipped(r1))
 
-    print
+    print()
 
     s2.clear()
     s2.setpixel(0, 0)
     s2.setpixel(1, 1)
     r1 = Rect(50, 50, 50, 50)
     r2 = Rect(0, 0, 100, 100)
-    print r1, r2
-    print r2.intersection(r1)
-    print r2.clipped(r1)
+    print(r1, r2)
+    print(r2.intersection(r1))
+    print(r2.clipped(r1))
 
-    print repr(s1)
-    print "blt:"
-    print repr(s2)
+    print(repr(s1))
+    print("blt:")
+    print(repr(s2))
     s1.clear()
     # s1.blt(s2, 0, 0, Rect(1,1,2,2))
     s1.bitblt(s2, -1, -1)
-    print repr(s1)
+    print(repr(s1))
     # s1.clear()
     s1.bitblt(s2, 7, 7)
-    print repr(s1)
+    print(repr(s1))
 
-    print '////'
+    print('////')
 
     s2 = Surface(3, 3)
     s2.setpixel(1, 1)
@@ -292,29 +292,29 @@ if __name__ == '__main__':
     s2.setpixel(1, 2)
 
     s1.clear()
-    print repr(s1)
-    print "blt:"
-    print repr(s2)
+    print(repr(s1))
+    print("blt:")
+    print(repr(s2))
     s1.clear()
     # s1.blt(s2, 0, 0, Rect(1,1,2,2))
     s1.bitblt(s2, -1, -1)
-    print repr(s1)
+    print(repr(s1))
     # s1.clear()
     s1.bitblt(s2, 6, 6)
-    print repr(s1)
+    print(repr(s1))
 
     s1.clear()
     s1.strokerect(1, 1, 6, 3)
-    print repr(s1)
+    print(repr(s1))
 
     # s1.clear()
     s1.fillrect(1, 5, 6, 2)
-    print repr(s1)
+    print(repr(s1))
 
-    print 'fill test:'
+    print('fill test:')
     t0 = time.time()
     s = Surface(128 * 64)
-    for i in xrange(10000):
+    for i in range(10000):
         s.fill(0)
         s.fill(1)
-    print time.time() - t0
+    print(time.time() - t0)
