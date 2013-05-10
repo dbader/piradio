@@ -1,8 +1,8 @@
 import base
 from .. import fontlib
 from .. import ui
-from .. import audiolib
 from .. import commons
+from ..services import audio
 import datetime
 import logging
 import json
@@ -56,11 +56,11 @@ class RadioPanel(base.Panel):
     def center_pressed(self):
         if self.currstation == self.stations.keys()[self.cy]:
             logging.debug('Stopping playback')
-            audiolib.stop()
+            audio.stop()
             self.currstation = ''
         else:
             logging.debug('Switching station')
-            audiolib.playstream(self.stations.values()[self.cy], fade=False)
+            audio.playstream(self.stations.values()[self.cy], fade=False)
             self.currstation = self.stations.keys()[self.cy]
         self.needs_redraw = True
 

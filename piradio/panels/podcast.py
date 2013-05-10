@@ -3,8 +3,8 @@ import logging
 import time
 import random
 from .. import fontlib
-from .. import audiolib
 from .. import ui
+from ..services import audio
 from ..services import podcast
 
 
@@ -36,7 +36,7 @@ class RandomPodcastPanel(base.Panel):
         framebuffer.center_text(self.font, line1, y=22)
         framebuffer.center_text(self.font, line2, y=32)
 
-        ui.render_progressbar(framebuffer, 0, 48, framebuffer.width, 14, audiolib.progress())
+        ui.render_progressbar(framebuffer, 0, 48, framebuffer.width, 14, audio.progress())
 
     def up_pressed(self):
         pass
@@ -47,4 +47,4 @@ class RandomPodcastPanel(base.Panel):
     def center_pressed(self):
         self.select_random_episode()
         self.needs_redraw = True
-        audiolib.playstream(self.episode_url, fade=False)
+        audio.playstream(self.episode_url, fade=False)

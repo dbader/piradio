@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
-import audiolib
+import services.audio
 import app
 
 try:
@@ -20,7 +20,7 @@ def main():
             app.RadioApp().run()
         except KeyboardInterrupt:
             logging.info("Shutting down")
-            audiolib.stop()
+            services.audio.stop()
             break
         except Exception as e:
             logging.exception(e)

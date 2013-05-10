@@ -1,6 +1,6 @@
 import base
 from .. import fontlib
-from .. import audiolib
+from ..services import audio
 import time
 
 # For blinking the backlight.
@@ -24,7 +24,7 @@ class AlarmPanel(base.Panel):
     def fire_alarm(self):
         self.state = 'ALARM'
         self.alarmtime = None
-        audiolib.playfile('assets/alarm.mp3')
+        audio.playfile('assets/alarm.mp3')
 
     def countdownstring(self):
         remaining = int(self.alarmtime - time.time() if self.alarmtime else self.countdown)

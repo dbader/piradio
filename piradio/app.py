@@ -1,7 +1,7 @@
 import logging
 import os
 import fontlib
-import audiolib
+import services.audio
 import time
 import graphics
 import json
@@ -100,7 +100,7 @@ class RadioApp(object):
 
     def run(self):
         self.sleeptimer.resetsleep()
-        audiolib.stop()
+        services.audio.stop()
         lcd.init()
         self.framebuffer = graphics.Surface(lcd.LCD_WIDTH, lcd.LCD_HEIGHT)
         lcd.set_backlight_enabled(True)
