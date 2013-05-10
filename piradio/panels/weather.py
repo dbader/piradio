@@ -1,6 +1,6 @@
 import base
-import fontlib
-from services import weather
+from .. import fontlib
+from ..services import weather
 import logging
 
 

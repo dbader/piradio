@@ -1,8 +1,8 @@
 import base
-import fontlib
-import ui
-import audiolib
-import commons
+from .. import fontlib
+from .. import ui
+from .. import audiolib
+from .. import commons
 import datetime
 import logging
 import json

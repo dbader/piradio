@@ -1,9 +1,9 @@
 import base
 import logging
-import fontlib
-import graphics
-import ui
-from services import mvg
+from .. import fontlib
+from .. import graphics
+from .. import ui
+from ..services import mvg
 
 
 class PublicTransportPanel(base.Panel):

@@ -1,6 +1,6 @@
 import logging
 import datetime
-import fontlib
+from .. import fontlib
 import base
 
 

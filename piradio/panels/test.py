@@ -1,6 +1,6 @@
 import base
-import graphics
-import fontlib
+from .. import graphics
+from .. import fontlib
 import time
 
 

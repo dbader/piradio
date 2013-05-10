@@ -2,10 +2,10 @@ import base
 import logging
 import time
 import random
-import fontlib
-import audiolib
-import ui
-from services import podcast
+from .. import fontlib
+from .. import audiolib
+from .. import ui
+from ..services import podcast
 
 
 class RandomPodcastPanel(base.Panel):
