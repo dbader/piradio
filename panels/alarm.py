@@ -6,9 +6,9 @@ import time
 # For blinking the backlight.
 # Fixme: refactor
 try:
-    import lcd
+    import raspi_lcd as lcd
 except OSError:
-    import fakelcd as lcd
+    import fake_lcd as lcd
 
 
 class AlarmPanel(base.Panel):

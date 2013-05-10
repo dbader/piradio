@@ -1,9 +1,17 @@
 # __all__ = []
-from .base import Panel, CONFIG
-from .alarm import AlarmPanel
-from .clock import ClockPanel
-from .radio import RadioPanel
-from .weather import WeatherPanel
-from .public_transport import PublicTransportPanel
-from .podcast import RandomPodcastPanel
+
+# Possible panels, by priority:
+# wifi-test
+# settings
+# random images
+# twitter
+# newsticker
+# emails
+
+from .alarm import *
+from .clock import *
+from .radio import *
+from .weather import *
+from .public_transport import *
+from .podcast import *
 from .test import *

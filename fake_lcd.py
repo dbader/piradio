@@ -1,5 +1,5 @@
- #! /usr/bin/env python
- # Plot random pixels on the screen.
+#! /usr/bin/env python
+"""A fake LCD driver based on PyGame / SDL for testing piradio locally."""
 
 import pygame
 import os
@@ -15,7 +15,7 @@ K_DOWN = 3
 K_CENTER = 4
 LCD_COLOR_BG = (148, 175, 204)
 LCD_COLOR_FG = (32, 32, 32)
-BACKGROUND_IMAGE = os.path.join(os.getcwd(), 'test-apps/simulator-frontplate.png')
+BACKGROUND_IMAGE = os.path.join(os.getcwd(), 'assets', 'simulator-frontplate.png')
 
 keymap = [
     pygame.K_LEFT,

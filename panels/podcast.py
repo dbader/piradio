@@ -13,7 +13,7 @@ class RandomPodcastPanel(base.Panel):
         self.font = fontlib.get('tempesta', 8)
         logging.info('Loading podcast feed from %s', feed_url)
         self.episodes = podcast.load_podcast(feed_url)
-        logging.info('Got %i episodes', len(self.episodes))
+        logging.info('Parsed %i episodes', len(self.episodes))
         self.select_random_episode()
         self.lastrefresh = 0
 

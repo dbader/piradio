@@ -1,14 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
-# Possible panels, by priority:
-# wifi-test
-# settings
-# random images
-# twitter
-# newsticker
-# emails
-
 import logging
 import os
 import fontlib
@@ -20,10 +9,6 @@ import ui
 
 from panels import *
 
-try:
-    import lcd
-except OSError:
-    import fakelcd as lcd
 
 CONFIG = json.loads(open('config.json').read())
 UPDATE_RATE = float(CONFIG['update_rate_hz'])
@@ -68,6 +53,8 @@ class SleepTimer(object):
 
 class RadioApp(object):
     def __init__(self):
+        assert lcd, 'app.lcd must be set externally to a valid LCD driver'
+
         fontlib.register('tempesta', os.path.join(os.getcwd(), 'assets/pf_tempesta_seven.ttf'))
         fontlib.register('pixarrows', os.path.join(os.getcwd(), 'assets/pixarrows.ttf'))
         fontlib.register('climacons', os.path.join(os.getcwd(), 'assets/climacons.ttf'))
@@ -173,17 +160,3 @@ class RadioApp(object):
         self.active_panel = self.panels[self.panel_idx]
         self.active_panel.needs_redraw = True
         logging.debug('Activated panel %s', self.active_panel.__class__.__name__)
-
-if __name__ == '__main__':
-    # RadioApp().run()
-    while True:
-        try:
-            logging.info("Booting app")
-            app = RadioApp()
-            app.run()
-        except KeyboardInterrupt:
-            logging.info('Shutting down')
-            audiolib.stop()
-            break
-        except Exception as e:
-            logging.exception(e)
