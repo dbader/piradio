@@ -44,12 +44,6 @@ class RandomPodcastPanel(base.Panel):
         ui.render_progressbar(surface, 0, 48, surface.width, 14,
                               audio.progress())
 
-    def up_pressed(self):
-        pass
-
-    def down_pressed(self):
-        pass
-
     def center_pressed(self):
         self.select_random_episode()
         self.needs_redraw = True

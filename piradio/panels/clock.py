@@ -22,12 +22,3 @@ class ClockPanel(base.Panel):
     def paint(self, surface):
         surface.fill(0)
         surface.center_text(self.clock_font, self.timeofday)
-
-    def up_pressed(self):
-        pass
-
-    def down_pressed(self):
-        pass
-
-    def center_pressed(self):
-        pass

@@ -19,9 +19,6 @@ class PublicTransportPanel(base.Panel):
                      self.station)
         self.upcoming_trains = mvg.get_upcoming_trains(self.station)
 
-    def update(self):
-        pass
-
     def paint(self, surface):
         def format_train(t):
             return '%s %s %s' % (str(t['minutes']).rjust(2, ' '),
@@ -33,12 +30,6 @@ class PublicTransportPanel(base.Panel):
         surface.hline(11)
         trains = map(format_train, self.upcoming_trains[:5])
         ui.render_static_list(surface, 2, 14, self.font, trains, minheight=12)
-
-    def up_pressed(self):
-        pass
-
-    def down_pressed(self):
-        pass
 
     def center_pressed(self):
         self.refresh()

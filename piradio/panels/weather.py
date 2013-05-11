@@ -33,9 +33,6 @@ class WeatherPanel(base.Panel):
         }
         return GLYPH_FOR_ICON.get(icon, 'Y')
 
-    def update(self):
-        pass
-
     def paint(self, surface):
         words = self.weather_summary.split()
         line1 = ' '.join(words[:len(words)/2])
@@ -46,12 +43,6 @@ class WeatherPanel(base.Panel):
         surface.center_text(self.font, line1, y=20)
         surface.center_text(self.font, line2, y=30)
         surface.center_text(self.climacons, self.weather_glyph, y=40)
-
-    def up_pressed(self):
-        pass
-
-    def down_pressed(self):
-        pass
 
     def load_weather(self):
         logging.info('Getting weather for %s', self.city)
