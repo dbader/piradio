@@ -1,6 +1,6 @@
 import base
 from .. import graphics
-from .. import fontlib
+from .. import fonts
 import time
 
 
@@ -29,9 +29,8 @@ class DitherTestPanel(base.Panel):
 class AnimationTestPanel(base.Panel):
     def __init__(self):
         self.needs_redraw = True
-        font = fontlib.get('tempesta', 16)
-        self.fps_font = fontlib.get('tempesta', 8)
-        self.img = font.render('piradio')
+        self.fps_font = fonts.get('tempesta', 8)
+        self.img = fonts.get('tempesta', 16).render('piradio')
         self.x = 0
         self.y = 0
         self.dirx = 3

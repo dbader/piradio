@@ -1,12 +1,12 @@
 import logging
 import datetime
-from .. import fontlib
+from .. import fonts
 import base
 
 
 class ClockPanel(base.Panel):
     def __init__(self):
-        self.clock_font = fontlib.get('tempesta', 32)
+        self.clock_font = fonts.get('tempesta', 32)
         self.time_format = base.CONFIG['clock_format']
         self.previous_timeofday = None
 

@@ -1,5 +1,5 @@
 import base
-from .. import fontlib
+from .. import fonts
 from ..services import audio
 import time
 
@@ -13,7 +13,7 @@ except OSError:
 
 class AlarmPanel(base.Panel):
     def __init__(self):
-        self.font = fontlib.get('tempesta', 32)
+        self.font = fonts.get('tempesta', 32)
         self.prev_timestr = None
         self.countdown = 60 * 3
         self.alarmtime = None

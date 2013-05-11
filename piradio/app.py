@@ -1,6 +1,6 @@
 import logging
 import os
-import fontlib
+import fonts
 import services.audio
 import time
 import graphics
@@ -55,15 +55,15 @@ class RadioApp(object):
     def __init__(self):
         assert lcd, 'app.lcd must be set externally to a valid LCD driver'
 
-        fontlib.register('tempesta', os.path.join(os.getcwd(), 'assets/pf_tempesta_seven.ttf'))
-        fontlib.register('pixarrows', os.path.join(os.getcwd(), 'assets/pixarrows.ttf'))
-        fontlib.register('climacons', os.path.join(os.getcwd(), 'assets/climacons.ttf'))
-        fontlib.register('helvetica', os.path.join(os.getcwd(), 'assets/helvetica.ttf'))
+        fonts.register('tempesta', os.path.join(os.getcwd(), 'assets/pf_tempesta_seven.ttf'))
+        fonts.register('pixarrows', os.path.join(os.getcwd(), 'assets/pixarrows.ttf'))
+        fonts.register('climacons', os.path.join(os.getcwd(), 'assets/climacons.ttf'))
+        fonts.register('helvetica', os.path.join(os.getcwd(), 'assets/helvetica.ttf'))
 
         self.sleeptimer = SleepTimer(CONFIG['sleep_after_minutes'] * 60)
         self.framebuffer = None
         self.prev_keystates = None
-        self.font = fontlib.get('tempesta', 8)
+        self.font = fonts.get('tempesta', 8)
         self.panels = []
 
     def read_panels(self, panels):

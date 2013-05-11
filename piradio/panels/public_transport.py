@@ -1,6 +1,6 @@
 import base
 import logging
-from .. import fontlib
+from .. import fonts
 from .. import graphics
 from .. import ui
 from ..services import mvg
@@ -9,7 +9,7 @@ from ..services import mvg
 class PublicTransportPanel(base.Panel):
     def __init__(self, station):
         self.station = station
-        self.font = fontlib.get('tempesta', 8)
+        self.font = fonts.get('tempesta', 8)
         self.refresh()
 
     def refresh(self):

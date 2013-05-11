@@ -1,5 +1,5 @@
 import base
-from .. import fontlib
+from .. import fonts
 from ..services import weather
 import logging
 
@@ -9,9 +9,9 @@ class WeatherPanel(base.Panel):
         self.apikey = base.CONFIG['forecastio_api_key']
         self.city = city
         self.lat, self.lon = lat, lon
-        self.font_big = fontlib.get('tempesta', 16)
-        self.font = fontlib.get('tempesta', 8)
-        self.climacons = fontlib.get('climacons', 32)
+        self.font_big = fonts.get('tempesta', 16)
+        self.font = fonts.get('tempesta', 8)
+        self.climacons = fonts.get('climacons', 32)
         self.load_weather()
 
     def glyph_for_icon(self, icon):

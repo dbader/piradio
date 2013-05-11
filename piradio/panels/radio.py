@@ -1,5 +1,5 @@
 import base
-from .. import fontlib
+from .. import fonts
 from .. import ui
 from .. import commons
 from ..services import audio
@@ -12,8 +12,8 @@ GLYPH_PLAYING = '0'
 
 class RadioPanel(base.Panel):
     def __init__(self):
-        self.font = fontlib.get('tempesta', 8)
-        self.glyph_font = fontlib.get('pixarrows', 10)
+        self.font = fonts.get('tempesta', 8)
+        self.glyph_font = fonts.get('pixarrows', 10)
         self.stations = json.loads(open('stations.json').read())
 
         self.cy = 0

@@ -2,7 +2,7 @@ import base
 import logging
 import time
 import random
-from .. import fontlib
+from .. import fonts
 from .. import ui
 from ..services import audio
 from ..services import podcast
@@ -10,7 +10,7 @@ from ..services import podcast
 
 class RandomPodcastPanel(base.Panel):
     def __init__(self, feed_url):
-        self.font = fontlib.get('tempesta', 8)
+        self.font = fonts.get('tempesta', 8)
         logging.info('Loading podcast feed from %s', feed_url)
         self.episodes = podcast.load_podcast(feed_url)
         logging.info('Parsed %i episodes', len(self.episodes))
