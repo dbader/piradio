@@ -8,8 +8,10 @@ from ..services import mvg
 
 class PublicTransportPanel(base.Panel):
     def __init__(self, station):
+        super(PublicTransportPanel, self).__init__()
         self.station = station
         self.font = fonts.get('tempesta', 8)
+        self.upcoming_trains = []
         self.refresh()
 
     def refresh(self):
@@ -21,7 +23,8 @@ class PublicTransportPanel(base.Panel):
 
     def paint(self, surface):
         def format_train(t):
-            return '%s %s %s' % (str(t['minutes']).rjust(2, ' '), t['line'].rjust(3, ' '), t['destination'][:16])
+            return '%s %s %s' % (str(t['minutes']).rjust(2, ' '),
+                                 t['line'].rjust(3, ' '), t['destination'][:16])
         surface.fill(0)
         surface.fillrect(0, 0, surface.width, 10)
         surface.center_text(self.font, self.station, y=0, rop=graphics.rop_xor)

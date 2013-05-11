@@ -1,17 +1,19 @@
 import logging
-import datetime
 from .. import fonts
-import base
+from .. import commons
+from piradio.panels import base
 
 
 class ClockPanel(base.Panel):
     def __init__(self):
+        super(ClockPanel, self).__init__()
         self.clock_font = fonts.get('tempesta', 32)
         self.time_format = base.CONFIG['clock_format']
+        self.timeofday = None
         self.previous_timeofday = None
 
     def update(self):
-        self.timeofday = str(datetime.datetime.now().strftime(self.time_format))
+        self.timeofday = commons.timeofday()
         if self.timeofday != self.previous_timeofday:
             self.previous_timeofday = self.timeofday
             logging.debug('Redrawing the clock')

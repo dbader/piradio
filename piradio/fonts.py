@@ -272,6 +272,7 @@ if __name__ == '__main__':
     # print repr(f.render(text))
 
     import random
+    import string
 
     def random_string(l):
         return ''.join(random.choice(string.ascii_letters + string.digits) for n in xrange(l))

@@ -14,9 +14,6 @@ import json
 CONFIG = json.loads(open('config.json').read())
 UPDATE_RATE = float(CONFIG['update_rate_hz'])
 
-logger = logging.getLogger('client')
-logger.info('Starting up')
-
 
 class SleepTimer(object):
     def __init__(self, sleep_after_minutes):
@@ -54,8 +51,6 @@ class SleepTimer(object):
 
 class RadioApp(object):
     def __init__(self):
-        assert lcd, 'app.lcd must be set externally to a valid LCD driver'
-
         fonts.register('tempesta', os.path.join(os.getcwd(), 'assets/pf_tempesta_seven.ttf'))
         fonts.register('pixarrows', os.path.join(os.getcwd(), 'assets/pixarrows.ttf'))
         fonts.register('climacons', os.path.join(os.getcwd(), 'assets/climacons.ttf'))

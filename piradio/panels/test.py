@@ -1,4 +1,4 @@
-import base
+from piradio.panels import base
 from .. import graphics
 from .. import fonts
 import time
@@ -6,28 +6,18 @@ import time
 
 class DitherTestPanel(base.Panel):
     def __init__(self):
+        super(DitherTestPanel, self).__init__()
         self.needs_redraw = True
         self.img = graphics.Surface(filename='assets/dithertest.png')
         self.img.dither()
 
-    def update(self):
-        pass
-
     def paint(self, surface):
         surface.bitblt(self.img, 0, 0)
-
-    def up_pressed(self):
-        pass
-
-    def down_pressed(self):
-        pass
-
-    def center_pressed(self):
-        pass
 
 
 class AnimationTestPanel(base.Panel):
     def __init__(self):
+        super(AnimationTestPanel, self).__init__()
         self.needs_redraw = True
         self.fps_font = fonts.get('tempesta', 8)
         self.img = fonts.get('tempesta', 16).render('piradio')
@@ -53,12 +43,3 @@ class AnimationTestPanel(base.Panel):
         surface.text(self.fps_font, 0, 0, '%.1f fps' % self.fps)
         frameend = time.time()
         self.fps = 1.0 / (frameend - framestart)
-
-    def up_pressed(self):
-        pass
-
-    def down_pressed(self):
-        pass
-
-    def center_pressed(self):
-        pass

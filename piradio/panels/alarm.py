@@ -7,6 +7,7 @@ import time
 
 class AlarmPanel(base.Panel):
     def __init__(self):
+        super(AlarmPanel, self).__init__()
         self.font = fonts.get('tempesta', 32)
         self.prev_timestr = None
         self.countdown = 60 * 3

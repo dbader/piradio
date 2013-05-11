@@ -1,4 +1,4 @@
-import base
+from piradio.panels import base
 from .. import fonts
 from ..services import weather
 import logging
@@ -6,15 +6,19 @@ import logging
 
 class WeatherPanel(base.Panel):
     def __init__(self, city, lat, lon):
+        super(WeatherPanel, self).__init__()
         self.apikey = base.CONFIG['forecastio_api_key']
         self.city = city
         self.lat, self.lon = lat, lon
         self.font_big = fonts.get('tempesta', 16)
         self.font = fonts.get('tempesta', 8)
         self.climacons = fonts.get('climacons', 32)
+        self.weather_glyph = 'Y'
+        self.weather_summary = ''
         self.load_weather()
 
-    def glyph_for_icon(self, icon):
+    @staticmethod
+    def glyph_for_icon(icon):
         GLYPH_FOR_ICON = {
             "clear-day": "I",
             "clear-night": "N",

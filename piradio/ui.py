@@ -1,5 +1,5 @@
-import graphics
-import commons
+from piradio import graphics
+from piradio import commons
 
 
 def render_list(surface, x, y, font, items, selected_index=-1, minheight=-1, maxvisible=4):
@@ -29,7 +29,7 @@ def render_static_list(surface, x, y, font, items, minheight=-1, maxvisible=4):
     maxheight = max(minheight, maxheight)
     start = max(0, min(maxvisible + 1, len(items) - maxvisible))
     end = start + maxvisible
-    for i, text in enumerate(items[start:end]):
+    for text in items[start:end]:
         textwidth, textheight, baseline = font.text_extents(text)
         textbitmap = font.render(text, width=textwidth, height=textheight, baseline=baseline)
         top_offset = (maxheight - textheight) / 2
@@ -55,15 +55,17 @@ if __name__ == '__main__':
     render_progressbar(s, 2, 2, 50, 16, 10)
     print repr(s)
 
-    import fontlib
-    f = fontlib.Font('assets/font.ttf', 8)
+    from piradio import fonts
+    f = fonts.Font('assets/font.ttf', 8)
     surf = graphics.Surface(128, 32)
 
-    render_list(surf, 0, 0, f, ['B5 Aktuell', 'Bob Marley Radio', 'thry', 'four', 'five', 'six', 'seven', 'eight'], 0, 11, 3)
+    render_list(surf, 0, 0, f, ['B5 Aktuell', 'Bob Marley Radio', 'thry',
+                'four', 'five', 'six', 'seven', 'eight'], 0, 11, 3)
     print repr(surf)
 
     surf.clear()
-    render_list(surf, 0, 0, f, ['B5 Aktuell', 'Bob Marley Radio', 'thry', 'four', 'five', 'six', 'seven', 'eight'], 1, 11, 3)
+    render_list(surf, 0, 0, f, ['B5 Aktuell', 'Bob Marley Radio', 'thry',
+                'four', 'five', 'six', 'seven', 'eight'], 1, 11, 3)
     print repr(surf)
 
     #
@@ -72,7 +74,8 @@ if __name__ == '__main__':
     # surf = graphics.Surface(128, 64)
     # def benchmark():
     #     for i in xrange(1000):
-    #         render_list(surf, 0, 0, f, ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight'])
+    #         render_list(surf, 0, 0, f, ['one', 'two', 'three', 'four',
+    # 'five', 'six', 'seven', 'eight'])
     # import cProfile
     # import pstats
     # cProfile.run('benchmark()', 'uibench.profile')
