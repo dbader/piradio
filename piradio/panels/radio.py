@@ -45,12 +45,12 @@ class RadioPanel(base.Panel):
 
     def up_pressed(self):
         self.cy -= 1
-        self.cy = commons.clamp(self.cy, 0, len(self.stations)-1)
+        self.cy = commons.clamp(self.cy, 0, len(self.stations) - 1)
         self.needs_redraw = True
 
     def down_pressed(self):
         self.cy += 1
-        self.cy = commons.clamp(self.cy, 0, len(self.stations)-1)
+        self.cy = commons.clamp(self.cy, 0, len(self.stations) - 1)
         self.needs_redraw = True
 
     def center_pressed(self):

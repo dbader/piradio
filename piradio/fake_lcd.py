@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-"""A fake LCD driver based on PyGame / SDL for testing piradio locally."""
+"""A fake LCD driver based on PyGame / SDL for testing piradio without a real LCD board."""
 
 import pygame
 import os
