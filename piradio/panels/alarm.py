@@ -22,7 +22,8 @@ class AlarmPanel(base.Panel):
         audio.playfile('assets/alarm.mp3')
 
     def countdownstring(self):
-        remaining = int(self.alarmtime - time.time() if self.alarmtime else self.countdown)
+        remaining = int(self.alarmtime - time.time()
+                        if self.alarmtime else self.countdown)
         minutes = remaining / 60
         seconds = remaining - minutes * 60
         return '%.2i:%.2i' % (minutes, seconds)
@@ -52,7 +53,8 @@ class AlarmPanel(base.Panel):
     def center_pressed(self):
         if self.state == 'SET_TIME':
             self.state = 'COUNTDOWN'
-            self.alarmtime = time.time() + self.countdown if not self.alarmtime else None
+            self.alarmtime = (time.time() + self.countdown
+                              if not self.alarmtime else None)
         elif self.state == 'ALARM':
             lcd.set_backlight_enabled(True)
             self.state = 'SET_TIME'

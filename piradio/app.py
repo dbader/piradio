@@ -51,10 +51,12 @@ class SleepTimer(object):
 
 class RadioApp(object):
     def __init__(self):
-        fonts.register('tempesta', os.path.join(os.getcwd(), 'assets/pf_tempesta_seven.ttf'))
-        fonts.register('pixarrows', os.path.join(os.getcwd(), 'assets/pixarrows.ttf'))
-        fonts.register('climacons', os.path.join(os.getcwd(), 'assets/climacons.ttf'))
-        fonts.register('helvetica', os.path.join(os.getcwd(), 'assets/helvetica.ttf'))
+        cwd = os.getcwd()
+        fonts.register('tempesta',
+                       os.path.join(cwd, 'assets/pf_tempesta_seven.ttf'))
+        fonts.register('pixarrows', os.path.join(cwd, 'assets/pixarrows.ttf'))
+        fonts.register('climacons', os.path.join(cwd, 'assets/climacons.ttf'))
+        fonts.register('helvetica', os.path.join(cwd, 'assets/helvetica.ttf'))
 
         self.sleeptimer = SleepTimer(CONFIG['sleep_after_minutes'] * 60)
         self.framebuffer = None
@@ -88,14 +90,16 @@ class RadioApp(object):
                               2, self.framebuffer.height / 2 - 8,
                               self.framebuffer.width - 2 * 2, 16,
                               len(self.panels) / float(len(self.panel_defs)))
-        self.framebuffer.center_text(self.font, panel_class.__name__, rop=graphics.rop_xor)
+        self.framebuffer.center_text(self.font, panel_class.__name__,
+                                     rop=graphics.rop_xor)
         self.lcd_update()
         lcd.readkeys()
         logging.info('Initializing %s', panel_class.__name__)
         try:
             self.panels.append(panel_class(*args))
         except Exception as e:
-            logging.error('Failed to initialize panel %s', panel_class.__name__)
+            logging.error('Failed to initialize panel %s',
+                          panel_class.__name__)
             logging.exception(e)
 
     def run(self):
@@ -158,4 +162,5 @@ class RadioApp(object):
         self.panel_idx = panel_idx % len(self.panels)
         self.active_panel = self.panels[self.panel_idx]
         self.active_panel.needs_redraw = True
-        logging.debug('Activated panel %s', self.active_panel.__class__.__name__)
+        logging.debug('Activated panel %s',
+                      self.active_panel.__class__.__name__)

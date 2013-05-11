@@ -15,7 +15,8 @@ class PublicTransportPanel(base.Panel):
         self.refresh()
 
     def refresh(self):
-        logging.info('Getting public transport data for station %s', self.station)
+        logging.info('Getting public transport data for station %s',
+                     self.station)
         self.upcoming_trains = mvg.get_upcoming_trains(self.station)
 
     def update(self):
@@ -24,7 +25,8 @@ class PublicTransportPanel(base.Panel):
     def paint(self, surface):
         def format_train(t):
             return '%s %s %s' % (str(t['minutes']).rjust(2, ' '),
-                                 t['line'].rjust(3, ' '), t['destination'][:16])
+                                 t['line'].rjust(3, ' '),
+                                 t['destination'][:16])
         surface.fill(0)
         surface.fillrect(0, 0, surface.width, 10)
         surface.center_text(self.font, self.station, y=0, rop=graphics.rop_xor)

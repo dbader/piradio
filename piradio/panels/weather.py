@@ -55,7 +55,8 @@ class WeatherPanel(base.Panel):
 
     def load_weather(self):
         logging.info('Getting weather for %s', self.city)
-        icon, summary = weather.forecastioweather(self.apikey, self.lat, self.lon)
+        icon, summary = weather.forecastioweather(self.apikey,
+                                                  self.lat, self.lon)
 
         self.weather_glyph = self.glyph_for_icon(icon)
         self.weather_summary = summary

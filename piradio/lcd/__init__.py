@@ -1,5 +1,6 @@
 """
-Select the LCD driver for the real LCD board (raspi_lcd) or the simulated one (fake_lcd).
+Select the LCD driver for the real LCD board (raspi_lcd) or the
+simulated one (fake_lcd).
 """
 
 import logging

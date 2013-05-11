@@ -1,9 +1,11 @@
 import png
+from piradio import commons
 
 WHITE = 0
 BLACK = 1
 
-# See http://msdn.microsoft.com/de-de/library/dd162892(v=vs.85).aspx for inspiration
+# For inspiration, see
+# http://msdn.microsoft.com/de-de/library/dd162892(v=vs.85).aspx
 rop_nop = lambda a, b: a
 rop_copy = lambda a, b: b
 rop_replace = rop_copy
@@ -24,7 +26,8 @@ class Rect(object):
         self.ry = y + height
 
     def __repr__(self):
-        return self.__class__.__name__ + repr((self.x, self.y, self.width, self.height))
+        return (self.__class__.__name__ +
+                repr((self.x, self.y, self.width, self.height)))
 
     @property
     def width(self):
@@ -45,11 +48,13 @@ class Rect(object):
         def clamp(v, min_value, max_value):
             return min(max(min_value, v), max_value)
 
-        # (x,y) must not be negative or larger than the right or bottom edge.
+        # (x,y) must not be negative or larger than the
+        # right or bottom edge.
         x = clamp(other.x, self.x, self.rx)
         y = clamp(other.y, self.y, self.ry)
 
-        # (rx,ry) must not be less than (x,y) or larger than the right or bottom edge.
+        # (rx,ry) must not be less than (x,y) or larger than
+        # the right or bottom edge.
         rx = clamp(other.rx, x, self.rx)
         ry = clamp(other.ry, y, self.ry)
 
@@ -124,7 +129,9 @@ class Surface(object):
             px += 1
 
     def bitblt_fast(self, src, x, y):
-        """Blit without range checks, clipping and a hardwired rop_copy raster operation."""
+        """Blit without range checks, clipping and a hardwired rop_copy
+        raster operation.
+        """
         width = self.width
         pixels = self.pixels
         src_width, src_height = src.width, src.height
@@ -142,11 +149,13 @@ class Surface(object):
     def bitblt(self, src, x=0, y=0, op=rop_copy):
         # This is the area within the current surface we want to draw in.
         # It potentially lies outside of the bounds of the current surface.
-        # Therefore we must clip it to only cover valid pixels within the surface.
+        # Therefore we must clip it to only cover valid pixels within
+        # the surface.
         dstrect = Rect(x, y, src.width, src.height)
         cliprect = self.rect.clipped(dstrect)
 
-        # xoffs and yoffs are important when we clip against the left or top edge.
+        # xoffs and yoffs are important when we clip against
+        # the left or top edge.
         xoffs = src.width - cliprect.width if x <= 0 else 0
         yoffs = src.height - cliprect.height if y <= 0 else 0
 
@@ -158,20 +167,22 @@ class Surface(object):
         srcpixels = src.pixels
         for cy in range(cliprect.ry - cliprect.y):
             for cx in range(dstrowwidth):
-                dstpixels[dstpixel] = op(dstpixels[dstpixel], srcpixels[srcpixel])
+                dstpixels[dstpixel] = op(dstpixels[dstpixel],
+                                         srcpixels[srcpixel])
                 srcpixel += 1
                 dstpixel += 1
             srcpixel += src._width - dstrowwidth
             dstpixel += self._width - dstrowwidth
 
-    # TODO: REFACTOR: Font rendering into Surfaces should be done solely through fontlib.
+    # TODO: REFACTOR: Font rendering into Surfaces should be done
+    # solely through fontlib.
     def text(self, font, x, y, text, rop=rop_copy):
         w, h, baseline = font.text_extents(text)
         bmp = font.render(text, w, h, baseline)
         self.bitblt(bmp, x, y, op=rop)
 
     def center_text(self, font, text, x=None, y=None, rop=rop_copy):
-        w, h, baseline = font.text_extents(text)
+        w, h, baseline = font.text_dimensions(text)
         x = x if x is not None else self.width / 2 - w / 2
         y = y if y is not None else y or self.height / 2 - h / 2
         self.text(font, x, y, text, rop)
@@ -192,12 +203,15 @@ class Surface(object):
     def loadimage(self, filename):
         reader = png.Reader(filename)
         self._width, self._height, pixels, metadata = reader.read_flat()
-        self.pixels = bytearray(px for i, px in enumerate(reversed(pixels)) if i % 3 == 0)
+        self.pixels = bytearray(px for i, px in
+                                enumerate(reversed(pixels)) if i % 3 == 0)
 
     def dither(self):
-        """
-        Return an Atkinson-dithered version of `bitmap`. Each pixel in `bitmap` may take
-        a value in [0, 255]. Based on code by Michal Migurski: http://mike.teczno.com/notes/atkinson.html
+        """Return an Atkinson-dithered version of `bitmap`.
+
+        Each pixel in `bitmap` may take a value in [0, 255].
+        Based on code by Michal Migurski:
+        http://mike.teczno.com/notes/atkinson.html
         """
         threshold = 128*[0] + 128*[255]
         for y in range(self._height):
@@ -206,10 +220,12 @@ class Surface(object):
                 new = threshold[old]
                 err = (old - new) // 8
                 self.pixels[y * self._width + x] = new
-                for nxy in [(x+1, y), (x+2, y), (x-1, y+1), (x, y+1), (x+1, y+1), (x, y+2)]:
+                for nxy in [(x+1, y), (x+2, y), (x-1, y+1),
+                            (x, y+1), (x+1, y+1), (x, y+2)]:
                     try:
                         px = nxy[1] * self._width + nxy[0]
-                        self.pixels[px] = max(min(self.pixels[px] + err, 255), 0)
+                        self.pixels[px] = commons.clamp(self.pixels[px] + err,
+                                                        0, 255)
                     except IndexError:
                         pass
 
@@ -234,7 +250,7 @@ if __name__ == '__main__':
 
     import time
     t0 = time.time()
-    for i in range(10):
+    for p in range(10):
         s = Surface(filename='assets/dithertest.png')
         s.dither()
     print(time.time() - t0)
@@ -314,7 +330,7 @@ if __name__ == '__main__':
     print('fill test:')
     t0 = time.time()
     s = Surface(128 * 64)
-    for i in range(10000):
+    for p in range(10000):
         s.fill(0)
         s.fill(1)
     print(time.time() - t0)

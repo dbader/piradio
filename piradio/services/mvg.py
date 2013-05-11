@@ -17,5 +17,5 @@ def get_upcoming_trains(station, min_minutes=3):
     return [t for t in m['result_sorted'] if t['minutes'] >= min_minutes]
 
 if __name__ == '__main__':
-    for t in get_upcoming_trains('Studentenstadt')[:5]:
-        print t['line'], t['destination'], t['minutes']
+    for tt in get_upcoming_trains('Studentenstadt')[:5]:
+        print tt['line'], tt['destination'], tt['minutes']

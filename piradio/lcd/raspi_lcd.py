@@ -1,8 +1,8 @@
-"""
-LCD driver for the "Raspi LCD" board by emsystech engineering
+"""LCD driver for the "Raspi LCD" board by emsystech engineering
 
-The driver uses the libraspilcd.so C library built from the libraspi-lcd/ directory
-in the project root. The board is available at http://www.emsystech.de/produkt/raspi-lcd/.
+The driver uses the libraspilcd.so C library built from the
+libraspi-lcd/ directory in the project root. The board can be ordered at
+http://www.emsystech.de/produkt/raspi-lcd/.
 """
 import ctypes
 import time

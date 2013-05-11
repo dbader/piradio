@@ -29,7 +29,8 @@ class RadioPanel(base.Panel):
         # Clear the surface
         surface.fill(0)
 
-        # If necessary, draw the 'playing' icon and the name of the current station
+        # If necessary, draw the 'playing' icon and the
+        # current station's name.
         if self.currstation:
             surface.text(self.glyph_font, -3, 0, GLYPH_PLAYING)
             surface.text(self.font, 7, 2, self.currstation)

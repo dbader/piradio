@@ -41,7 +41,8 @@ class RandomPodcastPanel(base.Panel):
         surface.center_text(self.font, line1, y=22)
         surface.center_text(self.font, line2, y=32)
 
-        ui.render_progressbar(surface, 0, 48, surface.width, 14, audio.progress())
+        ui.render_progressbar(surface, 0, 48, surface.width, 14,
+                              audio.progress())
 
     def up_pressed(self):
         pass

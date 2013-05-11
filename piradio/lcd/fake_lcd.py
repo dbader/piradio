@@ -1,5 +1,6 @@
 #! /usr/bin/env python
-"""A fake LCD driver based on PyGame / SDL for testing piradio without a real LCD board."""
+"""A fake LCD driver based on PyGame / SDL for testing piradio without
+a real LCD board."""
 
 import pygame
 import os
@@ -15,7 +16,8 @@ K_DOWN = 3
 K_CENTER = 4
 LCD_COLOR_BG = (148, 175, 204)
 LCD_COLOR_FG = (32, 32, 32)
-BACKGROUND_IMAGE = os.path.join(os.getcwd(), 'assets', 'simulator-frontplate.png')
+BACKGROUND_IMAGE = os.path.join(os.getcwd(), 'assets',
+                                'simulator-frontplate.png')
 
 keymap = [
     pygame.K_LEFT,
@@ -48,8 +50,11 @@ def init(debug=False):
 def update(pixels):
     for y in range(LCD_HEIGHT):
         for x in range(LCD_WIDTH):
-            lcd.set_at((x, y), LCD_COLOR_FG if pixels[y*LCD_WIDTH+x] else LCD_COLOR_BG)
-    screen.fill(LCD_COLOR_BG, pygame.Rect(40, 74, LCD_WIDTH + 4, LCD_HEIGHT + 4))
+            pixel_color = (LCD_COLOR_FG if pixels[y*LCD_WIDTH+x]
+                           else LCD_COLOR_BG)
+            lcd.set_at((x, y), pixel_color)
+    screen.fill(LCD_COLOR_BG,
+                pygame.Rect(40, 74, LCD_WIDTH + 4, LCD_HEIGHT + 4))
     screen.blit(lcd, (42, 76))
     pygame.display.flip()
     global framebuffer

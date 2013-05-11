@@ -6,10 +6,10 @@ import logging
 
 
 class Bitmap(object):
-    """
-    A 2D bitmap image represented as a list of byte values. Each byte indicates the state
-    of a single pixel in the bitmap. A value of 0 indicates that the pixel is `off`
-    and any other value indicates that it is `on`.
+    """A 2D bitmap image represented as a list of byte values.
+    Each byte indicates the state of a single pixel in the bitmap.
+    A value of 0 indicates that the pixel is `off` and any other value
+    indicates that it is `on`.
     """
     def __init__(self, width, height, pixels=None):
         self.width = width
@@ -33,11 +33,13 @@ class Bitmap(object):
 
         for sy in xrange(src.height):
             for sx in xrange(src.width):
-                # Perform an OR operation on the destination pixel and the source pixel
-                # because glyph bitmaps may overlap if character kerning is applied, e.g.
-                # in the string "AVA", the "A" and "V" glyphs must be rendered with
+                # Perform an OR operation on the destination pixel and
+                # the source pixel because glyph bitmaps may overlap if
+                # character kerning is applied, e.g. in the string
+                # "AVA", the "A" and "V" glyphs must be rendered with
                 # overlapping bounding boxes.
-                self.pixels[dstpixel] = self.pixels[dstpixel] or src.pixels[srcpixel]
+                self.pixels[dstpixel] = (self.pixels[dstpixel] or
+                                         src.pixels[srcpixel])
                 srcpixel += 1
                 dstpixel += 1
             dstpixel += row_offset
@@ -47,8 +49,8 @@ class Glyph(object):
     def __init__(self, pixels, width, height, top, advance_x):
         self.bitmap = Bitmap(width, height, pixels)
 
-        # The glyph bitmap's top-side bearing, i.e. the vertical distance from the
-        # baseline to the bitmap's top-most scanline.
+        # The glyph bitmap's top-side bearing, i.e. the vertical
+        # distance from the baseline to the bitmap's top-most scanline.
         self.top = top
 
         self.descent = max(0, self.height - self.top)
@@ -80,9 +82,8 @@ class Glyph(object):
 
     @staticmethod
     def unpack_mono_bitmap(bitmap):
-        """
-        Unpack a freetype FT_LOAD_TARGET_MONO glyph bitmap into a bytearray where each
-        pixel is represented by a single byte.
+        """Unpack a freetype FT_LOAD_TARGET_MONO glyph bitmap into a
+        bytearray where each pixel is represented by a single byte.
         """
         # Allocate a bytearray of sufficient size to hold the glyph bitmap.
         data = bytearray(bitmap.rows * bitmap.width)
@@ -96,25 +97,28 @@ class Glyph(object):
                 # Read the byte that contains the packed pixel data.
                 byte_value = bitmap.buffer[y * bitmap.pitch + byte_index]
 
-                # We've processed this many bits (=pixels) so far. This determines
-                # where we'll read the next batch of pixels from.
+                # We've processed this many bits (=pixels) so far.
+                # This determines where we'll read the next batch
+                # of pixels from.
                 num_bits_done = byte_index * 8
 
                 # Pre-compute where to write the pixels that we're going
                 # to unpack from the current byte in the glyph bitmap.
                 rowstart = y * bitmap.width + byte_index * 8
 
-                # Iterate over every bit (=pixel) that's still a part of the
-                # output bitmap. Sometimes we're only unpacking a fraction of a byte
-                # because glyphs may not always fit on a byte boundary. So we make sure
-                # to stop if we unpack past the current row of pixels.
-                for bit_index in range(0, min(8, bitmap.width - num_bits_done)):
+                # Iterate over every bit (=pixel) that's still a part
+                # of the output bitmap. Sometimes we're only unpacking
+                # a fraction of a byte because glyphs may not always fit
+                # on a byte boundary. So we make sure to stop if we
+                # unpack past the current row of pixels.
+                for bit_index in range(min(8, bitmap.width - num_bits_done)):
 
                     # Unpack the next pixel from the current glyph byte.
                     bit = byte_value & (1 << (7 - bit_index))
 
-                    # Write the pixel to the output bytearray. We ensure that `off`
-                    # pixels have a value of 0 and `on` pixels have a value of 1.
+                    # Write the pixel to the output bytearray. We ensure
+                    # that `off` pixels have a value of 0 and `on`
+                    # pixels have a value of 1.
                     data[rowstart + bit_index] = 1 if bit else 0
 
         return data
@@ -127,12 +131,13 @@ class Font(object):
         self.glyphcache = {}
 
     def glyph_for_character(self, char):
-        # Let FreeType load the glyph for the given character and tell it to render
-        # a monochromatic bitmap representation.
+        # Let FreeType load the glyph for the given character and tell
+        # it to render a monochromatic bitmap representation.
         if char in self.glyphcache:
             return self.glyphcache[char]
 
-        self.face.load_char(char, freetype.FT_LOAD_RENDER | freetype.FT_LOAD_TARGET_MONO)
+        self.face.load_char(char, freetype.FT_LOAD_RENDER |
+                            freetype.FT_LOAD_TARGET_MONO)
         glyph = Glyph.from_glyphslot(self.face.glyph)
         self.glyphcache[char] = glyph
 
@@ -143,24 +148,25 @@ class Font(object):
         return glyph.bitmap
 
     def kerning_offset(self, previous_char, char):
-        """
-        Return the horizontal kerning offset in pixels when rendering `char`
-        after `previous_char`.
+        """Return the horizontal kerning offset in pixels when rendering
+        `char` after `previous_char`.
 
-        Use the resulting offset to adjust the glyph's drawing position to
-        reduces extra diagonal whitespace, for example in the string "AV" the
-        bitmaps for "A" and "V" may overlap slightly with some fonts. In this
-        case the glyph for "V" has a negative horizontal kerning offset as it is
-        moved slightly towards the "A".
+        Use the resulting offset to adjust the glyph's drawing position
+        to reduces extra diagonal whitespace, for example in the string
+        "AV" the bitmaps for "A" and "V" may overlap slightly with some
+        fonts. In this case the glyph for "V" has a negative horizontal
+        kerning offset as it is moved slightly towards the "A".
         """
         kerning = self.face.get_kerning(previous_char, char)
 
-        # The kerning offset is given in FreeType's 26.6 fixed point format,
-        # which means that the pixel values are multiples of 64.
+        # The kerning offset is given in FreeType's 26.6 fixed point
+        # format, which means that the pixel values are multiples of 64.
         return kerning.x / 64
 
     def text_dimensions(self, text):
-        """Return (width, height, baseline) of `text` rendered in the current font."""
+        """Return (width, height, baseline) of `text` rendered in the
+        current font.
+        """
         width, height, baseline = 0, 0, 0
         previous_char = None
 
@@ -179,9 +185,10 @@ class Font(object):
 
             kerning_x = self.kerning_offset(previous_char, char)
 
-            # The advance width may be less than the width of the glyph's bitmap.
-            # Make sure we compute the total width so that all of the glyph's pixels
-            # fit into the returned dimensions.
+            # The advance width may be less than the width of the
+            # glyph's bitmap. Make sure we compute the total width so
+            # that all of the glyph's pixels fit into the returned
+            # dimensions.
             width += max(glyph.advance_x + kerning_x, glyph.width + kerning_x)
 
             previous_char = char
@@ -190,13 +197,12 @@ class Font(object):
         return (width, height, baseline)
 
     def render_text(self, text, width=None, height=None, baseline=None):
-        """
-        Render the given `text` into a Bitmap and return it.
+        """Render the given `text` into a Bitmap and return it.
 
-        If `width`, `height`, and `baseline` are not specified they are computed using
-        the `text_extents' function.
+        If `width`, `height`, and `baseline` are not specified they are
+        computed using the `text_extents' function.
         """
-        if width is None or height is None or baseline is None:
+        if None in (width, height, baseline):
             width, height, baseline = self.text_dimensions(text)
 
         x, y = 0, 0
@@ -204,9 +210,10 @@ class Font(object):
         outbuffer = Bitmap(width, height)
 
         for char in text:
-            # Adjust the glyph's drawing position if kerning information in the
-            # font tells us so. This reduces extra diagonal whitespace, for example
-            # in the string "AV" the bitmaps for "A" and "V" overlap slightly.
+            # Adjust the glyph's drawing position if kerning information
+            # in the font tells us so. This reduces extra diagonal
+            # whitespace, for example in the string "AV" the bitmaps for
+            # "A" and "V" overlap slightly.
             x += self.kerning_offset(previous_char, char)
 
             glyph = self.glyph_for_character(char)
@@ -258,7 +265,8 @@ if __name__ == '__main__':
     # text = u'22:50'
     # # text = 'T,'
     # width, height, baseline = f.text_extents(text)
-    # print('"%s": width=%i height=%i baseline=%i' % (text, width, height, baseline))
+    # print('"%s": width=%i height=%i baseline=%i' %
+        #(text, width, height, baseline))
     # print(f)
     # print(repr(f.render(text)))
     # # print f.size
@@ -275,7 +283,8 @@ if __name__ == '__main__':
     import string
 
     def random_string(l):
-        return ''.join(random.choice(string.ascii_letters + string.digits) for n in xrange(l))
+        return ''.join(random.choice(string.ascii_letters + string.digits)
+                       for n in xrange(l))
 
     def benchmark():
         # for c in string.ascii_letters + string.digits:
