@@ -36,9 +36,9 @@ class AlarmPanel(base.Panel):
             self.countdown_str = self.countdownstring()
             self.needs_redraw = True
 
-    def paint(self, framebuffer):
-        framebuffer.fill(0)
-        framebuffer.center_text(self.font, self.countdown_str)
+    def paint(self, surface):
+        surface.fill(0)
+        surface.center_text(self.font, self.countdown_str)
 
     def up_pressed(self):
         self.countdown += self.STEPSIZE

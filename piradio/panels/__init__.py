@@ -1,6 +1,6 @@
 # __all__ = []
 
-# Possible panels, by priority:
+# Possible future panels, by priority:
 # wifi-test
 # settings
 # random images

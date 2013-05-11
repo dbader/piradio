@@ -24,24 +24,24 @@ class RadioPanel(base.Panel):
     def update(self):
         self.update_clock()
 
-    def paint(self, framebuffer):
-        # Clear the framebuffer
-        framebuffer.fill(0)
+    def paint(self, surface):
+        # Clear the surface
+        surface.fill(0)
 
         # If necessary, draw the 'playing' icon and the name of the current station
         if self.currstation:
-            framebuffer.text(self.glyph_font, -3, 0, GLYPH_PLAYING)
-            framebuffer.text(self.font, 7, 2, self.currstation)
+            surface.text(self.glyph_font, -3, 0, GLYPH_PLAYING)
+            surface.text(self.font, 7, 2, self.currstation)
 
         # Draw the clock
         w, h, baseline = self.font.text_extents(self.timestr)
-        framebuffer.text(self.font, framebuffer.width - w, 2, self.timestr)
+        surface.text(self.font, surface.width - w, 2, self.timestr)
 
         # Draw separator between the 'status area' and the station selector
-        framebuffer.hline(11)
+        surface.hline(11)
 
         # Draw the station selector
-        ui.render_list(framebuffer, 2, 14, self.font, self.stations.keys(), self.cy, minheight=12, maxvisible=4)
+        ui.render_list(surface, 2, 14, self.font, self.stations.keys(), self.cy, minheight=12, maxvisible=4)
 
     def up_pressed(self):
         self.cy -= 1

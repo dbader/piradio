@@ -13,8 +13,8 @@ class DitherTestPanel(base.Panel):
     def update(self):
         pass
 
-    def paint(self, framebuffer):
-        framebuffer.bitblt(self.img, 0, 0)
+    def paint(self, surface):
+        surface.bitblt(self.img, 0, 0)
 
     def up_pressed(self):
         pass
@@ -46,11 +46,11 @@ class AnimationTestPanel(base.Panel):
             self.diry = -self.diry
         self.needs_redraw = True
 
-    def paint(self, framebuffer):
+    def paint(self, surface):
         framestart = time.time()
-        framebuffer.fill(0)
-        framebuffer.bitblt(self.img, self.x, self.y)
-        framebuffer.text(self.fps_font, 0, 0, '%.1f fps' % self.fps)
+        surface.fill(0)
+        surface.bitblt(self.img, self.x, self.y)
+        surface.text(self.fps_font, 0, 0, '%.1f fps' % self.fps)
         frameend = time.time()
         self.fps = 1.0 / (frameend - framestart)
 

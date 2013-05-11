@@ -18,7 +18,7 @@ class Panel(object):
         pass
 
     def paint(self, surface):
-        """Called whenever the panel needs to paint its contents.
+        """Called whenever the panel should paint its contents.
         `surface` is the graphics.Surface the panel should paint to.
         A panel needs to paint its contents if its `needs_redraw` property is True.
         """

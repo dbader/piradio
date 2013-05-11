@@ -19,15 +19,15 @@ class PublicTransportPanel(base.Panel):
     def update(self):
         pass
 
-    def paint(self, framebuffer):
+    def paint(self, surface):
         def format_train(t):
             return '%s %s %s' % (str(t['minutes']).rjust(2, ' '), t['line'].rjust(3, ' '), t['destination'][:16])
-        framebuffer.fill(0)
-        framebuffer.fillrect(0, 0, framebuffer.width, 10)
-        framebuffer.center_text(self.font, self.station, y=0, rop=graphics.rop_xor)
-        framebuffer.hline(11)
+        surface.fill(0)
+        surface.fillrect(0, 0, surface.width, 10)
+        surface.center_text(self.font, self.station, y=0, rop=graphics.rop_xor)
+        surface.hline(11)
         trains = map(format_train, self.upcoming_trains[:5])
-        ui.render_static_list(framebuffer, 2, 14, self.font, trains, minheight=12)
+        ui.render_static_list(surface, 2, 14, self.font, trains, minheight=12)
 
     def up_pressed(self):
         pass

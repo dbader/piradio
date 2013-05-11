@@ -32,16 +32,16 @@ class WeatherPanel(base.Panel):
     def update(self):
         pass
 
-    def paint(self, framebuffer):
+    def paint(self, surface):
         words = self.weather_summary.split()
         line1 = ' '.join(words[:len(words)/2])
         line2 = ' '.join(words[len(words)/2:])
 
-        framebuffer.fill(0)
-        framebuffer.center_text(self.font_big, self.city, y=2)
-        framebuffer.center_text(self.font, line1, y=20)
-        framebuffer.center_text(self.font, line2, y=30)
-        framebuffer.center_text(self.climacons, self.weather_glyph, y=40)
+        surface.fill(0)
+        surface.center_text(self.font_big, self.city, y=2)
+        surface.center_text(self.font, line1, y=20)
+        surface.center_text(self.font, line2, y=30)
+        surface.center_text(self.climacons, self.weather_glyph, y=40)
 
     def up_pressed(self):
         pass

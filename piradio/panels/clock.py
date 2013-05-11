@@ -17,9 +17,9 @@ class ClockPanel(base.Panel):
             logging.debug('Redrawing the clock')
             self.needs_redraw = True
 
-    def paint(self, framebuffer):
-        framebuffer.fill(0)
-        framebuffer.center_text(self.clock_font, self.timeofday)
+    def paint(self, surface):
+        surface.fill(0)
+        surface.center_text(self.clock_font, self.timeofday)
 
     def up_pressed(self):
         pass

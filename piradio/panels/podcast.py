@@ -25,18 +25,20 @@ class RandomPodcastPanel(base.Panel):
             self.lastrefresh = time.time()
             self.needs_redraw = True
 
-    def paint(self, framebuffer):
-        framebuffer.fill(0)
-        framebuffer.center_text(self.font, 'Random Episode', y=2)
-        framebuffer.hline(11)
+    def paint(self, surface):
+        surface.fill(0)
+        surface.center_text(self.font, 'Random Episode', y=2)
+        surface.hline(11)
 
+        # Lame multi-line text rendering:
         words = self.episode_title.split()
-        line1 = ' '.join(words[:len(words)/2])
-        line2 = ' '.join(words[len(words)/2:])
-        framebuffer.center_text(self.font, line1, y=22)
-        framebuffer.center_text(self.font, line2, y=32)
+        line1 = ' '.join(words[:len(words) / 2])
+        line2 = ' '.join(words[len(words) / 2:])
 
-        ui.render_progressbar(framebuffer, 0, 48, framebuffer.width, 14, audio.progress())
+        surface.center_text(self.font, line1, y=22)
+        surface.center_text(self.font, line2, y=32)
+
+        ui.render_progressbar(surface, 0, 48, surface.width, 14, audio.progress())
 
     def up_pressed(self):
         pass
