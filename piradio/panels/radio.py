@@ -36,8 +36,8 @@ class RadioPanel(base.Panel):
             surface.text(self.font, 7, 2, self.currstation)
 
         # Draw the clock
-        w, h, baseline = self.font.text_dimensions(self.timestr)
-        surface.text(self.font, surface.width - w, 2, self.timestr)
+        clock_width, _, _ = self.font.text_dimensions(self.timestr)
+        surface.text(self.font, surface.width - clock_width, 2, self.timestr)
 
         # Draw separator between the 'status area' and the station selector
         surface.hline(11)

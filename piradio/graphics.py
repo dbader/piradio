@@ -118,13 +118,13 @@ class Surface(object):
 
     def vline(self, x, color=1):
         px = x
-        for y in range(self._height):
+        for _ in range(self._height):
             self.pixels[px] = color
             px += self._width
 
     def hline(self, y, color=1):
         px = y * self._width
-        for x in range(self._width):
+        for _ in range(self._width):
             self.pixels[px] = color
             px += 1
 
@@ -139,8 +139,8 @@ class Surface(object):
         srcpixel = 0
         dstpixel = y * width + x
 
-        for sy in range(src_height):
-            for sx in range(src_width):
+        for _ in range(src_height):
+            for _ in range(src_width):
                 pixels[dstpixel] = src_pixels[srcpixel]
                 srcpixel += 1
                 dstpixel += 1
@@ -165,8 +165,8 @@ class Surface(object):
         dstpixel = cliprect.y * self._width + cliprect.x
         dstpixels = self.pixels
         srcpixels = src.pixels
-        for cy in range(cliprect.ry - cliprect.y):
-            for cx in range(dstrowwidth):
+        for _ in range(cliprect.ry - cliprect.y):
+            for _ in range(dstrowwidth):
                 dstpixels[dstpixel] = op(dstpixels[dstpixel],
                                          srcpixels[srcpixel])
                 srcpixel += 1
@@ -182,7 +182,7 @@ class Surface(object):
         self.bitblt(bmp, x, y, op=rop)
 
     def center_text(self, font, text, x=None, y=None, rop=rop_copy):
-        w, h, baseline = font.text_dimensions(text)
+        w, h, _ = font.text_dimensions(text)
         x = x if x is not None else self.width / 2 - w / 2
         y = y if y is not None else y or self.height / 2 - h / 2
         self.text(font, x, y, text, rop)
@@ -202,7 +202,7 @@ class Surface(object):
 
     def loadimage(self, filename):
         reader = png.Reader(filename)
-        self._width, self._height, pixels, metadata = reader.read_flat()
+        self._width, self._height, pixels, _ = reader.read_flat()
         self.pixels = bytearray(px for i, px in
                                 enumerate(reversed(pixels)) if i % 3 == 0)
 

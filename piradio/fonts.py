@@ -31,8 +31,8 @@ class Bitmap(object):
         dstpixel = y * self.width + x
         row_offset = self.width - src.width
 
-        for sy in xrange(src.height):
-            for sx in xrange(src.width):
+        for _ in xrange(src.height):
+            for _ in xrange(src.width):
                 # Perform an OR operation on the destination pixel and
                 # the source pixel because glyph bitmaps may overlap if
                 # character kerning is applied, e.g. in the string
@@ -289,7 +289,7 @@ if __name__ == '__main__':
     def benchmark():
         # for c in string.ascii_letters + string.digits:
         #     f.render(c)
-        for i in xrange(500):
+        for _ in xrange(500):
             f.render(random_string(30))
 
     import cProfile
