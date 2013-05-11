@@ -1,14 +1,8 @@
 import base
 from .. import fonts
+from .. import lcd
 from ..services import audio
 import time
-
-# For blinking the backlight.
-# Fixme: refactor
-try:
-    from .. import raspi_lcd as lcd
-except OSError:
-    from .. import fake_lcd as lcd
 
 
 class AlarmPanel(base.Panel):

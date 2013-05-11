@@ -6,6 +6,7 @@ import time
 import graphics
 import json
 import ui
+import lcd
 
 from panels import *
 

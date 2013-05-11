@@ -5,13 +5,6 @@ import logging
 import services.audio
 import app
 
-try:
-    import raspi_lcd as lcd_driver
-except OSError:
-    import fake_lcd as lcd_driver
-
-app.lcd = lcd_driver
-
 
 def main():
     while True:
