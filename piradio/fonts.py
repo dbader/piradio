@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import piradio.graphics as graphics
 import freetype
-import graphics
 import logging
 
 
@@ -254,14 +254,14 @@ def get(name, size):
     return fnt
 
 if __name__ == '__main__':
-    f = Font('test-apps/font4.ttf', 16)
-    text = u'22:50'
-    # text = 'T,'
-    width, height, baseline = f.text_extents(text)
-    print('"%s": width=%i height=%i baseline=%i' % (text, width, height, baseline))
-    print(f)
-    print(repr(f.render(text)))
-    # print f.size
+    # f = Font('test-apps/font4.ttf', 16)
+    # text = u'22:50'
+    # # text = 'T,'
+    # width, height, baseline = f.text_extents(text)
+    # print('"%s": width=%i height=%i baseline=%i' % (text, width, height, baseline))
+    # print(f)
+    # print(repr(f.render(text)))
+    # # print f.size
 
     # global unpack_mono_bitmap
     # global unpack_mono_bitmapX
@@ -272,7 +272,6 @@ if __name__ == '__main__':
     # print repr(f.render(text))
 
     import random
-    import string
 
     def random_string(l):
         return ''.join(random.choice(string.ascii_letters + string.digits) for n in xrange(l))

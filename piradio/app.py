@@ -1,14 +1,14 @@
+import piradio.fonts as fonts
+import piradio.services.audio as audio
+import piradio.graphics as graphics
+import piradio.ui as ui
+import piradio.lcd as lcd
+from piradio.panels import *
+
 import logging
 import os
-import fonts
-import services.audio
 import time
-import graphics
 import json
-import ui
-import lcd
-
-from panels import *
 
 
 CONFIG = json.loads(open('config.json').read())
@@ -66,8 +66,12 @@ class RadioApp(object):
         self.prev_keystates = None
         self.font = fonts.get('tempesta', 8)
         self.panels = []
+        self.panel_defs = self.read_panels(CONFIG['panels'])
+        self.panel_idx = None
+        self.active_panel = None
 
-    def read_panels(self, panels):
+    @staticmethod
+    def read_panels(panels):
         ps = []
         for p in panels:
             classname = p[0]
@@ -101,13 +105,12 @@ class RadioApp(object):
 
     def run(self):
         self.sleeptimer.resetsleep()
-        services.audio.stop()
+        audio.stop()
         lcd.init()
         self.framebuffer = graphics.Surface(lcd.LCD_WIDTH, lcd.LCD_HEIGHT)
         lcd.set_backlight_enabled(True)
 
         logging.info('Initializing panels')
-        self.panel_defs = self.read_panels(CONFIG['panels'])
         for p, args in self.panel_defs:
             self.addpanel(p, *args)
         self.activate_panel(0)

@@ -1,4 +1,4 @@
-import base
+from piradio.panels import base
 from .. import fonts
 from .. import lcd
 from ..services import audio
@@ -13,7 +13,7 @@ class AlarmPanel(base.Panel):
         self.alarmtime = None
         self.countdown_str = None
         self.state = 'SET_TIME'
-        self.STEPSIZE = 60
+        self.stepsize = 60
 
     def fire_alarm(self):
         self.state = 'ALARM'
@@ -41,11 +41,11 @@ class AlarmPanel(base.Panel):
         surface.center_text(self.font, self.countdown_str)
 
     def up_pressed(self):
-        self.countdown += self.STEPSIZE
+        self.countdown += self.stepsize
         self.needs_redraw = True
 
     def down_pressed(self):
-        self.countdown = max(0, self.countdown - self.STEPSIZE)
+        self.countdown = max(0, self.countdown - self.stepsize)
         self.needs_redraw = True
 
     def center_pressed(self):
