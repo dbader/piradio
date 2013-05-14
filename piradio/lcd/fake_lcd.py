@@ -62,13 +62,30 @@ def update(pixels):
 
 
 def readkeys():
-    for event in pygame.event.get():
+    def draw_key(key, pos):
+        """Visualize key presses with black circles."""
+        if keys[key]:
+            pygame.draw.circle(screen, (0, 0, 0), pos, 12)
+        else:
+            pygame.draw.circle(screen, (255, 255, 255), pos, 12)
+
+    for _ in pygame.event.get():
+        # Eat up any events in the queue.
         pass
     pressed_keys = pygame.key.get_pressed()
     keys = [0] * len(keymap)
     for i, k in enumerate(keymap):
         if pressed_keys[k]:
             keys[i] = True
+
+    # Visualize key presses
+    draw_key(K_LEFT, (214, 107))
+    draw_key(K_RIGHT, (307, 107))
+    draw_key(K_UP, (260, 66))
+    draw_key(K_DOWN, (260, 151))
+    draw_key(K_CENTER, (260, 109))
+    update(framebuffer)
+
     return keys
 
 
