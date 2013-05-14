@@ -77,9 +77,9 @@ class Surface(object):
 
     def __repr__(self):
         bstr = ''
-        for i in range(self._height):
+        for i in xrange(self._height):
             rowstr = ''
-            for j in range(self._width):
+            for j in xrange(self._width):
                 rowstr += '#' if self.pixels[i * self._width + j] else '.'
             bstr += rowstr + '\n'
         return bstr
@@ -103,7 +103,7 @@ class Surface(object):
         return Rect(0, 0, self._width, self._height)
 
     def fill(self, color=1):
-        for i in range(len(self.pixels)):
+        for i in xrange(len(self.pixels)):
             self.pixels[i] = color
 
     def clear(self):
@@ -118,13 +118,13 @@ class Surface(object):
 
     def vline(self, x, color=1):
         px = x
-        for _ in range(self._height):
+        for _ in xrange(self._height):
             self.pixels[px] = color
             px += self._width
 
     def hline(self, y, color=1):
         px = y * self._width
-        for _ in range(self._width):
+        for _ in xrange(self._width):
             self.pixels[px] = color
             px += 1
 
@@ -139,8 +139,8 @@ class Surface(object):
         srcpixel = 0
         dstpixel = y * width + x
 
-        for _ in range(src_height):
-            for _ in range(src_width):
+        for _ in xrange(src_height):
+            for _ in xrange(src_width):
                 pixels[dstpixel] = src_pixels[srcpixel]
                 srcpixel += 1
                 dstpixel += 1
@@ -165,8 +165,8 @@ class Surface(object):
         dstpixel = cliprect.y * self._width + cliprect.x
         dstpixels = self.pixels
         srcpixels = src.pixels
-        for _ in range(cliprect.ry - cliprect.y):
-            for _ in range(dstrowwidth):
+        for _ in xrange(cliprect.ry - cliprect.y):
+            for _ in xrange(dstrowwidth):
                 dstpixels[dstpixel] = op(dstpixels[dstpixel],
                                          srcpixels[srcpixel])
                 srcpixel += 1
@@ -188,16 +188,16 @@ class Surface(object):
         self.text(font, x, y, text, rop)
 
     def strokerect(self, x, y, w, h, color=1):
-        for dx in range(x, x + w):
+        for dx in xrange(x, x + w):
             self.setpixel(dx, y, color)
             self.setpixel(dx, y + h - 1, color)
-        for dy in range(y, y + h):
+        for dy in xrange(y, y + h):
             self.setpixel(x, dy, color)
             self.setpixel(x + w - 1, dy, color)
 
     def fillrect(self, x, y, w, h, color=1):
-        for dy in range(y, y + h):
-            for dx in range(x, x + w):
+        for dy in xrange(y, y + h):
+            for dx in xrange(x, x + w):
                 self.pixels[dy * self._width + dx] = color
 
     def loadimage(self, filename):
@@ -214,8 +214,8 @@ class Surface(object):
         http://mike.teczno.com/notes/atkinson.html
         """
         threshold = 128*[0] + 128*[255]
-        for y in range(self._height):
-            for x in range(self._width):
+        for y in xrange(self._height):
+            for x in xrange(self._width):
                 old = self.pixels[y * self._width + x]
                 new = threshold[old]
                 err = (old - new) // 8
@@ -230,7 +230,7 @@ class Surface(object):
                         pass
 
     def apply(self, func):
-        for i in range(len(self.pixels)):
+        for i in xrange(len(self.pixels)):
             self.pixels[i] = func(self.pixels[i])
 
 if __name__ == '__main__':
@@ -250,7 +250,7 @@ if __name__ == '__main__':
 
     import time
     t0 = time.time()
-    for p in range(10):
+    for p in xrange(10):
         s = Surface(filename='assets/dithertest.png')
         s.dither()
     print(time.time() - t0)
@@ -330,7 +330,7 @@ if __name__ == '__main__':
     print('fill test:')
     t0 = time.time()
     s = Surface(128 * 64)
-    for p in range(10000):
+    for p in xrange(10000):
         s.fill(0)
         s.fill(1)
     print(time.time() - t0)
