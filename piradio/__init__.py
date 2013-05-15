@@ -4,6 +4,7 @@
 import logging
 import piradio.services.audio as audio
 import piradio.app
+import piradio.services as services
 
 
 def main():
@@ -14,6 +15,7 @@ def main():
         except KeyboardInterrupt:
             logging.info("Shutting down")
             audio.stop()
+            services.clock.instance().stop()
             break
         except Exception as e:
             logging.exception(e)
