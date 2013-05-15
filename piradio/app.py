@@ -124,15 +124,13 @@ class RadioApp(object):
         self.activate_panel(0)
 
         while True:
-            services.base.deliver_pending_notifications()
+            services.deliver_pending_notifications()
             self.sleeptimer.update_sleep()
             self.trigger_key_events()
             self.active_panel.update()
-
-            if self.needs_redraw:
-                self.redraw()
-                self.active_panel.needs_redraw = False
-
+            if self.activate_panel:
+                if self.active_panel.paint_if_needed(self.framebuffer):
+                    self.lcd_update()
             time.sleep(1.0 / UPDATE_RATE)
 
     def lcd_update(self):
@@ -164,13 +162,12 @@ class RadioApp(object):
         if key == lcd.K_RIGHT:
             self.activate_panel(self.panel_idx + 1)
 
-    def redraw(self):
-        self.active_panel.paint(self.framebuffer)
-        self.lcd_update()
-
     def activate_panel(self, panel_idx):
         self.panel_idx = panel_idx % len(self.panels)
+        if self.active_panel:
+            self.active_panel.deactivate()
         self.active_panel = self.panels[self.panel_idx]
-        self.active_panel.needs_redraw = True
+        self.active_panel.activate()
+        self.active_panel.set_needs_repaint()
         logging.debug('Activated panel %s',
                       self.active_panel.__class__.__name__)

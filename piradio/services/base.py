@@ -69,6 +69,11 @@ class BaseService(object):
 
     def subscribe(self, client):
         self.subscribers.add(client)
+        logging.debug('%s subscribed to %s', client, self)
+
+    def unsubscribe(self, client):
+        self.subscribers.remove(client)
+        logging.debug('%s unsubscribed from %s', client, self)
 
     def notify_subscribers(self, event, payload=None):
         for each in self.subscribers:

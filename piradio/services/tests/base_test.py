@@ -19,6 +19,23 @@ def test_subscriptions():
     client.notify.assert_called_once_with('bar', {})
 
 
+def test_unsubscribe():
+    svc = BaseService()
+    client = mock.Mock()
+    svc.subscribe(client)
+
+    svc.notify_subscribers('foo')
+    deliver_pending_notifications()
+    client.notify.assert_called_once_with('foo', {})
+
+    client.reset_mock()
+    svc.unsubscribe(client)
+    svc.notify_subscribers('bar')
+    deliver_pending_notifications()
+    client.notify.assert_not_called()
+    assert not client.notify.called
+
+
 def test_callback():
     class MockClass(object):
         def func(self, param):
