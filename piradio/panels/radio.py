@@ -3,6 +3,7 @@ from .. import fonts
 from .. import ui
 from .. import commons
 from ..services import audio
+import piradio.services.clock
 import logging
 import json
 
@@ -15,15 +16,15 @@ class RadioPanel(base.Panel):
         self.font = fonts.get('tempesta', 8)
         self.glyph_font = fonts.get('pixarrows', 10)
         self.stations = json.loads(open('stations.json').read())
-
         self.cy = 0
         self.currstation = ''
-        self.prev_timestr = ''
-        self.timestr = None
-        self.needs_redraw = True
+        self.timeofday = 'XX:XX'
+        clocksvc = piradio.services.clock.instance()
+        clocksvc.subscribe(clocksvc.TIME_CHANGED_EVENT, self.on_time_changed)
 
-    def update(self):
-        self.update_clock()
+    def on_time_changed(self, timeofday):
+        self.timeofday = timeofday
+        self.set_needs_repaint()
 
     def paint(self, surface):
         # Clear the surface
@@ -36,8 +37,8 @@ class RadioPanel(base.Panel):
             surface.text(self.font, 7, 2, self.currstation)
 
         # Draw the clock
-        clock_width, _, _ = self.font.text_dimensions(self.timestr)
-        surface.text(self.font, surface.width - clock_width, 2, self.timestr)
+        clock_width, _, _ = self.font.text_dimensions(self.timeofday)
+        surface.text(self.font, surface.width - clock_width, 2, self.timeofday)
 
         # Draw separator between the 'status area' and the station selector
         surface.hline(11)
@@ -66,10 +67,3 @@ class RadioPanel(base.Panel):
             audio.playstream(self.stations.values()[self.cy], fade=False)
             self.currstation = self.stations.keys()[self.cy]
         self.needs_redraw = True
-
-    def update_clock(self):
-        self.timestr = commons.timeofday()
-        if self.timestr != self.prev_timestr:
-            self.prev_timestr = self.timestr
-            logging.debug('Redrawing the clock')
-            self.needs_redraw = True

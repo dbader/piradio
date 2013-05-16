@@ -9,20 +9,13 @@ class ClockPanel(base.Panel):
         super(ClockPanel, self).__init__()
         self.clock_font = fonts.get('tempesta', 32)
         self.timeofday = 'XX:XX'
-
-    def activate(self):
         clocksvc = piradio.services.clock.instance()
         clocksvc.subscribe(clocksvc.TIME_CHANGED_EVENT,
                            self.on_time_changed)
 
-    def deactivate(self):
-        clocksvc = piradio.services.clock.instance()
-        clocksvc.unsubscribe(self.on_time_changed)
-
     def on_time_changed(self, timeofday):
         self.timeofday = timeofday
-        self.needs_redraw = True
-        logging.debug('Redrawing the clock')
+        self.set_needs_repaint()
 
     def paint(self, surface):
         surface.fill(0)

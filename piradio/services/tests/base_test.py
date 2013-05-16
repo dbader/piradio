@@ -57,4 +57,3 @@ def test_async_service():
     svc.stop()
     time.sleep(0.05)
     assert svc.call_count <= 6
-
