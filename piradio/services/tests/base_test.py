@@ -58,14 +58,3 @@ def test_async_service():
     time.sleep(0.05)
     assert svc.call_count <= 6
 
-
-def ignore_test_service_manager():
-    mgr = ServiceManager()
-    inst = mgr.bind(BaseService)
-    assert inst is not None
-    inst2 = mgr.bind(BaseService)
-    assert inst is inst2
-    mgr.unbind(BaseService)
-    mgr.unbind(BaseService)
-    inst3 = mgr.bind(BaseService)
-    assert inst is not inst3

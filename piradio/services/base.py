@@ -97,36 +97,3 @@ class AsyncService(BaseService):
 
     def tick(self):
         pass
-
-
-class ServiceManager(object):
-    def __init__(self):
-        self.active_services = {}
-
-    def bind(self, service_class):
-        if service_class in self.active_services:
-            instance, ref_count = self.active_services[service_class]
-            ref_count += 1
-        else:
-            instance = service_class()
-            # fixme: this may take a while
-            instance.start()
-            ref_count = 1
-        self.active_services[service_class] = (instance, ref_count)
-        logging.info('Bound service %s to %s, ref_count = %i',
-                     service_class, instance, ref_count)
-        return instance
-
-    def unbind(self, service_class):
-        if not service_class in self.active_services:
-            raise KeyError('Cannot bind: unknown service %s' % service_class)
-        instance, ref_count = self.active_services[service_class]
-        ref_count -= 1
-        logging.info('Unbound service %s, ref_count = %i',
-                     service_class, ref_count)
-        if ref_count == 0:
-            # fixme: this may take a while
-            instance.stop()
-            del self.active_services[service_class]
-        else:
-            self.active_services[service_class] = (instance, ref_count)
