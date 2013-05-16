@@ -1,21 +1,26 @@
-from piradio.panels import base
-from .. import fonts
-from ..services import weather
 import logging
+from piradio import fonts
+from piradio.panels import base
+import piradio.services.weather
 
 
 class WeatherPanel(base.Panel):
     def __init__(self, city, lat, lon):
         super(WeatherPanel, self).__init__()
-        self.apikey = base.CONFIG['forecastio_api_key']
         self.city = city
-        self.lat, self.lon = lat, lon
         self.font_big = fonts.get('tempesta', 16)
         self.font = fonts.get('tempesta', 8)
         self.climacons = fonts.get('climacons', 32)
         self.weather_glyph = 'Y'
         self.weather_summary = ''
-        self.load_weather()
+        weathersvc = piradio.services.weather.instance()
+        weathersvc.subscribe((lat, lon), self.on_forecast_changed)
+
+    def on_forecast_changed(self, icon, summary):
+        logging.info('Forecast changed: %s, %s', icon, summary)
+        self.weather_glyph = self.glyph_for_icon(icon)
+        self.weather_summary = summary
+        self.set_needs_repaint()
 
     @staticmethod
     def glyph_for_icon(icon):
@@ -43,16 +48,3 @@ class WeatherPanel(base.Panel):
         surface.center_text(self.font, line1, y=20)
         surface.center_text(self.font, line2, y=30)
         surface.center_text(self.climacons, self.weather_glyph, y=40)
-
-    def load_weather(self):
-        logging.info('Getting weather for %s', self.city)
-        icon, summary = weather.forecastioweather(self.apikey,
-                                                  self.lat, self.lon)
-
-        self.weather_glyph = self.glyph_for_icon(icon)
-        self.weather_summary = summary
-
-        self.needs_redraw = True
-
-    def center_pressed(self):
-        self.load_weather()
