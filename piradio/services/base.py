@@ -1,4 +1,3 @@
-import weakref
 import threading
 import Queue as queue
 import time
@@ -14,42 +13,22 @@ def deliver_pending_notifications():
     """
     while not notifications.empty():
         msg = notifications.get()
-        logging.debug('Delivering %s', msg)
-        msg.receiver.notify(msg.event, msg.payload)
+        msg.deliver()
 
 
 class Notification(object):
-    def __init__(self, receiver, event, payload):
-        self.receiver = receiver
-        self.event = event
-        self.payload = payload or {}
+    def __init__(self, callback, *args, **kwargs):
+        self.callback = callback
+        self.args = args
+        self.kwargs = kwargs
 
     def __repr__(self):
-        return '%s(%s, %s, %s)' % (self.__class__.__name__,
-                                   self.receiver,
-                                   self.event,
-                                   self.payload)
+        return '%s(%s, %s, %s)' % (self.__class__.__name__, self.callback,
+                                   self.args, self.kwargs)
 
-
-class Callback(object):
-    """A weak callback that does not keep the pointed-at object alive."""
-
-    def __init__(self, method):
-        self.obj_ref = weakref.ref(method.im_self)
-        self.method_name = method.im_func.__name__
-
-    def __str__(self):
-        return '%s(%s.%s)' % (self.__class__.__name__,
-                              self.obj_ref,
-                              self.method_name)
-
-    def __call__(self, *args, **kwargs):
-        obj = self.obj_ref()
-        if obj:
-            method = getattr(obj, self.method_name)
-            method(*args, **kwargs)
-        else:
-            logging.debug('%s: weakref is gone', self)
+    def deliver(self):
+        logging.debug('Delivering %s', self)
+        self.callback(*self.args, **self.kwargs)
 
 
 class BaseService(object):
@@ -57,7 +36,7 @@ class BaseService(object):
     Implements the observer pattern.
     """
     def __init__(self):
-        self.subscribers = weakref.WeakSet()
+        self.subscriptions = {}
 
     def start(self):
         logging.info('Starting service %s', self.__class__.__name__)
@@ -65,17 +44,24 @@ class BaseService(object):
     def stop(self):
         logging.info('Stopping service %s', self.__class__.__name__)
 
-    def subscribe(self, client):
-        self.subscribers.add(client)
-        logging.debug('%s subscribed to %s', client, self)
+    def subscribe(self, event, callback):
+        if not event in self.subscriptions:
+            self.subscriptions[event] = set()
+        self.subscriptions[event].add(callback)
+        logging.debug('%s subscribed to %s.%s', callback,
+                      self.__class__.__name__, event)
 
-    def unsubscribe(self, client):
-        self.subscribers.remove(client)
-        logging.debug('%s unsubscribed from %s', client, self)
+    def unsubscribe(self, callback):
+        for event in self.subscriptions:
+            self.subscriptions[event].remove(callback)
+            logging.debug('%s unsubscribed from %s.%s',
+                          callback, self.__class__.__name__, event)
 
-    def notify_subscribers(self, event, payload=None):
-        for subscriber in self.subscribers:
-            notifications.put(Notification(subscriber, event, payload))
+    def notify_subscribers(self, event, *args, **kwargs):
+        if not event in self.subscriptions:
+            return
+        for callback in self.subscriptions[event]:
+            notifications.put(Notification(callback, *args, **kwargs))
 
 
 # Fixme: should be PeriodicService, AsyncPeriodicService
@@ -91,6 +77,10 @@ class AsyncService(BaseService):
 
     def start(self):
         super(AsyncService, self).start()
+        if self.is_running:
+            logging.warning('%s: start() called while service '
+                            'is already running', self.__class__.__name__)
+            return
         self.is_running = True
         self.tick_thread.start()
 
@@ -100,6 +90,7 @@ class AsyncService(BaseService):
         self.tick_thread.join()
 
     def tick_thread_main(self):
+        """Calls tick() in periodic intervals."""
         while self.is_running:
             self.tick()
             time.sleep(self.tick_interval)

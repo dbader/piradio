@@ -1,51 +1,38 @@
 import mock
 import time
-from ..base import (BaseService, Callback, AsyncService, ServiceManager,
+from ..base import (BaseService, AsyncService, ServiceManager,
                     deliver_pending_notifications)
 
 
 def test_subscriptions():
     svc = BaseService()
     client = mock.Mock()
-    svc.subscribe(client)
+    svc.subscribe('foo_event', client.on_foo)
 
-    svc.notify_subscribers('foo', {'magic': 23})
+    svc.notify_subscribers('foo_event', 1, 2, 3, value='hello')
     deliver_pending_notifications()
-    client.notify.assert_called_once_with('foo', {'magic': 23})
+    client.on_foo.assert_called_once_with(1, 2, 3, value='hello')
 
     client.reset_mock()
-    svc.notify_subscribers('bar')
+    svc.notify_subscribers('bar_event')
     deliver_pending_notifications()
-    client.notify.assert_called_once_with('bar', {})
+    assert not client.on_foo.called
 
 
 def test_unsubscribe():
     svc = BaseService()
     client = mock.Mock()
-    svc.subscribe(client)
+    svc.subscribe('foo_event', client.on_foo)
 
-    svc.notify_subscribers('foo')
+    svc.notify_subscribers('foo_event')
     deliver_pending_notifications()
-    client.notify.assert_called_once_with('foo', {})
+    client.on_foo.assert_called_once_with()
 
     client.reset_mock()
-    svc.unsubscribe(client)
-    svc.notify_subscribers('bar')
+    svc.unsubscribe(client.on_foo)
+    svc.notify_subscribers('foo_event')
     deliver_pending_notifications()
-    client.notify.assert_not_called()
-    assert not client.notify.called
-
-
-def test_callback():
-    class MockClass(object):
-        def func(self, param):
-            assert self.__class__ is MockClass
-            assert param == 'foo'
-    obj = MockClass()
-    cb = Callback(obj.func)
-    cb('foo')
-    del obj
-    cb('bar')  # This should not cause an exception.
+    assert not client.on_foo.called
 
 
 def test_async_service():
@@ -72,7 +59,7 @@ def test_async_service():
     assert svc.call_count <= 6
 
 
-def test_service_manager():
+def ignore_test_service_manager():
     mgr = ServiceManager()
     inst = mgr.bind(BaseService)
     assert inst is not None

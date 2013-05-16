@@ -12,17 +12,17 @@ class ClockPanel(base.Panel):
 
     def activate(self):
         clocksvc = piradio.services.clock.instance()
-        clocksvc.subscribe(self)
+        clocksvc.subscribe(clocksvc.TIME_CHANGED_EVENT,
+                           self.on_time_changed)
 
     def deactivate(self):
         clocksvc = piradio.services.clock.instance()
-        clocksvc.unsubscribe(self)
+        clocksvc.unsubscribe(self.on_time_changed)
 
-    def notify(self, event, payload):
-        if event == piradio.services.clock.TIME_CHANGED_EVENT:
-            self.timeofday = payload['time']
-            self.needs_redraw = True
-            logging.debug('Redrawing the clock')
+    def on_time_changed(self, timeofday):
+        self.timeofday = timeofday
+        self.needs_redraw = True
+        logging.debug('Redrawing the clock')
 
     def paint(self, surface):
         surface.fill(0)

@@ -103,9 +103,6 @@ class RadioApp(object):
                           panel_class.__name__)
             logging.exception(e)
 
-    def notify(self, event, payload):
-        logging.info('notify: %s, %s', event, payload)
-
     def run(self):
         self.sleeptimer.resetsleep()
         audio.stop()
@@ -114,9 +111,7 @@ class RadioApp(object):
         lcd.set_backlight_enabled(True)
 
         logging.info('Initializing services')
-        clocksvc = services.clock.instance()
-        clocksvc.start()
-        clocksvc.subscribe(self)
+        services.clock.instance()
 
         logging.info('Initializing panels')
         for p, args in self.panel_defs:
