@@ -32,7 +32,7 @@ class Notification(object):
 
 
 class Callback(object):
-    """A weak callback that does not keep pointed-at object alive."""
+    """A weak callback that does not keep the pointed-at object alive."""
 
     def __init__(self, method):
         self.obj_ref = weakref.ref(method.im_self)
@@ -61,11 +61,9 @@ class BaseService(object):
 
     def start(self):
         logging.info('Starting service %s', self.__class__.__name__)
-        pass
 
     def stop(self):
         logging.info('Stopping service %s', self.__class__.__name__)
-        pass
 
     def subscribe(self, client):
         self.subscribers.add(client)
@@ -76,10 +74,11 @@ class BaseService(object):
         logging.debug('%s unsubscribed from %s', client, self)
 
     def notify_subscribers(self, event, payload=None):
-        for each in self.subscribers:
-            notifications.put(Notification(each, event, payload))
+        for subscriber in self.subscribers:
+            notifications.put(Notification(subscriber, event, payload))
 
 
+# Fixme: should be PeriodicService, AsyncPeriodicService
 class AsyncService(BaseService):
     """An asynchronous service that performs its work on a background
     thread.
@@ -107,3 +106,36 @@ class AsyncService(BaseService):
 
     def tick(self):
         pass
+
+
+class ServiceManager(object):
+    def __init__(self):
+        self.active_services = {}
+
+    def bind(self, service_class):
+        if service_class in self.active_services:
+            instance, ref_count = self.active_services[service_class]
+            ref_count += 1
+        else:
+            instance = service_class()
+            # fixme: this may take a while
+            instance.start()
+            ref_count = 1
+        self.active_services[service_class] = (instance, ref_count)
+        logging.info('Bound service %s to %s, ref_count = %i',
+                     service_class, instance, ref_count)
+        return instance
+
+    def unbind(self, service_class):
+        if not service_class in self.active_services:
+            raise KeyError('Cannot bind: unknown service %s' % service_class)
+        instance, ref_count = self.active_services[service_class]
+        ref_count -= 1
+        logging.info('Unbound service %s, ref_count = %i',
+                     service_class, ref_count)
+        if ref_count == 0:
+            # fixme: this may take a while
+            instance.stop()
+            del self.active_services[service_class]
+        else:
+            self.active_services[service_class] = (instance, ref_count)

@@ -4,6 +4,7 @@ from piradio import commons
 
 TIME_CHANGED_EVENT = 'time_changed'
 
+
 class ClockService(base.AsyncService):
     def __init__(self):
         super(ClockService, self).__init__(tick_interval=1.0)
@@ -19,6 +20,7 @@ class ClockService(base.AsyncService):
                                     {'time': self.timeofday})
 
 _instance = None
+
 
 def instance():
     if not _instance:
