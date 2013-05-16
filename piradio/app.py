@@ -67,6 +67,7 @@ class RadioApp(object):
         self.panel_defs = self.read_panels(CONFIG['panels'])
         self.panel_idx = None
         self.active_panel = None
+        self.backing_stores = {}
 
     @staticmethod
     def read_panels(panels):
@@ -97,7 +98,10 @@ class RadioApp(object):
         lcd.readkeys()
         logging.info('Initializing %s', panel_class.__name__)
         try:
-            self.panels.append(panel_class(*args))
+            instance = panel_class(*args)
+            self.panels.append(instance)
+            self.backing_stores[instance] = graphics.Surface(lcd.LCD_WIDTH,
+                                                             lcd.LCD_HEIGHT)
         except Exception as e:
             logging.error('Failed to initialize panel %s',
                           panel_class.__name__)
@@ -124,8 +128,9 @@ class RadioApp(object):
             self.trigger_key_events()
             self.active_panel.update()
             if self.activate_panel:
-                if self.active_panel.paint_if_needed(self.framebuffer):
-                    self.lcd_update()
+                if self.active_panel.paint_if_needed(self.active_panel_fb):
+                    lcd.update(self.active_panel_fb)
+                    # self.lcd_update()
             time.sleep(1.0 / UPDATE_RATE)
 
     def lcd_update(self):
@@ -163,6 +168,8 @@ class RadioApp(object):
             self.active_panel.deactivate()
         self.active_panel = self.panels[self.panel_idx]
         self.active_panel.activate()
-        self.active_panel.set_needs_repaint()
+        # self.active_panel.set_needs_repaint()
+        self.active_panel_fb = self.backing_stores[self.active_panel]
+        lcd.update(self.active_panel_fb)
         logging.debug('Activated panel %s',
                       self.active_panel.__class__.__name__)
