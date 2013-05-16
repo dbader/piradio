@@ -72,6 +72,7 @@ class AsyncService(BaseService):
     def __init__(self, tick_interval=1.0):
         super(AsyncService, self).__init__()
         self.is_running = False
+        self.stop_event = threading.Event()
         self.tick_interval = tick_interval
         self.tick_thread = threading.Thread(target=self.tick_thread_main)
 
@@ -81,19 +82,22 @@ class AsyncService(BaseService):
             logging.warning('%s: start() called while service '
                             'is already running', self.__class__.__name__)
             return
-        self.is_running = True
         self.tick_thread.start()
 
     def stop(self):
         super(AsyncService, self).stop()
-        self.is_running = False
+        self.stop_event.set()
         self.tick_thread.join()
 
     def tick_thread_main(self):
         """Calls tick() in periodic intervals."""
-        while self.is_running:
-            self.tick()
-            time.sleep(self.tick_interval)
+        try:
+            while not self.stop_event.wait(1):
+                self.is_running = True
+                self.tick()
+                self.stop_event.wait(self.tick_interval)
+        finally:
+            self.is_running = False
 
     def tick(self):
         pass
