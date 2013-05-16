@@ -8,8 +8,8 @@ class ClockPanel(base.Panel):
     def __init__(self):
         super(ClockPanel, self).__init__()
         self.clock_font = fonts.get('tempesta', 32)
-        self.timeofday = 'XX:XX'
         clocksvc = piradio.services.clock.instance()
+        self.timeofday = clocksvc.timeofday()
         clocksvc.subscribe(clocksvc.TIME_CHANGED_EVENT,
                            self.on_time_changed)
 

@@ -18,8 +18,8 @@ class RadioPanel(base.Panel):
         self.stations = json.loads(open('stations.json').read())
         self.cy = 0
         self.currstation = ''
-        self.timeofday = 'XX:XX'
         clocksvc = piradio.services.clock.instance()
+        self.timeofday = clocksvc.timeofday()
         clocksvc.subscribe(clocksvc.TIME_CHANGED_EVENT, self.on_time_changed)
 
     def on_time_changed(self, timeofday):
