@@ -1,13 +1,12 @@
-import logging
-import piradio.fonts as fonts
-from piradio.panels import base
+import piradio.fonts
+import base
 import piradio.services.clock
 
 
 class ClockPanel(base.Panel):
     def __init__(self):
         super(ClockPanel, self).__init__()
-        self.clock_font = fonts.get('tempesta', 32)
+        self.clock_font = piradio.fonts.get('tempesta', 32)
         clocksvc = piradio.services.clock.instance()
         self.timeofday = clocksvc.timeofday()
         clocksvc.subscribe(clocksvc.TIME_CHANGED_EVENT,
