@@ -5,6 +5,7 @@ a real LCD board."""
 import pygame
 import os
 import logging
+import time
 
 logger = logging.getLogger('fakelcd')
 
@@ -18,6 +19,9 @@ LCD_COLOR_BG = (148, 175, 204)
 LCD_COLOR_FG = (32, 32, 32)
 BACKGROUND_IMAGE = os.path.join(os.getcwd(), 'assets',
                                 'simulator-frontplate.png')
+
+VISUALIZE_KEYPRESSES = True
+RENDER_DELAY = 0.05
 
 keymap = [
     pygame.K_LEFT,
@@ -48,6 +52,7 @@ def init(debug=False):
 
 
 def update(pixels):
+    time.sleep(RENDER_DELAY)
     for y in range(LCD_HEIGHT):
         for x in range(LCD_WIDTH):
             pixel_color = (LCD_COLOR_FG if pixels[y*LCD_WIDTH+x]
@@ -78,13 +83,13 @@ def readkeys():
         if pressed_keys[k]:
             keys[i] = True
 
-    # Visualize key presses
-    draw_key(K_LEFT, (214, 107))
-    draw_key(K_RIGHT, (307, 107))
-    draw_key(K_UP, (260, 66))
-    draw_key(K_DOWN, (260, 151))
-    draw_key(K_CENTER, (260, 109))
-    update(framebuffer)
+    if VISUALIZE_KEYPRESSES:
+        draw_key(K_LEFT, (214, 107))
+        draw_key(K_RIGHT, (307, 107))
+        draw_key(K_UP, (260, 66))
+        draw_key(K_DOWN, (260, 151))
+        draw_key(K_CENTER, (260, 109))
+        update(framebuffer)
 
     return keys
 
