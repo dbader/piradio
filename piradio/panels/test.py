@@ -7,7 +7,7 @@ import time
 class DitherTestPanel(base.Panel):
     def __init__(self):
         super(DitherTestPanel, self).__init__()
-        self.needs_redraw = True
+        self.set_needs_repaint()
         self.img = graphics.Surface(filename='assets/dithertest.png')
         self.img.dither()
 
@@ -18,7 +18,7 @@ class DitherTestPanel(base.Panel):
 class AnimationTestPanel(base.Panel):
     def __init__(self):
         super(AnimationTestPanel, self).__init__()
-        self.needs_redraw = True
+        self.set_needs_repaint()
         self.fps_font = fonts.get('tempesta', 8)
         self.img = fonts.get('tempesta', 16).render('piradio')
         self.x = 0
@@ -34,7 +34,7 @@ class AnimationTestPanel(base.Panel):
             self.dirx = -self.dirx
         if self.y < -5 or self.y + self.img.height - 5 >= 64:
             self.diry = -self.diry
-        self.needs_redraw = True
+        self.set_needs_repaint()
 
     def paint(self, surface):
         framestart = time.time()

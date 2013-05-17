@@ -67,6 +67,7 @@ class RadioApp(object):
         self.panel_defs = self.read_panels(CONFIG['panels'])
         self.panel_idx = None
         self.active_panel = None
+        self.active_panel_fb = None
         self.backing_stores = {}
 
     @staticmethod
@@ -81,9 +82,9 @@ class RadioApp(object):
         return ps
 
     @property
-    def needs_redraw(self):
+    def needs_repaint(self):
         if self.active_panel:
-            return self.active_panel.needs_redraw
+            return self.active_panel.needs_repaint
         return False
 
     def addpanel(self, panel_class, *args):
@@ -114,8 +115,8 @@ class RadioApp(object):
         self.framebuffer = graphics.Surface(lcd.LCD_WIDTH, lcd.LCD_HEIGHT)
         lcd.set_backlight_enabled(True)
 
-        logging.info('Initializing services')
-        services.clock.instance()
+        # logging.info('Initializing services')
+        # services.clock.instance()
 
         logging.info('Initializing panels')
         for p, args in self.panel_defs:
@@ -129,12 +130,12 @@ class RadioApp(object):
             self.active_panel.update()
             if self.activate_panel:
                 if self.active_panel.paint_if_needed(self.active_panel_fb):
+                    logging.debug('Updating LCD (active_panel)')
                     lcd.update(self.active_panel_fb)
-                    # self.lcd_update()
             time.sleep(1.0 / UPDATE_RATE)
 
     def lcd_update(self):
-        logging.debug('Updating LCD')
+        logging.debug('Updating LCD (framebuffer)')
         lcd.update(self.framebuffer)
 
     def trigger_key_events(self):
@@ -163,13 +164,17 @@ class RadioApp(object):
             self.activate_panel(self.panel_idx + 1)
 
     def activate_panel(self, panel_idx):
+        logging.debug('Activated panel %s',
+                      self.active_panel.__class__.__name__)
         self.panel_idx = panel_idx % len(self.panels)
         if self.active_panel:
             self.active_panel.deactivate()
         self.active_panel = self.panels[self.panel_idx]
         self.active_panel.activate()
-        # self.active_panel.set_needs_repaint()
         self.active_panel_fb = self.backing_stores[self.active_panel]
-        lcd.update(self.active_panel_fb)
-        logging.debug('Activated panel %s',
-                      self.active_panel.__class__.__name__)
+        if not self.needs_repaint:
+            logging.debug('Updating LCD -- no repaint needed (active_panel)')
+            lcd.update(self.active_panel_fb)
+        else:
+            self.active_panel.paint(self.active_panel_fb)
+            lcd.update(self.active_panel_fb)

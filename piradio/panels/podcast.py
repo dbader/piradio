@@ -26,7 +26,7 @@ class RandomPodcastPanel(base.Panel):
     def update(self):
         if time.time() - self.lastrefresh > 10:
             self.lastrefresh = time.time()
-            self.needs_redraw = True
+            self.set_needs_repaint()
 
     def paint(self, surface):
         surface.fill(0)
@@ -46,5 +46,5 @@ class RandomPodcastPanel(base.Panel):
 
     def center_pressed(self):
         self.select_random_episode()
-        self.needs_redraw = True
+        self.set_needs_repaint()
         audio.playstream(self.episode_url, fade=False)

@@ -33,4 +33,4 @@ class PublicTransportPanel(base.Panel):
 
     def center_pressed(self):
         self.refresh()
-        self.needs_redraw = True
+        self.set_needs_repaint()

@@ -12,7 +12,7 @@ class AlarmPanel(base.Panel):
         self.prev_timestr = None
         self.countdown = 60 * 3
         self.alarmtime = None
-        self.countdown_str = None
+        self.countdown_str = self.countdownstring()
         self.state = 'SET_TIME'
         self.stepsize = 60
 
@@ -36,7 +36,7 @@ class AlarmPanel(base.Panel):
             lcd.set_backlight_enabled(bool(int(time.time()) % 2 == 0))
         if self.countdown_str != self.countdownstring():
             self.countdown_str = self.countdownstring()
-            self.needs_redraw = True
+            self.set_needs_repaint()
 
     def paint(self, surface):
         surface.fill(0)
@@ -44,11 +44,11 @@ class AlarmPanel(base.Panel):
 
     def up_pressed(self):
         self.countdown += self.stepsize
-        self.needs_redraw = True
+        self.set_needs_repaint()
 
     def down_pressed(self):
         self.countdown = max(0, self.countdown - self.stepsize)
-        self.needs_redraw = True
+        self.set_needs_repaint()
 
     def center_pressed(self):
         if self.state == 'SET_TIME':
@@ -58,4 +58,4 @@ class AlarmPanel(base.Panel):
         elif self.state == 'ALARM':
             lcd.set_backlight_enabled(True)
             self.state = 'SET_TIME'
-        self.needs_redraw = True
+        self.set_needs_repaint()

@@ -1,5 +1,5 @@
 import piradio.fonts
-import base
+from . import base
 import piradio.services.clock
 
 
