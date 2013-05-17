@@ -1,7 +1,7 @@
 import mock
 import time
-from ..base import (BaseService, AsyncService, ServiceManager,
-                    deliver_pending_notifications)
+from piradio.services.base import (BaseService, AsyncService,
+                                   deliver_pending_notifications)
 
 
 def test_subscriptions():

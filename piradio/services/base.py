@@ -92,7 +92,7 @@ class AsyncService(BaseService):
     def tick_thread_main(self):
         """Calls tick() in periodic intervals."""
         try:
-            while not self.stop_event.wait(1):
+            while not self.stop_event.wait(0.001):
                 self.is_running = True
                 self.tick()
                 self.stop_event.wait(self.tick_interval)
