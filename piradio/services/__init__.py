@@ -2,7 +2,7 @@ import base
 import clock
 import weather
 
-from base import deliver_pending_notifications
+from base import deliver_pending_notifications, ServiceBroker
 
 def stop_all():
     # Fixme hack, should have a service registry

@@ -9,8 +9,9 @@ from ..services import podcast
 
 
 class RandomPodcastPanel(base.Panel):
-    def __init__(self, feed_url):
+    def __init__(self, **config):
         super(RandomPodcastPanel, self).__init__()
+        feed_url = config['url']
         self.font = fonts.get('tempesta', 8)
         logging.info('Loading podcast feed from %s', feed_url)
         self.episodes = podcast.load_podcast(feed_url)

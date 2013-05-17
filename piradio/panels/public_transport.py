@@ -7,9 +7,9 @@ from ..services import mvg
 
 
 class PublicTransportPanel(base.Panel):
-    def __init__(self, station):
+    def __init__(self, **config):
         super(PublicTransportPanel, self).__init__()
-        self.station = station
+        self.station = config['station']
         self.font = fonts.get('tempesta', 8)
         self.upcoming_trains = []
         self.refresh()

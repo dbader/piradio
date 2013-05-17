@@ -5,15 +5,29 @@
   "clock_format": "%H:%M",
   "forecastio_api_key": "bb6bb9af70b9742d84883be1aa354346",
   "panels": [
-    ["RadioPanel"],
-    ["ClockPanel"],
-    ["AlarmPanel"],
-    ["PublicTransportPanel", "Hohenzollernplatz"],
-    ["WeatherPanel", "München", 48.181853, 11.608897],
-    ["WeatherPanel", "Vancouver", 49.261226, -123.113927],
-    ["DitherTestPanel"],
-    ["AnimationTestPanel"],
-    ["RandomPodcastPanel", "http://domian.alpha-labs.net/domian.rss"],
-    ["RandomPodcastPanel", "http://lessconversation.podomatic.com/rss2.xml"]
+    ["RadioPanel", {}],
+    ["ClockPanel", {}],
+    ["AlarmPanel", {}],
+    ["PublicTransportPanel", {
+      "station": "Hohenzollernplatz"
+    }],
+    ["WeatherPanel", {
+      "title": "München",
+      "lat": 48.181853,
+      "lon": 11.608897
+    }],
+    ["WeatherPanel", {
+      "title": "Vancouver",
+      "lat": 49.261226,
+      "lon": -123.113927
+    }],
+    ["DitherTestPanel", {}],
+    ["AnimationTestPanel", {}],
+    ["RandomPodcastPanel", {
+      "url": "http://domian.alpha-labs.net/domian.rss"
+    }],
+    ["RandomPodcastPanel", {
+      "url":"http://lessconversation.podomatic.com/rss2.xml"
+    }]
   ]
 }

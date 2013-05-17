@@ -3,7 +3,6 @@ from .. import fonts
 from .. import ui
 from .. import commons
 from ..services import audio
-import piradio.services.clock
 import logging
 import json
 
@@ -11,16 +10,16 @@ GLYPH_PLAYING = '0'
 
 
 class RadioPanel(base.Panel):
-    def __init__(self):
+    def __init__(self, clock_service):
         super(RadioPanel, self).__init__()
         self.font = fonts.get('tempesta', 8)
         self.glyph_font = fonts.get('pixarrows', 10)
         self.stations = json.loads(open('stations.json').read())
         self.cy = 0
         self.currstation = ''
-        clocksvc = piradio.services.clock.instance()
-        self.timeofday = clocksvc.timeofday()
-        clocksvc.subscribe(clocksvc.TIME_CHANGED_EVENT, self.on_time_changed)
+        self.timeofday = clock_service.timeofday()
+        clock_service.subscribe(clock_service.TIME_CHANGED_EVENT,
+                                self.on_time_changed)
 
     def on_time_changed(self, timeofday):
         self.timeofday = timeofday

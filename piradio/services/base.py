@@ -1,6 +1,6 @@
 import threading
 import Queue as queue
-import time
+import inspect
 import logging
 
 # Pending notifications that should be delivered on the main thread.
@@ -92,7 +92,7 @@ class AsyncService(BaseService):
     def tick_thread_main(self):
         """Calls tick() in periodic intervals."""
         try:
-            while not self.stop_event.wait(0.001):
+            while not self.stop_event.wait(0):
                 self.is_running = True
                 self.tick()
                 self.stop_event.wait(self.tick_interval)
@@ -101,3 +101,45 @@ class AsyncService(BaseService):
 
     def tick(self):
         pass
+
+
+class ServiceBroker(object):
+    def __init__(self):
+        self.service_classes = {}
+        self.service_instances = {}
+
+    def register_service(self, service_class, key=None):
+        key = key or service_class.__name__
+        logging.info('Registered %s -> %s', key, service_class.__name__)
+        self.service_classes[key] = service_class
+
+    def stop_running(self):
+        for svc in self.service_instances.values():
+            logging.info('Broker: stopping %s', svc)
+            svc.stop()
+        self.service_instances.clear()
+
+    def get_service_instance(self, service_class):
+        try:
+            return self.service_instances[service_class]
+        except KeyError:
+            try:
+                logging.info('Broker: starting %s', service_class)
+                instance = self.service_classes[service_class]()
+                instance.start()
+                self.service_instances[service_class] = instance
+                return instance
+            except KeyError:
+                raise Exception('Unknown service key %s' % service_class)
+
+    def instantiate(self, cls, kwargs):
+        resolved_args = []
+        for arg in inspect.getargspec(cls.__init__).args[1:]:
+            if not arg.endswith('_service'):
+                raise Exception('Cannot inject service from arg %s' % arg)
+            clsname = ''.join([c.title() for c in arg.split('_')])
+            logging.debug('(%s) Injecting %s -> %s',
+                          cls.__name__, arg, clsname)
+            instance = self.get_service_instance(clsname)
+            resolved_args.append(instance)
+        return cls(*resolved_args, **kwargs)

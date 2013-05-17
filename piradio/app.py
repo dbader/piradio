@@ -69,13 +69,14 @@ class RadioApp(object):
         self.active_panel = None
         self.active_panel_fb = None
         self.backing_stores = {}
+        self.broker = services.ServiceBroker()
 
     @staticmethod
     def read_panels(panels):
         ps = []
         for p in panels:
             classname = p[0]
-            args = p[1:]
+            args = p[1]
             logging.info('Looking up class %s', classname)
             clazz = globals()[classname]
             ps.append((clazz, args))
@@ -87,7 +88,7 @@ class RadioApp(object):
             return self.active_panel.needs_repaint
         return False
 
-    def addpanel(self, panel_class, *args):
+    def addpanel(self, panel_class, config):
         self.framebuffer.fill(0)
         ui.render_progressbar(self.framebuffer,
                               2, self.framebuffer.height / 2 - 8,
@@ -99,7 +100,7 @@ class RadioApp(object):
         lcd.readkeys()
         logging.info('Initializing %s', panel_class.__name__)
         try:
-            instance = panel_class(*args)
+            instance = self.broker.instantiate(panel_class, config)
             self.panels.append(instance)
             self.backing_stores[instance] = graphics.Surface(lcd.LCD_WIDTH,
                                                              lcd.LCD_HEIGHT)
@@ -109,30 +110,33 @@ class RadioApp(object):
             logging.exception(e)
 
     def run(self):
-        self.sleeptimer.resetsleep()
-        audio.stop()
-        lcd.init()
-        self.framebuffer = graphics.Surface(lcd.LCD_WIDTH, lcd.LCD_HEIGHT)
-        lcd.set_backlight_enabled(True)
+        try:
+            self.sleeptimer.resetsleep()
+            audio.stop()
+            lcd.init()
+            self.framebuffer = graphics.Surface(lcd.LCD_WIDTH, lcd.LCD_HEIGHT)
+            lcd.set_backlight_enabled(True)
 
-        # logging.info('Initializing services')
-        # services.clock.instance()
+            self.broker.register_service(services.clock.ClockService)
+            self.broker.register_service(services.weather.WeatherService)
 
-        logging.info('Initializing panels')
-        for p, args in self.panel_defs:
-            self.addpanel(p, *args)
-        self.activate_panel(0)
+            logging.info('Initializing panels %s', self.panel_defs)
+            for p, args in self.panel_defs:
+                self.addpanel(p, args)
+            self.activate_panel(0)
 
-        while True:
-            services.deliver_pending_notifications()
-            self.sleeptimer.update_sleep()
-            self.trigger_key_events()
-            self.active_panel.update()
-            if self.activate_panel:
-                if self.active_panel.paint_if_needed(self.active_panel_fb):
-                    logging.debug('Updating LCD (active_panel)')
-                    lcd.update(self.active_panel_fb)
-            time.sleep(1.0 / UPDATE_RATE)
+            while True:
+                services.deliver_pending_notifications()
+                self.sleeptimer.update_sleep()
+                self.trigger_key_events()
+                self.active_panel.update()
+                if self.activate_panel:
+                    if self.active_panel.paint_if_needed(self.active_panel_fb):
+                        logging.debug('Updating LCD (active_panel)')
+                        lcd.update(self.active_panel_fb)
+                time.sleep(1.0 / UPDATE_RATE)
+        finally:
+            self.broker.stop_running()
 
     def lcd_update(self):
         logging.debug('Updating LCD (framebuffer)')

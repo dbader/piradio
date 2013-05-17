@@ -1,20 +1,19 @@
 import logging
 from piradio import fonts
 from piradio.panels import base
-import piradio.services.weather
 
 
 class WeatherPanel(base.Panel):
-    def __init__(self, city, lat, lon):
+    def __init__(self, weather_service, **config):
         super(WeatherPanel, self).__init__()
-        self.city = city
+        self.city = config['title']
         self.font_big = fonts.get('tempesta', 16)
         self.font = fonts.get('tempesta', 8)
         self.climacons = fonts.get('climacons', 32)
         self.weather_glyph = 'Y'
         self.weather_summary = ''
-        weathersvc = piradio.services.weather.instance()
-        weathersvc.subscribe((lat, lon), self.on_forecast_changed)
+        lat, lon = config['lat'], config['lon']
+        weather_service.subscribe((lat, lon), self.on_forecast_changed)
 
     def on_forecast_changed(self, icon, summary):
         logging.info('Forecast changed: %s, %s', icon, summary)
