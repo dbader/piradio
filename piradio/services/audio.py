@@ -44,7 +44,8 @@ class AudioService(base.BaseService):
     def playback_progress(self):
         if not self.is_playing:
             return 0.0
-        done, total = tuple(map(int, client.status()['time'].split(':')))
+        mpd_status = self.mpd_client.status()
+        done, total = tuple(map(int, mpd_status['time'].split(':')))
         if not total:
             return 0.0
         return float(done) / float(total)
