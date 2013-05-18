@@ -3,7 +3,7 @@
 import urllib2
 import json
 import logging
-import base
+from . import base
 
 
 class WeatherService(base.AsyncService):

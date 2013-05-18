@@ -1,7 +1,7 @@
-from piradio.panels import base
-from .. import graphics
-from .. import fonts
 import time
+import piradio.fonts as fonts
+import piradio.graphics as graphics
+from . import base
 
 
 class DitherTestPanel(base.Panel):

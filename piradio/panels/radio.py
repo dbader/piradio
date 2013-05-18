@@ -1,9 +1,9 @@
-from piradio.panels import base
-from .. import fonts
-from .. import ui
-from .. import commons
 import logging
 import json
+import piradio.fonts as fonts
+import piradio.ui as ui
+import piradio.commons as commons
+from . import base
 
 GLYPH_PLAYING = '0'
 

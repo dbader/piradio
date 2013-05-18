@@ -1,6 +1,6 @@
 import logging
 import piradio.commons as commons
-from piradio.services import base
+from . import base
 
 
 class ClockService(base.AsyncService):

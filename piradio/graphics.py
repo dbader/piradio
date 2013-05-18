@@ -1,5 +1,5 @@
 import png
-from piradio import commons
+import piradio.commons as commons
 
 WHITE = 0
 BLACK = 1

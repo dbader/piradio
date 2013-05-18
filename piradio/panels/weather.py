@@ -1,6 +1,6 @@
 import logging
-from piradio import fonts
-from piradio.panels import base
+import piradio.fonts as fonts
+from . import base
 
 
 class WeatherPanel(base.Panel):

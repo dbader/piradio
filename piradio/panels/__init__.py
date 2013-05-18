@@ -8,10 +8,11 @@
 # newsticker
 # emails
 
-from .alarm import *
-from .clock import *
-from .radio import *
-from .weather import *
-from .public_transport import *
-from .podcast import *
-from .test import *
+# import piradio.panels.base
+from piradio.panels.alarm import AlarmPanel
+from piradio.panels.clock import ClockPanel
+from piradio.panels.radio import RadioPanel
+from piradio.panels.weather import WeatherPanel
+from piradio.panels.public_transport import PublicTransportPanel
+from piradio.panels.podcast import RandomPodcastPanel
+from piradio.panels.test import DitherTestPanel, AnimationTestPanel

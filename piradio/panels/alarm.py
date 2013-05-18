@@ -1,8 +1,7 @@
-from piradio.panels import base
-from .. import fonts
-from .. import lcd
-from ..services import audio
 import time
+import piradio.fonts as fonts
+import piradio.lcd as lcd
+from . import base
 
 
 class AlarmPanel(base.Panel):

@@ -1,8 +1,8 @@
-import base
 import time
 import random
-from .. import fonts
-from .. import ui
+import piradio.fonts as fonts
+import piradio.ui as ui
+from . import base
 
 
 class RandomPodcastPanel(base.Panel):

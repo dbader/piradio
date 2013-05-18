@@ -29,7 +29,7 @@ class Notification(object):
                                    self.args, self.kwargs)
 
     def deliver(self):
-        logging.debug('Delivering %s', self)
+        # logging.debug('Delivering %s', self)
         self.callback(*self.args, **self.kwargs)
 
 
@@ -97,8 +97,6 @@ class AsyncService(BaseService):
             while not self.stop_event.wait(0):
                 self.is_running = True
                 self.tick()
-                logging.debug('%s: sleeping for %f seconds',
-                             self.__class__.__name__, self.tick_interval)
                 self.stop_event.wait(self.tick_interval)
         finally:
             self.is_running = False

@@ -1,7 +1,7 @@
-import base
-from .. import fonts
-from .. import graphics
-from .. import ui
+import piradio.fonts as fonts
+import piradio.graphics as graphics
+import piradio.ui as ui
+from . import base
 
 
 class PublicTransportPanel(base.Panel):

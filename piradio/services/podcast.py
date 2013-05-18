@@ -1,9 +1,10 @@
 import logging
-import xml.etree.cElementTree as elementtree
 import urllib2
-from piradio.services import base
+import xml.etree.cElementTree as elementtree
+from . import base
 
 logger = logging.getLogger('PodcastService')
+
 
 class PodcastService(base.AsyncService):
     def __init__(self):

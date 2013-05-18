@@ -1,7 +1,7 @@
 #sudo pip install python-mpd2
 import mpd
 import os
-from piradio.services import base
+from . import base
 
 
 class AudioService(base.BaseService):

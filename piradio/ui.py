@@ -1,5 +1,5 @@
-from piradio import graphics
-from piradio import commons
+import piradio.graphics as graphics
+import piradio.commons as commons
 
 
 def render_list(surface, x, y, font, items,
