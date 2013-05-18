@@ -1,5 +1,4 @@
 import piradio.fonts as fonts
-import piradio.services.audio as audio
 import piradio.graphics as graphics
 import piradio.ui as ui
 import piradio.lcd as lcd
@@ -112,7 +111,6 @@ class RadioApp(object):
     def run(self):
         try:
             self.sleeptimer.resetsleep()
-            audio.stop()
             lcd.init()
             self.framebuffer = graphics.Surface(lcd.LCD_WIDTH, lcd.LCD_HEIGHT)
             lcd.set_backlight_enabled(True)
@@ -120,6 +118,7 @@ class RadioApp(object):
             self.broker.register_service(services.clock.ClockService)
             self.broker.register_service(services.weather.WeatherService)
             self.broker.register_service(services.podcast.PodcastService)
+            self.broker.register_service(services.audio.AudioService)
 
             logging.info('Initializing panels %s', self.panel_defs)
             for p, args in self.panel_defs:

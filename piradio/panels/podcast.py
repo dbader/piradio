@@ -3,11 +3,10 @@ import time
 import random
 from .. import fonts
 from .. import ui
-from ..services import audio
 
 
 class RandomPodcastPanel(base.Panel):
-    def __init__(self, podcast_service, **config):
+    def __init__(self, podcast_service, audio_service, **config):
         super(RandomPodcastPanel, self).__init__()
         feed_url = config['url']
         self.font = fonts.get('tempesta', 8)
@@ -15,6 +14,7 @@ class RandomPodcastPanel(base.Panel):
         self.episode_url = None
         self.episode_title = 'Press to select episode'
         self.lastrefresh = 0
+        self.audio_service = audio_service
         podcast_service.subscribe(feed_url, self.on_episodes_changed)
 
     def on_episodes_changed(self, episodes):
@@ -44,10 +44,10 @@ class RandomPodcastPanel(base.Panel):
         surface.center_text(self.font, line2, y=32)
 
         ui.render_progressbar(surface, 0, 48, surface.width, 14,
-                              audio.progress())
+                              self.audio_service.playback_progress)
 
     def center_pressed(self):
         self.select_random_episode()
         self.set_needs_repaint()
         if self.episode_url:
-            audio.playstream(self.episode_url, fade=False)
+            self.audio_service.playstream(self.episode_url)

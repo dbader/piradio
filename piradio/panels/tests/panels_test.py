@@ -55,9 +55,12 @@ def test_init_paint_update():
     clock_mock.return_value.timeofday.return_value = '13:37'
     weather_mock = make_service_mock('WeatherServiceMock')
     podcast_mock = make_service_mock('PodcastServiceMock')
+    audio_mock = make_service_mock('AudioServiceMock')
+    audio_mock.return_value.playback_progress.return_value = 0.5
     broker.register_service(clock_mock, 'ClockService')
     broker.register_service(weather_mock, 'WeatherService')
     broker.register_service(podcast_mock, 'PodcastService')
+    broker.register_service(audio_mock, 'AudioService')
 
     surf = graphics.Surface(128, 64)
 

@@ -6,7 +6,7 @@ import time
 
 
 class AlarmPanel(base.Panel):
-    def __init__(self):
+    def __init__(self, audio_service):
         super(AlarmPanel, self).__init__()
         self.font = fonts.get('tempesta', 32)
         self.prev_timestr = None
@@ -15,11 +15,12 @@ class AlarmPanel(base.Panel):
         self.countdown_str = self.countdownstring()
         self.state = 'SET_TIME'
         self.stepsize = 60
+        self.audio_service = audio_service
 
     def fire_alarm(self):
         self.state = 'ALARM'
         self.alarmtime = None
-        audio.playfile('assets/alarm.mp3')
+        self.audio_service.playfile('assets/alarm.mp3')
 
     def countdownstring(self):
         remaining = int(self.alarmtime - time.time()
