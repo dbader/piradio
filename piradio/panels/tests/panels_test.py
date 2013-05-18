@@ -15,8 +15,11 @@ PANELS = [
     (Panel, {}),
     (AlarmPanel, {}),
     (ClockPanel, {}),
-    (RandomPodcastPanel, {'url': 'http://domian.alpha-labs.net/domian.rss'}),
-    (PublicTransportPanel, {'station': 'Marienplatz'}),
+    (RandomPodcastPanel, {
+        'title': 'Test',
+        'url': 'http://example.com/feed.rss'
+    }),
+    (PublicTransportPanel, {'station': 'Test'}),
     (RadioPanel, {}),
     (DitherTestPanel, {}),
     (AnimationTestPanel, {}),

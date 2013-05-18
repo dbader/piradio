@@ -24,9 +24,11 @@
     ["DitherTestPanel", {}],
     ["AnimationTestPanel", {}],
     ["RandomPodcastPanel", {
+      "title": "Domian",
       "url": "http://domian.alpha-labs.net/domian.rss"
     }],
     ["RandomPodcastPanel", {
+      "title": "Less Conversation",
       "url":"http://lessconversation.podomatic.com/rss2.xml"
     }]
   ]

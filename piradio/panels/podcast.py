@@ -12,7 +12,8 @@ class RandomPodcastPanel(base.Panel):
         self.font = fonts.get('tempesta', 8)
         self.episodes = []
         self.episode_url = None
-        self.episode_title = 'Press to select episode'
+        self.title = config['title']
+        self.episode_title = 'Press (center) to play random episode'
         self.lastrefresh = 0
         self.audio_service = audio_service
         podcast_service.subscribe(feed_url, self.on_episodes_changed)
@@ -32,7 +33,7 @@ class RandomPodcastPanel(base.Panel):
 
     def paint(self, surface):
         surface.fill(0)
-        surface.center_text(self.font, 'Random Episode', y=2)
+        surface.center_text(self.font, self.title, y=2)
         surface.hline(11)
 
         # Lame multi-line text rendering:
