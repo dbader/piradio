@@ -20,7 +20,17 @@ PANELS = [
         'url': 'http://example.com/feed.rss'
     }),
     (PublicTransportPanel, {'station': 'Test'}),
-    (RadioPanel, {}),
+    (RadioPanel, {
+        "B5 Aktuell": "http://gffstream.ic.llnwd.net/stream/gffstream_w14b",
+        "FM4": "http://mp3stream1.apasf.apa.at:8000",
+        "M94.5": "http://stream.m945.mwn.de:80/m945-hq.mp3",
+        "SomaFM": "http://voxsc1.somafm.com:3000",
+        "Bob Marley Radio": "http://listen.radionomy.com/bob-marley",
+        "Radio 2day": "http://stream2.radio2day.ip-streaming.net:80/radio2day",
+        "Byte.FM": "http://streamingserver05.byte.fm:8000/",
+        "Rock Antenne": "http://mp3.webradio.rockantenne.de:80",
+        "Substanz FM": "http://streamplus36.leonex.de:21806"
+    }),
     (DitherTestPanel, {}),
     (AnimationTestPanel, {}),
     (WeatherPanel, {'title': 'TestCity', 'lat': 48.5, 'lon': 11.5})
