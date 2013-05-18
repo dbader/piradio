@@ -119,6 +119,7 @@ class RadioApp(object):
             self.broker.register_service(services.weather.WeatherService)
             self.broker.register_service(services.podcast.PodcastService)
             self.broker.register_service(services.audio.AudioService)
+            self.broker.register_service(services.public_transport.PublicTransportService)
 
             logging.info('Initializing panels %s', self.panel_defs)
             for p, args in self.panel_defs:
