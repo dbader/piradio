@@ -6,6 +6,8 @@ import logging
 # Pending notifications that should be delivered on the main thread.
 notifications = queue.Queue()
 
+logging.basicConfig(level=logging.INFO)
+
 
 def deliver_pending_notifications():
     """Deliver all pending notifications.
@@ -95,6 +97,8 @@ class AsyncService(BaseService):
             while not self.stop_event.wait(0):
                 self.is_running = True
                 self.tick()
+                logging.debug('%s: sleeping for %f seconds',
+                             self.__class__.__name__, self.tick_interval)
                 self.stop_event.wait(self.tick_interval)
         finally:
             self.is_running = False
@@ -124,9 +128,8 @@ class ServiceBroker(object):
             return self.service_instances[service_class]
         except KeyError:
             try:
-                logging.info('Broker: starting %s', service_class)
+                logging.info('Broker: instantiating %s', service_class)
                 instance = self.service_classes[service_class]()
-                instance.start()
                 self.service_instances[service_class] = instance
                 return instance
             except KeyError:
@@ -143,3 +146,8 @@ class ServiceBroker(object):
             instance = self.get_service_instance(clsname)
             resolved_args.append(instance)
         return cls(*resolved_args, **kwargs)
+
+    def start_bound_services(self):
+        for each in self.service_instances.values():
+            logging.info('Broker: starting %s', each)
+            each.start()

@@ -119,11 +119,14 @@ class RadioApp(object):
 
             self.broker.register_service(services.clock.ClockService)
             self.broker.register_service(services.weather.WeatherService)
+            self.broker.register_service(services.podcast.PodcastService)
 
             logging.info('Initializing panels %s', self.panel_defs)
             for p, args in self.panel_defs:
                 self.addpanel(p, args)
             self.activate_panel(0)
+
+            self.broker.start_bound_services()
 
             while True:
                 services.deliver_pending_notifications()

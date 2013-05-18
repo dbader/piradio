@@ -1,6 +1,6 @@
 import logging
+import piradio.commons as commons
 from piradio.services import base
-from piradio import commons
 
 
 class ClockService(base.AsyncService):
@@ -20,14 +20,3 @@ class ClockService(base.AsyncService):
             logging.debug('ClockService: time changed to %s', timeofday)
             self.prev_timeofday = timeofday
             self.notify_subscribers(self.TIME_CHANGED_EVENT, timeofday)
-
-_instance = None
-
-
-def instance():
-    if not _instance:
-        logging.info('Creating clockservice instance')
-        global _instance
-        _instance = ClockService()
-        _instance.start()
-    return _instance

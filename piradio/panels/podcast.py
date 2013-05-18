@@ -1,27 +1,28 @@
 import base
-import logging
 import time
 import random
 from .. import fonts
 from .. import ui
 from ..services import audio
-from ..services import podcast
 
 
 class RandomPodcastPanel(base.Panel):
-    def __init__(self, **config):
+    def __init__(self, podcast_service, **config):
         super(RandomPodcastPanel, self).__init__()
         feed_url = config['url']
         self.font = fonts.get('tempesta', 8)
-        logging.info('Loading podcast feed from %s', feed_url)
-        self.episodes = podcast.load_podcast(feed_url)
-        logging.info('Parsed %i episodes', len(self.episodes))
+        self.episodes = []
         self.episode_url = None
-        self.episode_title = None
-        self.select_random_episode()
+        self.episode_title = 'Press to select episode'
         self.lastrefresh = 0
+        podcast_service.subscribe(feed_url, self.on_episodes_changed)
+
+    def on_episodes_changed(self, episodes):
+        self.episodes = episodes
 
     def select_random_episode(self):
+        if not self.episodes:
+            return
         self.episode_title, self.episode_url = random.choice(self.episodes)
 
     def update(self):
@@ -48,4 +49,5 @@ class RandomPodcastPanel(base.Panel):
     def center_pressed(self):
         self.select_random_episode()
         self.set_needs_repaint()
-        audio.playstream(self.episode_url, fade=False)
+        if self.episode_url:
+            audio.playstream(self.episode_url, fade=False)
