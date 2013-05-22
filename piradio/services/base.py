@@ -119,9 +119,8 @@ class ServiceBroker(object):
         self.service_classes[key] = service_class
 
     def stop_running(self):
-        for svc in self.service_instances.values():
-            logging.info('Broker: stopping %s', svc)
-            svc.stop()
+        for service in self.service_instances.values():
+            service.stop()
         self.service_instances.clear()
 
     def get_service_instance(self, service_class):
@@ -149,6 +148,5 @@ class ServiceBroker(object):
         return cls(*resolved_args, **kwargs)
 
     def start_bound_services(self):
-        for each in self.service_instances.values():
-            logging.info('Broker: starting %s', each)
-            each.start()
+        for service in self.service_instances.values():
+            service.start()

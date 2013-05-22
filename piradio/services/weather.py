@@ -32,14 +32,3 @@ class WeatherService(base.AsyncService):
             icon, summary = self.get_forecast(lat, lon)
             logging.info('%f,%f: %s, %s', lat, lon, icon, summary)
             self.notify_subscribers((lat, lon), icon, summary)
-
-_instance = None
-
-
-def instance():
-    if not _instance:
-        logging.info('Creating WeatherService instance')
-        global _instance
-        _instance = WeatherService()
-        _instance.start()
-    return _instance
