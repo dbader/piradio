@@ -1,6 +1,4 @@
-import json
-
-CONFIG = json.loads(open('config.json').read())
+from piradio.config import CONFIG
 
 
 class Panel(object):
@@ -57,4 +55,3 @@ class Panel(object):
         self.paint(surface)
         self.needs_repaint = False
         return True
-

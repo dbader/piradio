@@ -1,11 +1,26 @@
 {
+  // Mainloop update rate if the radio is active.
   "update_rate_hz": 60,
+
+  // Update rate if the radio is asleep
   "update_rate_sleep_hz": 15,
-  "sleep_after_minutes": 60,
+
+
+  // Turn of the LCD backlight and lower the mainloop update rate
+  // after this many minutes of inactivity (no keypresses).
+  "sleep_after_minutes": 240,
+
+  // asdf
   "clock_format": "%H:%M",
+
+  // API key for the forecast.io weather service
   "forecastio_api_key": "bb6bb9af70b9742d84883be1aa354346",
+
+  // Determines which Panels are loaded and in which order they
+  // appear in the radio's UI.
   "panels": [
     ["RadioPanel", {
+      // Map station name -> stream URL
       "B5 Aktuell": "http://gffstream.ic.llnwd.net/stream/gffstream_w14b",
       "FM4": "http://mp3stream1.apasf.apa.at:8000",
       "M94.5": "http://stream.m945.mwn.de:80/m945-hq.mp3",
@@ -31,8 +46,8 @@
       "lat": 49.261226,
       "lon": -123.113927
     }],
-    ["DitherTestPanel", {}],
-    ["AnimationTestPanel", {}],
+    // ["DitherTestPanel", {}],
+    // ["AnimationTestPanel", {}],
     ["RandomPodcastPanel", {
       "title": "Domian",
       "url": "http://domian.alpha-labs.net/domian.rss"

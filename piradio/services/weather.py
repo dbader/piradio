@@ -3,14 +3,14 @@
 import urllib2
 import json
 import logging
+import piradio.config
 from . import base
 
 
 class WeatherService(base.AsyncService):
     def __init__(self):
         super(WeatherService, self).__init__(tick_interval=60*60)
-        config = json.loads(open('config.json').read())
-        self.apikey = config['forecastio_api_key']
+        self.apikey = piradio.config.get('forecastio_api_key')
         logging.info('WeatherService fcast.io api key = %s', self.apikey)
 
     def get_forecast(self, lat, lon):

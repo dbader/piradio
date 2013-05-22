@@ -3,16 +3,15 @@ import piradio.graphics as graphics
 import piradio.ui as ui
 import piradio.lcd as lcd
 import piradio.services as services
+import piradio.config as config
+from piradio.config import CONFIG
 from piradio.panels import *
 
 import logging
 import os
 import time
-import json
 
-
-CONFIG = json.loads(open('config.json').read())
-UPDATE_RATE = float(CONFIG['update_rate_hz'])
+UPDATE_RATE = float(config.get('update_rate_hz'))
 
 
 class SleepTimer(object):
@@ -121,7 +120,6 @@ class RadioApp(object):
             self.broker.register_service(services.audio.AudioService)
             self.broker.register_service(services.public_transport.PublicTransportService)
 
-            logging.info('Initializing panels %s', self.panel_defs)
             for p, args in self.panel_defs:
                 self.addpanel(p, args)
             self.activate_panel(0)
@@ -135,14 +133,14 @@ class RadioApp(object):
                 self.active_panel.update()
                 if self.activate_panel:
                     if self.active_panel.paint_if_needed(self.active_panel_fb):
-                        logging.debug('Updating LCD (active_panel)')
+                        # logging.debug('Updating LCD (active_panel)')
                         lcd.update(self.active_panel_fb)
                 time.sleep(1.0 / UPDATE_RATE)
         finally:
             self.broker.stop_running()
 
     def lcd_update(self):
-        logging.debug('Updating LCD (framebuffer)')
+        # logging.debug('Updating LCD (framebuffer)')
         lcd.update(self.framebuffer)
 
     def trigger_key_events(self):
@@ -180,7 +178,7 @@ class RadioApp(object):
         self.active_panel.activate()
         self.active_panel_fb = self.backing_stores[self.active_panel]
         if not self.needs_repaint:
-            logging.debug('Updating LCD -- no repaint needed (active_panel)')
+            # logging.debug('Updating LCD -- no repaint needed (active_panel)')
             lcd.update(self.active_panel_fb)
         else:
             self.active_panel.paint(self.active_panel_fb)
