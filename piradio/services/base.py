@@ -50,8 +50,8 @@ class BaseService(object):
         if not event in self.subscriptions:
             self.subscriptions[event] = set()
         self.subscriptions[event].add(callback)
-        logging.debug('%s subscribed to %s.%s', callback,
-                      self.__class__.__name__, event)
+        # logging.debug('%s subscribed to %s.%s', callback,
+                      # self.__class__.__name__, event)
 
     def unsubscribe(self, callback):
         for event in self.subscriptions:
@@ -96,7 +96,10 @@ class AsyncService(BaseService):
         try:
             while not self.stop_event.wait(0):
                 self.is_running = True
-                self.tick()
+                try:
+                    self.tick()
+                except Exception as e:
+                    logging.exception(e)
                 self.stop_event.wait(self.tick_interval)
         finally:
             self.is_running = False
@@ -112,7 +115,7 @@ class ServiceBroker(object):
 
     def register_service(self, service_class, key=None):
         key = key or service_class.__name__
-        logging.info('Registered %s -> %s', key, service_class.__name__)
+        # logging.info('Registered %s -> %s', key, service_class.__name__)
         self.service_classes[key] = service_class
 
     def stop_running(self):
@@ -139,8 +142,8 @@ class ServiceBroker(object):
             if not arg.endswith('_service'):
                 raise Exception('Cannot inject service from arg %s' % arg)
             clsname = ''.join([c.title() for c in arg.split('_')])
-            logging.debug('(%s) Injecting %s -> %s',
-                          cls.__name__, arg, clsname)
+            # logging.debug('(%s) Injecting %s -> %s',
+                          # cls.__name__, arg, clsname)
             instance = self.get_service_instance(clsname)
             resolved_args.append(instance)
         return cls(*resolved_args, **kwargs)
