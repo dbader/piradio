@@ -1,3 +1,4 @@
+import StringIO
 import png
 import piradio.commons as commons
 
@@ -206,6 +207,17 @@ class Surface(object):
         self.pixels = bytearray(px for i, px in
                                 enumerate(reversed(pixels)) if i % 3 == 0)
 
+    def as_png_image(self):
+        buf = StringIO.StringIO()
+        writer = png.Writer(self.width, self.height,
+                            greyscale=True, bitdepth=1)
+        writer.write_array(buf, [not px for px in self.pixels])
+        return buf.getvalue()
+
+    def write_image(self, filename):
+        with open(filename, 'wb') as f:
+            f.write(self.as_png_image())
+
     def dither(self):
         """Return an Atkinson-dithered version of `bitmap`.
 
@@ -334,3 +346,6 @@ if __name__ == '__main__':
         s.fill(0)
         s.fill(1)
     print(time.time() - t0)
+
+    print(s1.as_png_image())
+    s1.write_image('test-image-grey.png')
