@@ -27,8 +27,9 @@ def init(debug=True):
     for drv in DRIVERS:
         try:
             _DRIVERS.append(importlib.import_module(drv))
-        except:
-            pass
+            logging.info('Loaded LCD driver %s', drv)
+        except OSError:
+            logging.warning('Failed to load LCD driver %s', drv)
     for drv in _DRIVERS:
         drv.init(debug)
 
