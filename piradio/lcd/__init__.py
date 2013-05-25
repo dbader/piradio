@@ -5,9 +5,6 @@ simulated one (fake_lcd).
 
 import logging
 
-try:
-    from raspi_lcd import *
-except OSError:
-    from fake_lcd import *
+from multi_lcd import *
 
 logging.info('Using LCD driver %s', init.__module__)
