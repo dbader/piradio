@@ -51,10 +51,13 @@ def _keydown(key):
 
 def update(pixels):
     raspilcd.LCD_ClearScreen()
-    for y in range(LCD_HEIGHT):
-        for x in range(LCD_WIDTH):
-            if pixels[y * LCD_WIDTH + x]:
+    px = pixels.pixels
+    row_idx = 0
+    for y in xrange(LCD_HEIGHT):
+        for x in xrange(LCD_WIDTH):
+            if px[row_idx + x]:
                 raspilcd.LCD_PutPixel(x, y)
+        row_idx += LCD_WIDTH
     raspilcd.LCD_WriteFramebuffer()
 
 
