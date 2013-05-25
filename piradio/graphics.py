@@ -1,5 +1,5 @@
-import StringIO
 import png
+import cStringIO as StringIO
 import piradio.commons as commons
 
 WHITE = 0
@@ -244,6 +244,11 @@ class Surface(object):
     def apply(self, func):
         for i in xrange(len(self.pixels)):
             self.pixels[i] = func(self.pixels[i])
+
+    def copy(self):
+        return self.__class__(width=self.width,
+                              height=self.height,
+                              pixels=self.pixels)
 
 if __name__ == '__main__':
     s = Surface(32, 32)
