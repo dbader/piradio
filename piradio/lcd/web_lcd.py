@@ -56,8 +56,12 @@ def get_keys(key):
     bottle.redirect('/')
 
 
+def webthread_main():
+    bottle.run(host='0.0.0.0', port=8080)
+
+
 def init(debug=True):
-    web_thread = threading.Thread(target=bottle.run)
+    web_thread = threading.Thread(target=webthread_main)
     # Let the web thread die when the main thread exits
     web_thread.daemon = True
     web_thread.start()
