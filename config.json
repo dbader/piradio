@@ -5,7 +5,6 @@
   // Update rate if the radio is asleep
   "update_rate_sleep_hz": 15,
 
-
   // Turn of the LCD backlight and lower the mainloop update rate
   // after this many minutes of inactivity (no keypresses).
   "sleep_after_minutes": 240,
@@ -35,14 +34,14 @@
     }],
     ["ClockPanel", {}],
     ["AlarmPanel", {}],
-    ["PublicTransportPanel", {
-      "station": "Hohenzollernplatz"
-    }],
-    ["WeatherPanel", {
-      "title": "München",
-      "lat": 48.181853,
-      "lon": 11.608897
-    }],
+    // ["PublicTransportPanel", {
+    //   "station": "Hohenzollernplatz"
+    // }],
+    // ["WeatherPanel", {
+    //   "title": "München",
+    //   "lat": 48.181853,
+    //   "lon": 11.608897
+    // }],
     ["WeatherPanel", {
       "title": "Vancouver",
       "lat": 49.261226,
@@ -57,6 +56,10 @@
     ["RandomPodcastPanel", {
       "title": "Less Conversation",
       "url":"http://lessconversation.podomatic.com/rss2.xml"
+    }],
+    ["RandomPodcastPanel", {
+      "title": "Savage Lovecast",
+      "url":"http://savagelove.savagelovecast.libsynpro.com/rss"
     }]
   ]
 }
