@@ -30,7 +30,8 @@
       "Byte.FM": "http://streamingserver05.byte.fm:8000/",
       "Rock Antenne": "http://mp3.webradio.rockantenne.de:80",
       "Substanz FM": "http://streamplus36.leonex.de:21806",
-      "CBC Vancouver": "http://8283.live.streamtheworld.com:80/CBC_R1_VCR_H_SC"
+      "CBC Vancouver": "http://8283.live.streamtheworld.com:80/CBC_R1_VCR_H_SC",
+      "Co-op Radio": "http://5.39.66.196:9025/cfro-64k-mp3"
     }],
     ["ClockPanel", {}],
     ["AlarmPanel", {}],
