@@ -1,4 +1,5 @@
 import logging
+import collections
 import piradio.fonts as fonts
 import piradio.ui as ui
 import piradio.commons as commons
@@ -12,7 +13,7 @@ class RadioPanel(base.Panel):
         super(RadioPanel, self).__init__()
         self.font = fonts.get('tempesta', 8)
         self.glyph_font = fonts.get('pixarrows', 10)
-        self.stations = config
+        self.stations = collections.OrderedDict(sorted(config.items()))
         self.cy = 0
         self.currstation = ''
         self.timeofday = clock_service.timeofday()
