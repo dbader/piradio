@@ -16,3 +16,4 @@ from piradio.panels.weather import WeatherPanel
 from piradio.panels.public_transport import PublicTransportPanel
 from piradio.panels.podcast import RandomPodcastPanel
 from piradio.panels.test import DitherTestPanel, AnimationTestPanel
+from piradio.panels.shmup import ShootEmUpGamePanel

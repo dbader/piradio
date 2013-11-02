@@ -7,7 +7,7 @@ from piradio.panels.base import Panel
 from piradio.panels import (AlarmPanel, ClockPanel, RandomPodcastPanel,
                             PublicTransportPanel, RadioPanel,
                             DitherTestPanel, AnimationTestPanel,
-                            WeatherPanel)
+                            WeatherPanel, ShootEmUpGamePanel)
 from piradio.services import ServiceBroker
 
 
@@ -33,6 +33,7 @@ PANELS = [
     }),
     (DitherTestPanel, {}),
     (AnimationTestPanel, {}),
+    (ShootEmUpGamePanel, {}),
     (WeatherPanel, {'title': 'TestCity', 'lat': 48.5, 'lon': 11.5})
 ]
 

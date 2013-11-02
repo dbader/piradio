@@ -63,11 +63,14 @@ class Rect(object):
 
 
 class Surface(object):
-    def __init__(self, width=0, height=0, filename=None, pixels=None):
+    def __init__(self, width=0, height=0, filename=None,
+                 pixels=None, dither=False):
         self._width = width
         self._height = height
         if filename:
             self.loadimage(filename)
+            if dither:
+                self.dither()
         elif pixels:
             self.pixels = bytearray(pixels)
         else:
@@ -175,6 +178,22 @@ class Surface(object):
             srcpixel += src._width - dstrowwidth
             dstpixel += self._width - dstrowwidth
 
+    def bitblt_scrolled(self, src, offset, op=rop_copy):
+        width = self.width
+        height = self.height
+        src_width = src.width
+        srcpixel = offset
+        dstpixel = 0
+        dst_pixels = self.pixels
+        src_pixels = src.pixels
+        for _ in xrange(height):
+            for _ in xrange(width):
+                dst_pixels[dstpixel] = op(dst_pixels[dstpixel],
+                                          src_pixels[srcpixel])
+                srcpixel += 1
+                dstpixel += 1
+            srcpixel += src_width - width
+
     # TODO: REFACTOR: Font rendering into Surfaces should be done
     # solely through fontlib.
     def text(self, font, x, y, text, rop=rop_copy):
@@ -205,7 +224,7 @@ class Surface(object):
         reader = png.Reader(filename)
         self._width, self._height, pixels, _ = reader.read_flat()
         self.pixels = bytearray(px for i, px in
-                                enumerate(reversed(pixels)) if i % 3 == 0)
+                                enumerate(pixels) if i % 3 == 0)
 
     def as_png_image(self):
         buf = StringIO.StringIO()
