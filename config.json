@@ -49,6 +49,7 @@
     }],
     // ["DitherTestPanel", {}],
     // ["AnimationTestPanel", {}],
+    ["ShootEmUpGamePanel", {}],
     ["RandomPodcastPanel", {
       "title": "Domian",
       "url": "http://domian.alpha-labs.net/domian.rss"
