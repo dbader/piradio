@@ -8,7 +8,7 @@ An internet radio based on the Raspberry Pi.
 Meta
 ----
 
-Daniel Bader – `@dbader_org <https://twitter.com/dbader_org>`_ – mail@dbader.org
+Daniel Bader – [@dbader_org](https://twitter.com/dbader_org>) – mail@dbader.org
 
 Distributed under the MIT license. See ``LICENSE.txt`` for more information.
 
