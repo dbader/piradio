@@ -12,6 +12,7 @@ Development Setup (OS X)
     $ brew install mpd
     $ brew install sdl sdl_image sdl_mixer sdl_ttf portmidi
     $ brew install mercurial
+    $ gem install mvg-live
     $ cp mpdconf.example.osx ~/.mpdconf
     $ virtualenv venv
     $ . venv/bin/activate
