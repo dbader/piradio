@@ -21,7 +21,7 @@ BACKGROUND_IMAGE = os.path.join(os.getcwd(), 'assets',
                                 'simulator-frontplate.png')
 
 VISUALIZE_KEYPRESSES = True
-RENDER_DELAY = 0.05
+RENDER_DELAY = 0.0 # 0.05
 
 keymap = [
     pygame.K_LEFT,

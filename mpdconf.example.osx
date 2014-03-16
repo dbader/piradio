@@ -1,0 +1,27 @@
+#http://www.tamps.cinvestav.mx/~gtoscano/files/mpd.conf
+
+port                    "6600"
+bind_to_address         "localhost"
+music_directory         "~/music"
+playlist_directory      "~/.mpd/playlists"
+db_file                 "~/.mpd/mpd.db"
+log_file                "~/.mpd/mpd.log"
+
+audio_output {
+        type            "osx"
+        name            "osx_output"
+        mixer_type      "software"
+}
+
+# This specifies the size of the audio buffer in kibibytes.
+# The default is 2048, large enough for nearly 12 seconds of CD-quality audio.
+# audio_buffer_size               "4096"
+
+# This specifies how much of the audio buffer should be filled
+# before playing a song. Try increasing this if you hear skipping
+# when manually changing songs.
+# The default is 10%, a little over 1 second of CD-quality
+# audio with the default buffer size.
+# buffer_before_play              "90%"
+
+samplerate_converter "0"

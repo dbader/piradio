@@ -1,3 +1,6 @@
 freetype-py==1.0
 pypng==0.0.14
 python-mpd2==0.4.4
+PIL==1.1.7
+bottle==0.12.5
+hg+http://bitbucket.org/pygame/pygame
